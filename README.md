@@ -73,3 +73,9 @@ npm run build    # static site in dist/ (open from any folder or host on GitHub 
 ## Adding a generator
 
 Write a `Generator` (see `src/gen/types.ts`) with the lesson codes it practices and a `generate(rng, options)` function that returns a problem. Use the seeded `rng` for all randomness so that test versions can be reproduced. Then add it to the unit's list. `src/gen/generators.test.ts` automatically checks every generator across many seeds.
+
+## Hosting (GitHub Pages)
+
+`.github/workflows/deploy-pages.yml` builds, tests and publishes the site on every push to `main`. It can also be run by hand from the Actions tab. The site is served at <https://bradfordbhill.github.io/testbuilder/>.
+
+One-time setup: in the repository's **Settings → Pages**, set **Source** to **GitHub Actions**.
