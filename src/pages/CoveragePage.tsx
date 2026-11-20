@@ -2,7 +2,7 @@ import { ChevronDown, ChevronRight, FilePlus2, Library, Sparkles } from 'lucide-
 import { useMemo, useState } from 'react'
 import { LessonChips } from '../components/QuestionRow'
 import { generators, questionTypes } from '../gen'
-import { catalog, type CoverageMode, coverageMode, GROUP_LABELS, type ProblemType } from '../lib/catalog'
+import { catalog, type CoverageMode, coverageMode, FORMAT_SUPPORT, GROUP_LABELS, type ProblemType } from '../lib/catalog'
 import { href } from '../router'
 import { useStore } from '../store/store'
 
@@ -164,7 +164,14 @@ function TypeDetail({ t, gens }: { t: ProblemType; gens: string[] }) {
       <p>{t.task}</p>
       <div className="cov-grid">
         <div>
-          <span className="field-label">Formats</span> {t.formats.map((f) => f.replace(/_/g, ' ')).join(' · ')}
+          <span className="field-label">Formats</span>
+          <span className="fmt-chips">
+            {t.formats.map((f) => (
+              <span key={f} className={`fmt-chip ${FORMAT_SUPPORT[f] ? 'ok' : ''}`} title={FORMAT_SUPPORT[f] ? `In the app: ${FORMAT_SUPPORT[f]}` : 'Classroom activity (not a printed format)'}>
+                {f.replace(/_/g, ' ')}
+              </span>
+            ))}
+          </span>
         </div>
         <div>
           <span className="field-label">Answer format</span> {t.answerFormat}

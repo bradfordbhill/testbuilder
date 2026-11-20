@@ -5,7 +5,7 @@ import { hashString, QuestionView } from '../components/QuestionView'
 import { questionForVersion } from '../gen'
 import { versionLetter } from '../lib/mathfmt'
 import { makeRng, mixSeed } from '../lib/rng'
-import type { Question, Test } from '../model/types'
+import type { Question, SharedStem, Test, TestItem } from '../model/types'
 import { href } from '../router'
 import { useStore } from '../store/store'
 import { itemPoints } from './TestPages'
@@ -21,19 +21,30 @@ export interface RenderedItem {
 export function versionItems(test: Test, questions: Record<string, Question>, v: number) {
   let n = 0
   return test.sections.map((sec) => {
-    let items = sec.items.filter((it) => questions[it.questionId])
-    if (v > 0 && test.shuffleQuestions) items = makeRng(mixSeed(hashString(test.id), v, test.versionSalt, 11)).shuffle(items)
+    const items = sec.items.filter((it) => questions[it.questionId])
+    // Items sharing a stem stay together (and in order) when question order is shuffled.
+    let units: TestItem[][] = []
+    for (let i = 0; i < items.length; ) {
+      const span = items[i].stem ? Math.max(1, Math.min(items[i].stem!.count, items.length - i)) : 1
+      units.push(items.slice(i, i + span))
+      i += span
+    }
+    if (v > 0 && test.shuffleQuestions) units = makeRng(mixSeed(hashString(test.id), v, test.versionSalt, 11)).shuffle(units)
     return {
       section: sec,
-      items: items.map((it) => {
-        const base = questions[it.questionId]
-        return {
-          q: questionForVersion(base, v, test.versionSalt),
-          points: itemPoints(it, base),
-          pageBreakBefore: it.pageBreakBefore,
-          number: ++n,
-        }
-      }),
+      items: units.flatMap((unit) =>
+        unit.map((it, k) => {
+          const base = questions[it.questionId]
+          const number = ++n
+          return {
+            q: questionForVersion(base, v, test.versionSalt),
+            points: itemPoints(it, base),
+            pageBreakBefore: it.pageBreakBefore,
+            number,
+            stem: k === 0 && it.stem ? { ...it.stem, from: number, to: number + unit.length - 1 } : undefined,
+          }
+        }),
+      ),
     }
   })
 }
@@ -181,12 +192,33 @@ function TestDocument({
           )}
           {items.map((it) => (
             <div key={it.number} className={`print-item ${it.pageBreakBefore ? 'page-break' : ''}`}>
+              {it.stem && <StemBlock stem={it.stem} />}
               <DebugTag q={it.q} prefix={`#${it.number} `} />
               <QuestionView q={it.q} number={it.number} points={it.points} showPoints={test.showPoints} mode={mode} version={v} showSolution={solutions} />
             </div>
           ))}
         </section>
       ))}
+    </div>
+  )
+}
+
+const BANK_LETTERS = 'abcdefghij'
+
+/** "(#5–8)" range tag, shared stem text and optional answer bank. */
+export function StemBlock({ stem }: { stem: SharedStem & { from: number; to: number } }) {
+  return (
+    <div className="stem-block">
+      <MathText text={`_(#${stem.from}${stem.to > stem.from ? `–${stem.to}` : ''})_ ${stem.text}`} />
+      {stem.bank && stem.bank.length > 0 && (
+        <div className="answer-bank">
+          {stem.bank.map((b, i) => (
+            <span key={i}>
+              <strong>{BANK_LETTERS[i]}.</strong> <MathText text={b} inline />
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

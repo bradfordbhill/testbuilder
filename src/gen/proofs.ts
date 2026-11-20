@@ -4,7 +4,7 @@ import { diagram, type DiagramBuilder } from '../diagram/build'
 import { polar } from '../diagram/geom'
 import type { Rng } from '../lib/rng'
 import type { ProofRow } from '../model/types'
-import { ans, type GenOption, type Generator, letters } from './types'
+import { type GenOption, type Generator, letters } from './types'
 import { applyBlanks, proofModeOption } from './unit2'
 
 const seg = (a: string, b: string) => `\\overline{${a}${b}}`
@@ -335,23 +335,30 @@ export const proofOrder: Generator = {
   types: ['PRF.ORDER_STEPS'],
   title: 'Put the proof in order',
   lessons: ['2B.6', '2B.10', '2C.13'],
-  description: 'The statements and reasons of a proof are scrambled; students write the letters in a valid order.',
-  options: [templateOption],
+  description: 'The statements and reasons of a proof are scrambled (differently on each form); students write the letters in a valid order.',
+  options: [
+    templateOption,
+    {
+      key: 'fixFirst',
+      label: 'First step',
+      default: 'no',
+      choices: [
+        { value: 'no', label: 'Scrambled too' },
+        { value: 'yes', label: 'Keep “Given” first' },
+      ],
+    },
+  ],
   generate(rng, opts) {
     const t = pickTemplate(rng, opts.template)
     const { given, prove, rows, diagram: d } = t.build(rng)
-    const order = rng.shuffle(rows.map((_, i) => i))
-    const L = 'ABCDEFGHIJ'
-    const lines = order.map((ri, k) => `**${L[k]}.** ${rows[ri].statement}  — _${rows[ri].reason}_`).join('\n')
-    const answer = rows.map((_, ri) => L[order.indexOf(ri)]).join(', ')
     return {
-      type: 'short',
+      type: 'order',
       types: ['PRF.ORDER_STEPS'],
-      prompt: `**Given:** ${given}\n**Prove:** ${prove}\n\nThe steps of the proof are scrambled. Write the letters in an order that makes a valid proof.\n\n${lines}`,
+      prompt: `**Given:** ${given}\n**Prove:** ${prove}\n\nThe steps of the proof are scrambled. Write the letters in an order that makes a valid proof.`,
       diagram: d.build(200),
-      answers: [ans('\\text{Order}', `\\text{${answer}}`)],
+      items: rows.map((r) => `${r.statement}  — _${r.reason}_`),
+      fixFirst: opts.fixFirst === 'yes' || undefined,
       solution: 'Other orders are correct if every statement only uses statements above it.',
-      workLines: 1,
     }
   },
 }
@@ -389,13 +396,14 @@ export const proofCritique: Generator = {
     const shown = rows.map((r, i) => (i === flaw.row ? { ...r, reason: flaw.wrong } : r))
     const name = rng.pick(NAMES)
     return {
-      type: 'short',
+      type: 'error',
       types: ['PRF.CRITIQUE'],
-      prompt: `**Given:** ${given}\n**Prove:** ${prove}\n\n${name} wrote this proof. Exactly one reason is wrong. Name the step, explain the error, and write the correct reason.\n\n${proofLines(shown)}`,
+      prompt: `**Given:** ${given}\n**Prove:** ${prove}\n\nExactly one reason in ${name}’s proof is wrong. Name the step, explain the error, and write the correct reason.`,
       diagram: d.build(200),
-      answers: [ans('\\text{Step}', flaw.row + 1), ans('\\text{Correct reason}', `\\text{${rows[flaw.row].reason}}`)],
-      solution: flaw.why,
-      workLines: 3,
+      studentName: name,
+      work: proofLines(shown),
+      answer: `Step ${flaw.row + 1}. ${flaw.why} Correct reason: ${rows[flaw.row].reason}.`,
+      workLines: 4,
     }
   },
 }
@@ -473,11 +481,16 @@ export const converseGen: Generator = {
     const pool = CONVERSES.filter((c) => !opts.truth || opts.truth === 'any' || String(c.truth) === opts.truth)
     const c = rng.pick(pool)
     return {
-      type: 'free',
+      type: 'decide',
       types: c.truth ? ['PRF.CONVERSE'] : ['PRF.CONVERSE', 'PRF.COUNTEREXAMPLE'],
-      prompt: `${c.stmt}\n\n(a) Write the converse.\n\n(b) Is the converse true? If it is true, explain why. If it is false, give a counterexample.`,
-      answer: `(a) ${c.converse}\n\n(b) ${c.truth ? 'True.' : 'False.'} ${c.why}`,
-      workLines: 6,
+      lessons: c.lessons,
+      prompt: `${c.stmt}\n\n(a) Write the converse.\n\n(b) Is the converse true?`,
+      workLines: 3,
+      choices: ['True', 'False'],
+      correct: c.truth ? 0 : 1,
+      justifyLabel: 'If true, explain why; if false, give a counterexample',
+      justification: `(a) ${c.converse} (b) ${c.why}`,
+      justifyLines: 3,
     }
   },
 }

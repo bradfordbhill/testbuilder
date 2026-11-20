@@ -4,6 +4,8 @@ import type { Rng } from '../lib/rng'
 interface Common {
   /** Overrides the generator's catalog types for this particular problem (e.g. by template). */
   types?: string[]
+  /** Overrides the generator's lessons for this particular problem. */
+  lessons?: string[]
   prompt: string
   diagram?: Diagram
   diagramPos?: 'right' | 'below'
@@ -15,19 +17,26 @@ export type GenProblem =
   | (Common & {
       type: 'short'
       answers: AnswerPart[]
+      layout?: 'labeled' | 'pair'
       /** Wrong answers (LaTeX) so the problem can be offered as multiple choice. */
       distractors?: string[]
     })
   | (Common & { type: 'free'; answer: string })
   | (Common & { type: 'mc'; choices: string[]; correct: number })
-  | (Common & { type: 'tf'; mode: 'tf' | 'asn'; items: TFItem[]; requireJustification?: boolean })
+  | (Common & { type: 'tf'; mode: 'tf' | 'asn' | 'mcc'; style?: 'blank' | 'choices'; items: TFItem[]; requireJustification?: boolean })
   | (Common & { type: 'matching'; pairs: MatchPair[]; distractors?: string[] })
+  | (Common & { type: 'select'; choices: string[]; correct: number[]; shuffle?: boolean })
+  | (Common & { type: 'decide'; choices: string[]; correct: number; justification: string; justifyLabel?: string; justifyLines?: number })
+  | (Common & { type: 'cloze'; text: string; wordBank?: boolean; extraWords?: string[] })
+  | (Common & { type: 'order'; items: string[]; fixFirst?: boolean })
+  | (Common & { type: 'error'; studentName: string; work: string; answer: string })
+  | (Common & { type: 'table'; headers: string[]; rows: { value: string; given: boolean }[][] })
   | (Common & {
       type: 'proof'
       given: string
       prove: string
       rows: ProofRow[]
-      format: 'two-column' | 'paragraph'
+      format: 'two-column' | 'paragraph' | 'any'
     })
 
 export interface GenOption {
@@ -130,4 +139,15 @@ export function numericDistractors(rng: Rng, correct: number, candidates: number
     k++
   }
   return out
+}
+
+/** How true/false-style items print: a blank before each, or choices to circle (T/F written as MC). */
+export const styleOption: GenOption = {
+  key: 'style',
+  label: 'Print as',
+  default: 'blank',
+  choices: [
+    { value: 'blank', label: 'Blank before each' },
+    { value: 'choices', label: 'Choices to circle' },
+  ],
 }

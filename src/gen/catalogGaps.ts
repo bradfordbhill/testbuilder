@@ -5,7 +5,7 @@ import { fixed, fmt, fracLatex, gcd, lin, toDeg, toRad } from '../lib/mathfmt'
 import type { Rng } from '../lib/rng'
 import type { TFItem } from '../model/types'
 import { rot, triangleFromSides } from './helpers'
-import { ans, type Generator, letters, linearFor } from './types'
+import { ans, type Generator, letters, linearFor, styleOption } from './types'
 import { splitterFigure } from './unit3'
 
 const seg = (a: string, b: string) => `\\overline{${a}${b}}`
@@ -321,7 +321,18 @@ export const enoughInfo: Generator = {
   title: 'Must the triangles be congruent? (enough information)',
   lessons: ['2B.6', '2B.7', '2B.9', '2B.11'],
   description: 'Given three congruence facts in words and symbols (no figure), decide whether the triangles must be congruent and by which criterion; SSA and AAA are “not necessarily”.',
-  generate(rng) {
+  options: [
+    {
+      key: 'format',
+      label: 'Format',
+      default: 'mc',
+      choices: [
+        { value: 'mc', label: 'Multiple choice (criterion)' },
+        { value: 'decide', label: 'Must / might: decide and justify' },
+      ],
+    },
+  ],
+  generate(rng, opts) {
     const [A, B, C, D, E, F] = letters(rng, 6)
     // Correspondence A↔D, B↔E, C↔F. Sides: AB↔DE, BC↔EF, CA↔FD. Angles at each vertex.
     const sides: [string, string][] = [
@@ -351,6 +362,20 @@ export const enoughInfo: Generator = {
     facts = rng.shuffle(facts)
     const choices = ['\\text{Yes, by SSS}', '\\text{Yes, by SAS}', '\\text{Yes, by ASA}', '\\text{Not necessarily}']
     const correct = kind === 'SSS' ? 0 : kind === 'SAS' ? 1 : kind === 'ASA' ? 2 : 3
+    if (opts.format === 'decide') {
+      return {
+        type: 'decide',
+        prompt: `In $\\triangle ${A}${B}${C}$ and $\\triangle ${D}${E}${F}$: $${facts.join('$, $')}$. Must the triangles be congruent, or might they not be?`,
+        choices: ['Must be congruent', 'Might not be congruent'],
+        correct: correct === 3 ? 1 : 0,
+        justifyLabel: correct === 3 ? 'Counterexample' : 'Criterion and reason',
+        justification:
+          correct === 3
+            ? `${kind} is not a criterion. Sketch two triangles with these parts that are not congruent (${kind === 'SSA' ? 'the side opposite the angle can swing to two positions' : 'a triangle and a dilated copy'}).`
+            : `Must: ${kind}${kind === 'SAS' ? ' (the angle is between the two sides)' : kind === 'ASA' ? ' (the side is between the two angles)' : ''}.`,
+        justifyLines: 4,
+      }
+    }
     return {
       type: 'mc',
       prompt: `In $\\triangle ${A}${B}${C}$ and $\\triangle ${D}${E}${F}$: $${facts.join('$, $')}$. Must $\\triangle ${A}${B}${C} \\cong \\triangle ${D}${E}${F}$?`,
@@ -470,11 +495,50 @@ export const quadMustCouldCant: Generator = {
   title: 'Must, could, or can’t be (quadrilaterals)',
   lessons: ['2C.12', '2C.14', '2D.15'],
   description: 'Given facts about a quadrilateral, decide whether it must, could, or can’t be a given type. Trapezoid exclusive; kite inclusive.',
-  generate(rng) {
+  options: [
+    {
+      key: 'format',
+      label: 'Format',
+      default: 'list',
+      choices: [
+        { value: 'list', label: 'Must / could / can’t list (M, C, N)' },
+        { value: 'decide', label: 'One item: decide and justify' },
+        { value: 'mc', label: 'One item: multiple choice' },
+      ],
+    },
+    { key: 'count', label: 'Items (list)', default: '4', choices: ['3', '4', '5', '6'].map((v) => ({ value: v, label: v })) },
+  ],
+  generate(rng, opts) {
+    if ((opts.format ?? 'list') === 'list') {
+      const pool = QUAD_MCC.flatMap((it) => it.targets.map((t) => ({ facts: it.facts, t })))
+      const picked = rng.shuffle(pool).slice(0, Number(opts.count || 4))
+      return {
+        type: 'tf',
+        mode: 'mcc',
+        prompt: 'Decide whether each figure must be, could be (but doesn’t have to be), or can’t be the named type.',
+        items: picked.map(({ facts, t: [target, a, why] }) => ({
+          text: `${facts[0].toUpperCase()}${facts.slice(1)} — ${/^[aeiou]/.test(target) ? 'an' : 'a'} ${target}?`,
+          answer: a === 'must' ? 'M' : a === 'could' ? 'C' : 'X',
+          explanation: why,
+        })),
+        requireJustification: false,
+      }
+    }
     const item = rng.pick(QUAD_MCC)
     const [target, answer, why] = rng.pick(item.targets)
     const an = /^[aeiou]/.test(target) ? 'an' : 'a'
     const choices = [`It must be ${an} ${target}.`, `It could be ${an} ${target}, but it doesn’t have to be.`, `It can’t be ${an} ${target}.`]
+    if (opts.format === 'decide') {
+      return {
+        type: 'decide',
+        prompt: `A figure is ${item.facts}. Must it be ${an} ${target}, could it be, or can’t it be?`,
+        choices: ['Must be', 'Could be', 'Can’t be'],
+        correct: answer === 'must' ? 0 : answer === 'could' ? 1 : 2,
+        justifyLabel: answer === 'could' ? 'Explain, with an example and a counterexample' : 'Justify',
+        justification: why,
+        justifyLines: 3,
+      }
+    }
     return {
       type: 'mc',
       prompt: `A figure is ${item.facts}. Which is true? Justify your choice.`,
@@ -509,14 +573,13 @@ export const quadSelectProperties: Generator = {
   generate(rng) {
     const p = rng.pick(QUAD_PROPS)
     const list = rng.shuffle(QUADS)
-    const letters7 = list.map((q, i) => `(${L7[i]}) ${q}`).join(' ')
-    const correct = list.map((q, i) => (p.has.includes(q) ? L7[i] : null)).filter(Boolean).join(', ')
     return {
-      type: 'short',
-      prompt: `Select **all** quadrilaterals that always have ${p.prop}.\n\n${letters7}`,
-      answers: [ans('\\text{Answer}', `\\text{${correct}}`)],
+      type: 'select',
+      prompt: `Which quadrilaterals always have ${p.prop}?`,
+      choices: list,
+      correct: list.map((q, i) => (p.has.includes(q) ? i : -1)).filter((i) => i >= 0),
+      shuffle: true,
       solution: `Trapezoids are exclusive (exactly one pair of parallel sides); a rhombus is a kite and a square is both a rectangle and a rhombus.`,
-      workLines: 1,
     }
   },
 }
@@ -733,12 +796,15 @@ export const dilationProperties: Generator = {
   title: 'What a dilation preserves (true/false)',
   lessons: ['3A.3', '3A.4'],
   description: 'True/false statements about lines, angles, lengths, areas and the center under dilations.',
-  options: [{ key: 'count', label: 'Statements', default: '5', choices: ['4', '5', '6', '8'].map((v) => ({ value: v, label: v })) }],
+  options: [
+    styleOption,
+    { key: 'count', label: 'Statements', default: '5', choices: ['4', '5', '6', '8'].map((v) => ({ value: v, label: v })) }],
   generate(rng, opts) {
     return {
       type: 'tf',
+      style: (opts.style as 'blank' | 'choices') || 'blank',
       mode: 'tf',
-      prompt: 'Write T if the statement is always true. Otherwise write F and correct it.',
+      prompt: opts.style === 'choices' ? 'Circle the correct choice for each statement.' : 'Write T if the statement is always true. Otherwise write F and correct it.',
       items: rng.shuffle(DILATION_TF).slice(0, Number(opts.count || 5)),
       requireJustification: true,
     }
@@ -840,12 +906,15 @@ export const similarityASN: Generator = {
   title: 'Always, sometimes, never: similar figures',
   lessons: ['3B.8'],
   description: 'Are two figures from a family always, sometimes, or never similar? (equilateral triangles, rectangles, circles, regular polygons…)',
-  options: [{ key: 'count', label: 'Statements', default: '5', choices: ['4', '5', '6', '8'].map((v) => ({ value: v, label: v })) }],
+  options: [
+    styleOption,
+    { key: 'count', label: 'Statements', default: '5', choices: ['4', '5', '6', '8'].map((v) => ({ value: v, label: v })) }],
   generate(rng, opts) {
     return {
       type: 'tf',
+      style: (opts.style as 'blank' | 'choices') || 'blank',
       mode: 'asn',
-      prompt: 'Write A (always), S (sometimes), or N (never). Justify each in a sentence or with a counterexample.',
+      prompt: opts.style === 'choices' ? 'Circle the correct choice for each statement.' : 'Write A (always), S (sometimes), or N (never). Justify each in a sentence or with a counterexample.',
       items: rng.shuffle(SIM_ASN).slice(0, Number(opts.count || 5)),
       requireJustification: true,
     }

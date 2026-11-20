@@ -79,6 +79,33 @@ describe('generators', () => {
             case 'matching':
               expect(p.pairs.length).toBeGreaterThan(1)
               break
+            case 'select':
+              expect(p.correct.length, where).toBeGreaterThan(0)
+              expect(p.correct.every((i) => i >= 0 && i < p.choices.length), where).toBe(true)
+              expect(new Set(p.choices).size, where).toBe(p.choices.length)
+              break
+            case 'decide':
+              expect(p.correct).toBeGreaterThanOrEqual(0)
+              expect(p.correct).toBeLessThan(p.choices.length)
+              checkText(where, p.justification)
+              break
+            case 'cloze':
+              expect(p.text, where).toMatch(/\[\[.+?\]\]/)
+              checkText(where, p.text)
+              break
+            case 'order':
+              expect(p.items.length, where).toBeGreaterThan(2)
+              p.items.forEach((it) => checkText(where, it))
+              break
+            case 'error':
+              expect(p.work.length, where).toBeGreaterThan(5)
+              checkText(where, p.work)
+              checkText(where, p.answer)
+              break
+            case 'table':
+              expect(p.rows.every((r) => r.length === p.headers.length), where).toBe(true)
+              expect(p.rows.flat().some((c) => !c.given), where).toBe(true)
+              break
             case 'proof':
               expect(p.rows.length).toBeGreaterThan(1)
               p.rows.forEach((r) => {

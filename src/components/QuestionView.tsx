@@ -1,6 +1,6 @@
 import { DiagramView } from '../diagram/DiagramView'
 import { makeRng, mixSeed } from '../lib/rng'
-import type { MatchingQuestion, MCQuestion, Question } from '../model/types'
+import type { MatchingQuestion, MCQuestion, OrderQuestion, Question, SelectQuestion } from '../model/types'
 import { MathText, Tex } from './MathText'
 
 export function hashString(s: string): number {
@@ -86,9 +86,86 @@ function WorkSpace({ lines }: { lines?: number }) {
   return <div className="workspace" style={{ height: `calc(${lines * 0.32}in * var(--work-scale, 1))` }} />
 }
 
+const TF_OPTIONS: Record<'tf' | 'asn' | 'mcc', { code: string; word: string }[]> = {
+  tf: [
+    { code: 'T', word: 'True' },
+    { code: 'F', word: 'False' },
+  ],
+  asn: [
+    { code: 'A', word: 'Always' },
+    { code: 'S', word: 'Sometimes' },
+    { code: 'N', word: 'Never' },
+  ],
+  mcc: [
+    { code: 'M', word: 'Must be' },
+    { code: 'C', word: 'Could be' },
+    { code: 'X', word: 'Can’t be' },
+  ],
+}
+
+/** Print code for a TF/ASN/MCC answer (the "can't" code prints as N). */
+const tfCode = (mode: 'tf' | 'asn' | 'mcc', a: string) => (mode === 'mcc' && a === 'X' ? 'N' : a)
+
+/** Select-all choice order (indices) for a question/version. */
+export function selectOrder(q: SelectQuestion, version: number): number[] {
+  const idx = q.choices.map((_, i) => i)
+  return q.shuffle ? makeRng(mixSeed(hashString(q.id), version, 7)).shuffle(idx) : idx
+}
+
+/** Scrambled order of steps (indices into q.items) for a put-in-order question. */
+export function orderScramble(q: OrderQuestion, version: number): number[] {
+  const idx = q.items.map((_, i) => i)
+  const rng = makeRng(mixSeed(hashString(q.id), version, 9))
+  if (q.fixFirst) return [0, ...rng.shuffle(idx.slice(1))]
+  let out = rng.shuffle(idx)
+  // Never print the steps already in order.
+  for (let k = 0; k < 5 && out.every((v, i) => v === i) && out.length > 1; k++) out = rng.shuffle(idx)
+  return out
+}
+
+/** Split cloze text into literal text and [[answer]] blanks. */
+export function clozeParts(text: string): { text?: string; blank?: string }[] {
+  const out: { text?: string; blank?: string }[] = []
+  const re = /\[\[([\s\S]+?)\]\]/g
+  let last = 0
+  let m: RegExpExecArray | null
+  while ((m = re.exec(text))) {
+    if (m.index > last) out.push({ text: text.slice(last, m.index) })
+    out.push({ blank: m[1] })
+    last = m.index + m[0].length
+  }
+  if (last < text.length) out.push({ text: text.slice(last) })
+  return out
+}
+
+function Lines({ n, label }: { n: number; label?: string }) {
+  return (
+    <div className="write-lines">
+      {label && <div className="lines-label">{label}:</div>}
+      {Array.from({ length: n }, (_, i) => (
+        <div key={i} className="write-line" />
+      ))}
+    </div>
+  )
+}
+
 function Body({ q, keyMode, version }: { q: Question; keyMode: boolean; version: number }) {
   switch (q.type) {
     case 'short':
+      if (q.layout === 'pair') {
+        return (
+          <>
+            {!keyMode && <WorkSpace lines={q.workLines} />}
+            <div className="answer-blanks">
+              <span className="answer-blank">
+                Answer:{' '}
+                <span className={`blank ${keyMode ? 'filled' : ''}`}>{keyMode && q.answers[0] ? <Tex tex={q.answers[0].value} /> : ' '}</span> and{' '}
+                <span className={`blank ${keyMode ? 'filled' : ''}`}>{keyMode && q.answers[1] ? <Tex tex={q.answers[1].value} /> : ' '}</span>
+              </span>
+            </div>
+          </>
+        )
+      }
       return (
         <>
           {!keyMode && <WorkSpace lines={q.workLines} />}
@@ -117,7 +194,7 @@ function Body({ q, keyMode, version }: { q: Question; keyMode: boolean; version:
       )
     case 'proof': {
       const n = keyMode ? q.rows.length : Math.max(q.studentRows ?? q.rows.length, 1)
-      if (q.format === 'paragraph') {
+      if (q.format === 'paragraph' || (q.format === 'any' && !keyMode)) {
         return keyMode ? (
           <div className="key-answer">
             {q.rows.map((r, i) => (
@@ -127,7 +204,10 @@ function Body({ q, keyMode, version }: { q: Question; keyMode: boolean; version:
             ))}
           </div>
         ) : (
-          <WorkSpace lines={q.workLines ?? 10} />
+          <>
+            {q.format === 'any' && <div className="format-note">Write your proof in any format: two-column, paragraph, or flow.</div>}
+            <WorkSpace lines={q.workLines ?? 12} />
+          </>
         )
       }
       return (
@@ -158,24 +238,44 @@ function Body({ q, keyMode, version }: { q: Question; keyMode: boolean; version:
         </table>
       )
     }
-    case 'tf':
+    case 'tf': {
+      const opts = TF_OPTIONS[q.mode ?? 'tf']
       return (
-        <ol className="tf-list">
-          {q.items.map((it, i) => (
-            <li key={i}>
-              <span className={`tf-blank ${keyMode ? 'filled' : ''}`}>{keyMode ? it.answer : ' '}</span>
-              <MathText text={it.text} inline />
-              {keyMode && it.explanation && (
-                <span className="key-note">
-                  {' '}
-                  — <MathText text={it.explanation} inline />
-                </span>
-              )}
-              {!keyMode && q.requireJustification && <div className="tf-just" />}
-            </li>
-          ))}
-        </ol>
+        <>
+          {q.mode === 'mcc' && q.style !== 'choices' && <div className="format-note">M = must be, C = could be, N = can’t be</div>}
+          <ol className={`tf-list ${q.style === 'choices' ? 'as-choices' : ''}`}>
+            {q.items.map((it, i) => (
+              <li key={i}>
+                {q.style === 'choices' ? (
+                  <>
+                    <MathText text={it.text} inline />
+                    <div className="tf-choices">
+                      {opts.map((o, k) => (
+                        <span key={o.code} className={keyMode && it.answer === o.code ? 'correct' : ''}>
+                          <span className="mc-letter">{'abcdef'[k]}.</span> {o.word}
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className={`tf-blank ${keyMode ? 'filled' : ''}`}>{keyMode ? tfCode(q.mode ?? 'tf', it.answer) : ' '}</span>
+                    <MathText text={it.text} inline />
+                  </>
+                )}
+                {keyMode && it.explanation && (
+                  <span className="key-note">
+                    {' '}
+                    — <MathText text={it.explanation} inline />
+                  </span>
+                )}
+                {!keyMode && q.requireJustification && <div className="tf-just" />}
+              </li>
+            ))}
+          </ol>
+        </>
       )
+    }
     case 'matching': {
       const order = matchingOrder(q, version)
       return (
@@ -213,6 +313,136 @@ function Body({ q, keyMode, version }: { q: Question; keyMode: boolean; version:
         </>
       )
     }
+    case 'select': {
+      const order = selectOrder(q, version)
+      return (
+        <>
+          <div className="format-note">
+            Select <u>all</u> that apply.
+          </div>
+          {!keyMode && <WorkSpace lines={q.workLines} />}
+          <ol className="mc-choices select-choices">
+            {order.map((ci, i) => (
+              <li key={i} className={keyMode && q.correct.includes(ci) ? 'correct' : ''}>
+                <span className="mc-letter">{LETTERS[i]}.</span> <MathText text={wrapMath(q.choices[ci])} inline />
+              </li>
+            ))}
+          </ol>
+        </>
+      )
+    }
+    case 'decide':
+      return (
+        <>
+          {!keyMode && <WorkSpace lines={q.workLines} />}
+          <div className="decide-choices">
+            <span className="muted-print">Circle one:</span>
+            {q.choices.map((c, i) => (
+              <span key={i} className={`decide-choice ${keyMode && i === q.correct ? 'correct' : ''}`}>
+                <MathText text={wrapMath(c)} inline />
+              </span>
+            ))}
+          </div>
+          {keyMode ? (
+            <div className="key-answer">
+              <strong>{q.justifyLabel || 'Justify'}:</strong> <MathText text={q.justification || '(see rubric)'} inline />
+            </div>
+          ) : (
+            <Lines n={q.justifyLines ?? 3} label={q.justifyLabel || 'Justify'} />
+          )}
+        </>
+      )
+    case 'cloze': {
+      const parts = clozeParts(q.text)
+      const answers = parts.filter((p) => p.blank).map((p) => p.blank!)
+      const bank = q.wordBank ? makeRng(mixSeed(hashString(q.id), version, 11)).shuffle([...answers, ...(q.extraWords ?? [])]) : []
+      let n = 0
+      return (
+        <>
+          {q.wordBank && (
+            <div className="word-bank">
+              {bank.map((w, i) => (
+                <span key={i}>
+                  <MathText text={w} inline />
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="cloze">
+            {parts.map((p, i) =>
+              p.text !== undefined ? (
+                <MathText key={i} text={p.text} inline />
+              ) : (
+                <span key={i} className={`cloze-blank ${keyMode ? 'filled' : ''}`} style={{ minWidth: `${Math.min(3.6, 0.9 + p.blank!.length * 0.07)}in` }}>
+                  {keyMode ? <MathText text={p.blank!} inline /> : <span className="blank-num">{++n}</span>}
+                </span>
+              ),
+            )}
+          </div>
+        </>
+      )
+    }
+    case 'order': {
+      const scr = orderScramble(q, version)
+      const answer = q.items.map((_, ii) => LETTERS[scr.indexOf(ii)]).join(', ')
+      return (
+        <>
+          <ol className="order-items">
+            {scr.map((ii, k) => (
+              <li key={k}>
+                <span className="mc-letter">{LETTERS[k]}.</span> <MathText text={q.items[ii]} inline />
+              </li>
+            ))}
+          </ol>
+          <div className="answer-blanks">
+            <span className="answer-blank">
+              Order: <span className={`blank long ${keyMode ? 'filled' : ''}`}>{keyMode ? answer : ' '}</span>
+            </span>
+          </div>
+        </>
+      )
+    }
+    case 'error':
+      return (
+        <>
+          <div className="student-work">
+            <div className="student-work-label">{q.studentName || 'Student'}’s work</div>
+            <MathText text={q.work} />
+          </div>
+          {keyMode ? (
+            <div className="key-answer">
+              <MathText text={q.answer || '(see rubric)'} />
+            </div>
+          ) : (
+            <WorkSpace lines={q.workLines ?? 5} />
+          )}
+        </>
+      )
+    case 'table':
+      return (
+        <table className="fill-table">
+          <thead>
+            <tr>
+              {q.headers.map((h, i) => (
+                <th key={i}>
+                  <MathText text={h} inline />
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {q.rows.map((row, r) => (
+              <tr key={r}>
+                {row.map((c, k) => (
+                  <td key={k} className={!c.given && keyMode ? 'key-fill' : ''}>
+                    {c.given || keyMode ? <MathText text={wrapMath(c.value)} inline /> : ' '}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )
   }
 }
 

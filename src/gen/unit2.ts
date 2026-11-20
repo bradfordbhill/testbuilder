@@ -4,7 +4,7 @@ import { degLabel, lin } from '../lib/mathfmt'
 import type { Rng } from '../lib/rng'
 import type { ProofRow, TFItem } from '../model/types'
 import { rot, triangleFromAngles } from './helpers'
-import { ans, type GenOption, type Generator, letters, linearFor, numericDistractors, twoLinearFor } from './types'
+import { ans, type GenOption, type Generator, letters, linearFor, numericDistractors, styleOption, twoLinearFor } from './types'
 
 const seg = (a: string, b: string) => `\\overline{${a}${b}}`
 const ang = (a: string) => `\\angle ${a}`
@@ -519,6 +519,7 @@ export const quadHierarchy: Generator = {
   lessons: ['2C.12', '2C.13', '2C.14'],
   description: 'Statements about parallelograms, rectangles, rhombuses, squares, kites, and (exclusive) trapezoids.',
   options: [
+    styleOption,
     asnOption,
     {
       key: 'count',
@@ -534,8 +535,9 @@ export const quadHierarchy: Generator = {
     if (mode === 'asn') {
       return {
         type: 'tf',
+      style: (opts.style as 'blank' | 'choices') || 'blank',
         mode: 'asn',
-        prompt: 'Write A if the statement is always true, S if it is sometimes true, or N if it is never true.',
+        prompt: opts.style === 'choices' ? 'Circle the correct choice for each statement.' : 'Write A if the statement is always true, S if it is sometimes true, or N if it is never true.',
         items: picked,
         requireJustification: false,
       }
@@ -543,8 +545,9 @@ export const quadHierarchy: Generator = {
     // TF: "always" statements are true; "never" statements false; "sometimes" statements are false as universal claims.
     return {
       type: 'tf',
+      style: (opts.style as 'blank' | 'choices') || 'blank',
       mode: 'tf',
-      prompt: 'Write T if the statement is always true. Otherwise write F and give a counterexample or correction.',
+      prompt: opts.style === 'choices' ? 'Circle the correct choice for each statement.' : 'Write T if the statement is always true. Otherwise write F and give a counterexample or correction.',
       items: picked.map((f) => ({ ...f, answer: f.answer === 'A' ? 'T' : 'F' })),
       requireJustification: true,
     }

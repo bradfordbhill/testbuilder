@@ -5,15 +5,22 @@ A browser-only app for building geometry tests and quizzes for UHS Honors Geomet
 
 ## Features
 
-- **Add question**: six question types:
-  - short / numeric answer
+- **Add question**: twelve response formats:
+  - short / numeric answer, with a “label = ___” or “Answer: ___ and ___” layout
   - free response
-  - two-column or paragraph proof, with fill-in-the-blank cells
-  - True/False or Always/Sometimes/Never
+  - proof: two-column, paragraph, or any format (student chooses); cells can be hidden for fill-in proofs
+  - True/False, Always/Sometimes/Never, or Must/Could/Can’t, printed as blanks or as choices to circle
   - matching
   - multiple choice
+  - select all that apply
+  - decide and justify (yes/no, true/false, must/could/can’t… then a reason or counterexample)
+  - fill in the blanks (answers in `[[double brackets]]`, optional word bank)
+  - put in order (steps print scrambled differently on each form)
+  - error analysis (a named student’s work in a box; find and fix the mistake)
+  - fill-in table (e.g. Original | Image)
 
   Each question has a live student-copy and answer-key preview, a notation palette (∠, △, segment overline, ≅, ∼, ∥, ⊥, √, π…) and a worked-solution field.
+- **Shared stems and answer banks**: on a test, any question can start a shared stem that covers the next few items. It prints once as “(#5–8) …” with an optional answer bank (presets for congruence criteria, similarity criteria, A/S/N, angle pairs, which law). The group stays together when forms shuffle.
 - **Topics from the course map**: every question is tagged with lesson codes (e.g. `3B.9`). You pick them from a searchable list of units, sections and lessons. The list is built from `src/data/course-map.yaml`, so editing that file updates the app.
 - **Diagrams built in place**: start from a template or a blank canvas, then:
   - drag points
@@ -22,7 +29,7 @@ A browser-only app for building geometry tests and quizzes for UHS Honors Geomet
   - turn on a coordinate grid
 
   Labels are placed automatically and can be adjusted.
-- **Random problem generators (Units 1–4)**: 68 generators, with the algebra folded into the geometry. Many have options; for example, any short-answer problem with distractors can be turned into multiple choice. They cover:
+- **Random problem generators (Units 1–4)**: 70 generators, with the algebra folded into the geometry. Many have options; for example, any short-answer problem with distractors can be turned into multiple choice. They cover:
   - angle relationships and parallel lines (including the converse)
   - triangle angle sum and exterior angles
   - isosceles triangles

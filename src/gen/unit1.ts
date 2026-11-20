@@ -357,20 +357,27 @@ export const coordinateTransform: Generator = {
         { value: '2', label: 'Sequence of two' },
       ],
     },
+    {
+      key: 'format',
+      label: 'Answer as',
+      default: 'blanks',
+      choices: [
+        { value: 'blanks', label: 'Coordinate blanks' },
+        { value: 'table', label: 'Original | Image table' },
+      ],
+    },
   ],
   generate(rng, opts) {
     const steps = Number(opts.steps || 1)
     const [A, B, C] = letters(rng, 3)
-    const pts: [number, number][] = []
-    while (pts.length < 3) {
-      const p: [number, number] = [rng.int(-5, 5), rng.int(-5, 5)]
-      if (p[0] === 0 || p[1] === 0) continue
-      if (pts.some((q) => q[0] === p[0] && q[1] === p[1])) continue
-      pts.push(p)
+    // A well-shaped triangle (no slivers) off the axes.
+    let pts: [number, number][] = []
+    for (;;) {
+      pts = [0, 1, 2].map(() => [rng.intExcept(-5, 5, [0]), rng.intExcept(-5, 5, [0])] as [number, number])
+      const area = Math.abs((pts[1][0] - pts[0][0]) * (pts[2][1] - pts[0][1]) - (pts[2][0] - pts[0][0]) * (pts[1][1] - pts[0][1]))
+      const sides = [0, 1, 2].map((i) => Math.hypot(pts[i][0] - pts[(i + 1) % 3][0], pts[i][1] - pts[(i + 1) % 3][1]))
+      if (area >= 6 && Math.min(...sides) >= 2 && area / Math.max(...sides) ** 2 > 0.2) break
     }
-    // Avoid degenerate triangles.
-    const area = Math.abs((pts[1][0] - pts[0][0]) * (pts[2][1] - pts[0][1]) - (pts[2][0] - pts[0][0]) * (pts[1][1] - pts[0][1]))
-    if (area < 4) pts[2] = [pts[2][0] > 0 ? pts[2][0] - 3 : pts[2][0] + 3, -pts[2][1]]
     const chosen: Tf[] = []
     const descs: string[] = []
     for (let i = 0; i < steps; i++) {
@@ -394,6 +401,19 @@ export const coordinateTransform: Generator = {
       steps === 1
         ? `Triangle $${A}${B}${C}$ is transformed by a ${descs[0]}. Give the coordinates of $${A}${prime}$, $${B}${prime}$, and $${C}${prime}$, and draw the image.`
         : `Triangle $${A}${B}${C}$ is transformed by a ${descs[0]}, followed by a ${descs[1]}. Give the coordinates of $${A}${prime}$, $${B}${prime}$, and $${C}${prime}$, and draw the final image.`
+    if (opts.format === 'table') {
+      return {
+        type: 'table',
+        prompt: prompt.replace(/Give the coordinates of[^,]*, [^,]*, and [^ ]* /, 'Complete the table '),
+        diagram: d.build(250),
+        diagramPos: 'right',
+        headers: ['Original', `Image after ${steps === 1 ? 'the transformation' : 'both transformations'}`],
+        rows: [A, B, C].map((id, i) => [
+          { value: `$${id}(${pts[i][0]}, ${pts[i][1]})$`, given: true },
+          { value: `$${id}${prime}(${image[i][0]}, ${image[i][1]})$`, given: false },
+        ]),
+      }
+    }
     return {
       type: 'short',
       prompt,

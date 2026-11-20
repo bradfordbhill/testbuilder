@@ -12,7 +12,7 @@ function reproduce(code: string) {
 
 const strip = (q: object) => {
   const { prompt, diagram, ...rest } = q as Record<string, unknown>
-  const keep = ['answers', 'choices', 'correct', 'items', 'pairs', 'rows', 'given', 'prove', 'answer']
+  const keep = ['answers', 'choices', 'correct', 'items', 'pairs', 'rows', 'given', 'prove', 'answer', 'text', 'work', 'headers', 'justification']
   return JSON.stringify({ prompt, diagram, ...Object.fromEntries(keep.filter((k) => k in rest).map((k) => [k, rest[k]])) })
 }
 

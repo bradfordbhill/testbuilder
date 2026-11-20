@@ -119,15 +119,21 @@ export interface Diagram {
 
 // ---------------------------------------------------------------- Questions
 
-export type QuestionType = 'short' | 'free' | 'proof' | 'tf' | 'matching' | 'mc'
+export type QuestionType = 'short' | 'free' | 'proof' | 'tf' | 'matching' | 'mc' | 'select' | 'decide' | 'cloze' | 'order' | 'error' | 'table'
 
 export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   short: 'Short / numeric answer',
   free: 'Free response',
   proof: 'Proof',
-  tf: 'True/False · Always/Sometimes/Never',
+  tf: 'True/False · A/S/N · Must/Could/Can’t',
   matching: 'Matching',
   mc: 'Multiple choice',
+  select: 'Select all',
+  decide: 'Decide and justify',
+  cloze: 'Fill in the blanks',
+  order: 'Put in order',
+  error: 'Error analysis',
+  table: 'Fill-in table',
 }
 
 export interface GenRef {
@@ -175,6 +181,8 @@ interface QuestionBase {
 export interface ShortQuestion extends QuestionBase {
   type: 'short'
   answers: AnswerPart[]
+  /** "labeled": one "label = ___" blank per answer. "pair": a single "Answer: ___ and ___" line. */
+  layout?: 'labeled' | 'pair'
 }
 
 export interface FreeQuestion extends QuestionBase {
@@ -195,7 +203,8 @@ export interface ProofQuestion extends QuestionBase {
   type: 'proof'
   given: string
   prove: string
-  format: 'two-column' | 'paragraph'
+  /** any: students choose two-column, paragraph or flow. */
+  format: 'two-column' | 'paragraph' | 'any'
   rows: ProofRow[]
   /** Number of rows on the student copy (defaults to rows.length). */
   studentRows?: number
@@ -203,14 +212,16 @@ export interface ProofQuestion extends QuestionBase {
 
 export interface TFItem {
   text: string
-  /** For tf mode: 'T' | 'F'. For asn mode: 'A' | 'S' | 'N'. */
+  /** tf: 'T' | 'F'. asn: 'A' | 'S' | 'N'. mcc: 'M' | 'C' | 'X' (must / could / can't). */
   answer: string
   explanation?: string
 }
 
 export interface TFQuestion extends QuestionBase {
   type: 'tf'
-  mode: 'tf' | 'asn'
+  mode: 'tf' | 'asn' | 'mcc'
+  /** "blank": a blank before each statement. "choices": circle one of the options (T/F written as MC). */
+  style?: 'blank' | 'choices'
   items: TFItem[]
   /** Students must correct false statements / justify. */
   requireJustification?: boolean
@@ -235,6 +246,66 @@ export interface MCQuestion extends QuestionBase {
   shuffle?: boolean
 }
 
+/** Select all that apply. */
+export interface SelectQuestion extends QuestionBase {
+  type: 'select'
+  choices: string[]
+  /** Indices of every correct choice. */
+  correct: number[]
+  shuffle?: boolean
+}
+
+/** Make a choice (yes/no, true/false, must/could/can't…), then justify or give a counterexample. */
+export interface DecideQuestion extends QuestionBase {
+  type: 'decide'
+  choices: string[]
+  correct: number
+  /** Label before the writing lines, e.g. "Justify" or "Counterexample". */
+  justifyLabel?: string
+  /** Model justification for the key. */
+  justification: string
+  justifyLines?: number
+}
+
+/** Fill in the blanks: text with answers in [[double brackets]]. */
+export interface ClozeQuestion extends QuestionBase {
+  type: 'cloze'
+  text: string
+  /** Print a shuffled word bank of the answers (plus extras). */
+  wordBank?: boolean
+  extraWords?: string[]
+}
+
+/** Put scrambled steps in order. `items` is the correct order. */
+export interface OrderQuestion extends QuestionBase {
+  type: 'order'
+  items: string[]
+  /** Keep the first item in place (e.g. "Given"). */
+  fixFirst?: boolean
+}
+
+/** Find and fix the error in a named student's work. */
+export interface ErrorQuestion extends QuestionBase {
+  type: 'error'
+  studentName: string
+  work: string
+  /** Model answer: the error and the fix. */
+  answer: string
+}
+
+export interface TableCell {
+  value: string
+  /** Printed on the student copy (otherwise a blank to fill in). */
+  given: boolean
+}
+
+/** Fill-in table, e.g. Original | Image. */
+export interface TableQuestion extends QuestionBase {
+  type: 'table'
+  headers: string[]
+  rows: TableCell[][]
+}
+
 export type Question =
   | ShortQuestion
   | FreeQuestion
@@ -242,6 +313,12 @@ export type Question =
   | TFQuestion
   | MatchingQuestion
   | MCQuestion
+  | SelectQuestion
+  | DecideQuestion
+  | ClozeQuestion
+  | OrderQuestion
+  | ErrorQuestion
+  | TableQuestion
 
 // ---------------------------------------------------------------- Tests
 
@@ -252,6 +329,17 @@ export interface TestItem {
   /** Overrides the question's points. */
   points?: number
   pageBreakBefore?: boolean
+  /** Shared stem / answer bank that starts at this item and covers `count` items. */
+  stem?: SharedStem
+}
+
+export interface SharedStem {
+  /** Text shown once before the group, after the italic range tag "(#5–8)". */
+  text: string
+  /** How many items (starting here) share it. */
+  count: number
+  /** One list of choices used by every item in the group (e.g. SSS / SAS / ASA / None). */
+  bank?: string[]
 }
 
 export interface TestSection {

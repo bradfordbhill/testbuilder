@@ -1,4 +1,4 @@
-import { AlignLeft, ArrowLeftRight, CircleDot, ListOrdered, PencilLine, ToggleLeft } from 'lucide-react'
+import { AlignLeft, ArrowDownUp, ArrowLeftRight, Bug, CheckSquare, CircleDot, Gavel, ListOrdered, PencilLine, Table2, TextCursorInput, ToggleLeft } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { courseMap } from '../lib/courseMap'
 import { type Question, QUESTION_TYPE_LABELS, type QuestionType } from '../model/types'
@@ -14,6 +14,12 @@ export const TYPE_ICONS: Record<QuestionType, typeof PencilLine> = {
   tf: ToggleLeft,
   matching: ArrowLeftRight,
   mc: CircleDot,
+  select: CheckSquare,
+  decide: Gavel,
+  cloze: TextCursorInput,
+  order: ArrowDownUp,
+  error: Bug,
+  table: Table2,
 }
 
 export const TYPE_SHORT: Record<QuestionType, string> = {
@@ -23,6 +29,12 @@ export const TYPE_SHORT: Record<QuestionType, string> = {
   tf: 'T/F',
   matching: 'Match',
   mc: 'MC',
+  select: 'Select',
+  decide: 'Decide',
+  cloze: 'Blanks',
+  order: 'Order',
+  error: 'Error',
+  table: 'Table',
 }
 
 export function TypeBadge({ type }: { type: QuestionType }) {

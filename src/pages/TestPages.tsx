@@ -29,6 +29,7 @@ import {
   Pencil,
   Plus,
   Printer,
+  Quote,
   RefreshCw,
   Scissors,
   Settings2,
@@ -46,7 +47,7 @@ import type { Generator } from '../gen/types'
 import { compareCodes, courseMap } from '../lib/courseMap'
 import { versionLetter } from '../lib/mathfmt'
 import { randomSeed } from '../lib/rng'
-import type { Question, Test, TestItem, TestSection } from '../model/types'
+import type { Question, SharedStem, Test, TestItem, TestSection } from '../model/types'
 import { href, navigate } from '../router'
 import {
   deleteTestUndoable,
@@ -286,6 +287,19 @@ export function TestBuilder({ id }: { id: string }) {
     if (newItem) toast(data.type === 'gen' ? 'Generated question added (and saved to the bank)' : 'Added to test', { kind: 'success' })
   }
 
+  // ------------------------------------------------ shared stems
+  /** For an item: whether it starts a stem, and whether it is covered by one above it. */
+  const stemInfo = (sid: string, key: string) => {
+    const sec = test.sections.find((s) => s.id === sid)
+    if (!sec) return { covered: false }
+    const idx = sec.items.findIndex((i) => i.key === key)
+    for (let j = idx - 1; j >= 0; j--) {
+      const st = sec.items[j].stem
+      if (st && idx - j < st.count) return { covered: true }
+    }
+    return { covered: false }
+  }
+
   // ------------------------------------------------ render
   let n = 0
   const totalPoints = test.sections.reduce((sum, s) => sum + s.items.reduce((a, it) => a + itemPoints(it, questions[it.questionId]), 0), 0)
@@ -362,6 +376,8 @@ export function TestBuilder({ id }: { id: string }) {
                 n++
                 return (
                   <SortableItem
+                    stemInfo={stemInfo(sec.id, key)}
+                    onStem={(stem) => setItem(key, { stem })}
                     key={key}
                     id={key}
                     num={n}
@@ -522,7 +538,11 @@ function SortableItem({
   onBreak,
   onRemove,
   testId,
+  stemInfo,
+  onStem,
 }: {
+  stemInfo: { covered: boolean }
+  onStem: (s: SharedStem | undefined) => void
   id: string
   num: number
   item: TestItem
@@ -535,8 +555,20 @@ function SortableItem({
   testId: string
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, data: { type: 'item', key: id } satisfies DragData })
+  const [editStem, setEditStem] = useState(false)
   return (
-    <div ref={setNodeRef} className={`titem ${isDragging ? 'dragging' : ''} ${open ? 'open' : ''} ${item.pageBreakBefore ? 'has-break' : ''}`} style={{ transform: CSS.Translate.toString(transform), transition }}>
+    <div
+      ref={setNodeRef}
+      className={`titem ${isDragging ? 'dragging' : ''} ${open ? 'open' : ''} ${item.pageBreakBefore ? 'has-break' : ''} ${item.stem || stemInfo.covered ? 'in-stem' : ''}`}
+      style={{ transform: CSS.Translate.toString(transform), transition }}
+    >
+      {item.stem && !editStem && (
+        <button type="button" className="stem-preview" onClick={() => setEditStem(true)} title="Edit shared stem">
+          <Quote size={12} /> <em>(#{num}–{num + item.stem.count - 1})</em> {item.stem.text || <span className="muted">(no stem text)</span>}
+          {item.stem.bank && item.stem.bank.length > 0 && <span className="stem-bank">Bank: {item.stem.bank.join(' · ')}</span>}
+        </button>
+      )}
+      {editStem && <StemEditor stem={item.stem} onChange={onStem} onClose={() => setEditStem(false)} />}
       {item.pageBreakBefore && (
         <div className="break-line">
           <Scissors size={11} /> page break
@@ -563,6 +595,17 @@ function SortableItem({
           }
           actions={
             <>
+              <button
+                type="button"
+                className={`icon-btn ${item.stem ? 'on' : ''}`}
+                title="Shared stem / answer bank starting here"
+                onClick={() => {
+                  if (!item.stem) onStem({ text: '', count: 2 })
+                  setEditStem(true)
+                }}
+              >
+                <Quote size={14} />
+              </button>
               <button type="button" className={`icon-btn ${item.pageBreakBefore ? 'on' : ''}`} title="Start on a new page" onClick={onBreak}>
                 <Scissors size={14} />
               </button>
@@ -803,3 +846,47 @@ function GeneratePanel({ onAdd }: { onAdd: (q: Question) => void }) {
   )
 }
 
+
+const BANK_PRESETS: [string, string[]][] = [
+  ['Congruence criteria', ['SSS', 'SAS', 'ASA', 'None']],
+  ['Similarity criteria', ['AA', 'SAS similarity', 'SSS similarity', 'Not similar']],
+  ['A / S / N', ['Always', 'Sometimes', 'Never']],
+  ['Angle pairs', ['corresponding', 'alternate interior', 'alternate exterior', 'same-side interior', 'vertical', 'linear pair']],
+  ['Which law', ['Law of Sines', 'Law of Cosines', 'Right-triangle trig', 'Not enough information']],
+]
+
+function StemEditor({ stem, onChange, onClose }: { stem?: SharedStem; onChange: (s: SharedStem | undefined) => void; onClose: () => void }) {
+  const s = stem ?? { text: '', count: 2 }
+  return (
+    <div className="stem-editor" onClick={(e) => e.stopPropagation()}>
+      <div className="row">
+        <strong className="small">Shared stem</strong>
+        <span className="muted small">Prints once before the group as “(#5–8) …”. Items in the group stay together when forms shuffle.</span>
+        <span className="spacer" />
+        <label className="inline small">
+          Covers{' '}
+          <input type="number" min={1} max={20} value={s.count} style={{ width: 52 }} onChange={(e) => onChange({ ...s, count: Math.max(1, Number(e.target.value) || 1) })} /> items
+        </label>
+      </div>
+      <textarea rows={2} placeholder="e.g. Use the diagram for questions in this group. ($math$ allowed)" value={s.text} onChange={(e) => onChange({ ...s, text: e.target.value })} />
+      <div className="row wrap">
+        <span className="field-label">Answer bank</span>
+        {BANK_PRESETS.map(([label, bank]) => (
+          <button key={label} type="button" className="ghost small" onClick={() => onChange({ ...s, bank })}>
+            {label}
+          </button>
+        ))}
+      </div>
+      <textarea rows={2} placeholder="One choice per line (optional). Printed as a. … b. … for every item in the group." value={(s.bank ?? []).join('\n')} onChange={(e) => onChange({ ...s, bank: e.target.value.split('\n').filter((x) => x.trim()) })} />
+      <div className="row">
+        <button type="button" className="ghost small danger" onClick={() => (onChange(undefined), onClose())}>
+          <Trash2 size={13} /> Remove stem
+        </button>
+        <span className="spacer" />
+        <button type="button" className="primary small" onClick={onClose}>
+          Done
+        </button>
+      </div>
+    </div>
+  )
+}

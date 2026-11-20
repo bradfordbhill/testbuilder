@@ -8,8 +8,9 @@ import { unit3Generators } from './unit3'
 import { unit4Generators } from './unit4'
 import { proofGenerators } from './proofs'
 import { catalogGapGenerators } from './catalogGaps'
+import { formatGenerators } from './formats'
 
-export const generators: Generator[] = [...unit1Generators, ...unit2Generators, ...proofGenerators, ...unit3Generators, ...unit4Generators, ...catalogGapGenerators]
+export const generators: Generator[] = [...unit1Generators, ...unit2Generators, ...proofGenerators, ...unit3Generators, ...unit4Generators, ...catalogGapGenerators, ...formatGenerators]
 
 export const generatorById = new Map(generators.map((g) => [g.id, g]))
 
@@ -92,13 +93,25 @@ export function problemToQuestionFields(p: GenProblem): Payload {
   }
   switch (p.type) {
     case 'short':
-      return { ...base, type: 'short', answers: p.answers }
+      return { ...base, type: 'short', answers: p.answers, ...(p.layout ? { layout: p.layout } : {}) }
+    case 'select':
+      return { ...base, type: 'select', choices: p.choices, correct: p.correct, shuffle: p.shuffle }
+    case 'decide':
+      return { ...base, type: 'decide', choices: p.choices, correct: p.correct, justification: p.justification, justifyLabel: p.justifyLabel, justifyLines: p.justifyLines }
+    case 'cloze':
+      return { ...base, type: 'cloze', text: p.text, wordBank: p.wordBank, extraWords: p.extraWords }
+    case 'order':
+      return { ...base, type: 'order', items: p.items, fixFirst: p.fixFirst }
+    case 'error':
+      return { ...base, type: 'error', studentName: p.studentName, work: p.work, answer: p.answer }
+    case 'table':
+      return { ...base, type: 'table', headers: p.headers, rows: p.rows }
     case 'free':
       return { ...base, type: 'free', answer: p.answer }
     case 'mc':
       return { ...base, type: 'mc', choices: p.choices, correct: p.correct, shuffle: false }
     case 'tf':
-      return { ...base, type: 'tf', mode: p.mode, items: p.items, requireJustification: p.requireJustification }
+      return { ...base, type: 'tf', mode: p.mode, style: p.style, items: p.items, requireJustification: p.requireJustification }
     case 'matching':
       return { ...base, type: 'matching', pairs: p.pairs, distractors: p.distractors }
     case 'proof':
@@ -106,18 +119,26 @@ export function problemToQuestionFields(p: GenProblem): Payload {
   }
 }
 
-const DEFAULT_POINTS: Record<string, number> = { short: 2, free: 4, proof: 6, tf: 1, matching: 1, mc: 1 }
+const DEFAULT_POINTS: Record<string, number> = { short: 2, free: 4, proof: 6, tf: 1, matching: 1, mc: 1, select: 4, decide: 2, cloze: 1, order: 2, error: 4, table: 1 }
 
 export function newQuestionFromGenerator(g: Generator, seed: number, opts: Record<string, unknown>, id: string): Question {
   const p = runGenerator(g, seed, opts)
   const fields = problemToQuestionFields(p)
   const now = Date.now()
   const pts =
-    fields.type === 'tf' ? fields.items.length : fields.type === 'matching' ? fields.pairs.length : DEFAULT_POINTS[fields.type]
+    fields.type === 'tf'
+      ? fields.items.length * (fields.mode === 'tf' ? 1 : 2)
+      : fields.type === 'matching'
+        ? fields.pairs.length
+        : fields.type === 'cloze'
+          ? Math.max(1, (fields.text.match(/\[\[/g) ?? []).length)
+          : fields.type === 'table'
+            ? Math.max(1, fields.rows.flat().filter((c) => !c.given).length)
+            : DEFAULT_POINTS[fields.type]
   return {
     ...fields,
     id,
-    lessons: [...g.lessons].sort(compareCodes).slice(0, 3),
+    lessons: [...(p.lessons ?? g.lessons)].sort(compareCodes).slice(0, 3),
     points: pts,
     honors: g.honors,
     difficulty: g.difficulty,

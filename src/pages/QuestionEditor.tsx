@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { DebugTag } from '../components/DebugTag'
 import { MathText } from '../components/MathText'
 import { TYPE_ICONS, TypeBadge } from '../components/QuestionRow'
-import { QuestionView, wrapMath } from '../components/QuestionView'
+import { clozeParts, QuestionView, wrapMath } from '../components/QuestionView'
 import { TopicPicker } from '../components/TopicPicker'
 import { ProblemTypePicker } from '../components/ProblemTypes'
 import { DiagramEditor } from '../diagram/DiagramEditor'
@@ -190,7 +190,19 @@ export function QuestionEditor({ id, query }: { id: string; query: URLSearchPara
 
   const gen = draft.gen ? generatorById.get(draft.gen.generatorId) : undefined
   const answerCount =
-    draft.type === 'short' ? draft.answers.length : draft.type === 'proof' ? draft.rows.length : draft.type === 'tf' ? draft.items.length : draft.type === 'matching' ? draft.pairs.length : draft.type === 'mc' ? draft.choices.length : 0
+    draft.type === 'short'
+      ? draft.answers.length
+      : draft.type === 'proof' || draft.type === 'table'
+        ? draft.rows.length
+        : draft.type === 'tf' || draft.type === 'order'
+          ? draft.items.length
+          : draft.type === 'matching'
+            ? draft.pairs.length
+            : draft.type === 'mc' || draft.type === 'select' || draft.type === 'decide'
+              ? draft.choices.length
+              : draft.type === 'cloze'
+                ? (draft.text.match(/\[\[/g) ?? []).length
+                : 0
 
   return (
     <div className="page editor-page">
@@ -425,7 +437,18 @@ function AnswerEditor({ q, set }: { q: Question; set: (p: Partial<Question>) => 
     case 'short':
       return (
         <div className="list-editor">
-          <p className="muted small">Each blank prints as “label = ____”. LaTeX allowed: label <code>m\angle A</code>, value <code>4\sqrt{3}</code>.</p>
+          <div className="row">
+            <p className="muted small" style={{ margin: 0, flex: 1 }}>
+              Each blank prints as “label = ____”. LaTeX allowed: label <code>m\angle A</code>, value <code>4\sqrt{3}</code>.
+            </p>
+            <label className="inline">
+              Layout{' '}
+              <select value={q.layout ?? 'labeled'} onChange={(e) => set({ layout: e.target.value as 'labeled' | 'pair' })}>
+                <option value="labeled">label = ____</option>
+                <option value="pair">Answer: ____ and ____</option>
+              </select>
+            </label>
+          </div>
           <SortableList
             items={q.answers}
             onReorder={(answers) => set({ answers })}
@@ -457,9 +480,10 @@ function AnswerEditor({ q, set }: { q: Question; set: (p: Partial<Question>) => 
           <div className="row">
             <label className="inline">
               Format{' '}
-              <select value={q.format} onChange={(e) => set({ format: e.target.value as 'two-column' | 'paragraph' })}>
+              <select value={q.format} onChange={(e) => set({ format: e.target.value as 'two-column' | 'paragraph' | 'any' })}>
                 <option value="two-column">Two-column</option>
                 <option value="paragraph">Paragraph</option>
+                <option value="any">Any format (student chooses)</option>
               </select>
             </label>
             <label className="inline">
@@ -519,12 +543,19 @@ function AnswerEditor({ q, set }: { q: Question; set: (p: Partial<Question>) => 
         <div className="list-editor">
           <div className="row">
             <div className="seg-tabs small">
-              {(['tf', 'asn'] as const).map((mode) => (
-                <button key={mode} type="button" className={q.mode === mode ? 'on' : ''} onClick={() => mode !== q.mode && set({ mode, items: q.items.map((it) => ({ ...it, answer: mode === 'tf' ? 'T' : 'A' })) })}>
-                  {mode === 'tf' ? 'True / False' : 'Always / Sometimes / Never'}
+              {(['tf', 'asn', 'mcc'] as const).map((mode) => (
+                <button key={mode} type="button" className={q.mode === mode ? 'on' : ''} onClick={() => mode !== q.mode && set({ mode, items: q.items.map((it) => ({ ...it, answer: TF_CODES[mode][0] })) })}>
+                  {mode === 'tf' ? 'True / False' : mode === 'asn' ? 'Always / Sometimes / Never' : 'Must / Could / Can’t'}
                 </button>
               ))}
             </div>
+            <label className="inline">
+              Print as{' '}
+              <select value={q.style ?? 'blank'} onChange={(e) => set({ style: e.target.value as 'blank' | 'choices' })}>
+                <option value="blank">Blank before each</option>
+                <option value="choices">Choices to circle (a. True b. False)</option>
+              </select>
+            </label>
             <label className="toggle">
               <input type="checkbox" checked={!!q.requireJustification} onChange={(e) => set({ requireJustification: e.target.checked || undefined })} /> Space for justification
             </label>
@@ -536,9 +567,9 @@ function AnswerEditor({ q, set }: { q: Question; set: (p: Partial<Question>) => 
               <div className="edit-row">
                 <DragHandle handle={h} />
                 <span className="answer-pills">
-                  {(q.mode === 'tf' ? ['T', 'F'] : ['A', 'S', 'N']).map((v) => (
-                    <button key={v} type="button" className={it.answer === v ? 'on' : ''} onClick={() => set({ items: q.items.map((x, j) => (j === i ? { ...x, answer: v } : x)) })}>
-                      {v}
+                  {TF_CODES[q.mode ?? 'tf'].map((v) => (
+                    <button key={v} type="button" title={TF_TITLES[v]} className={it.answer === v ? 'on' : ''} onClick={() => set({ items: q.items.map((x, j) => (j === i ? { ...x, answer: v } : x)) })}>
+                      {q.mode === 'mcc' && v === 'X' ? 'N' : v}
                     </button>
                   ))}
                 </span>
@@ -548,7 +579,7 @@ function AnswerEditor({ q, set }: { q: Question; set: (p: Partial<Question>) => 
               </div>
             )}
           />
-          <button type="button" className="ghost small" onClick={() => set({ items: [...q.items, { text: '', answer: q.mode === 'tf' ? 'T' : 'A' }] })}>
+          <button type="button" className="ghost small" onClick={() => set({ items: [...q.items, { text: '', answer: TF_CODES[q.mode ?? 'tf'][0] }] })}>
             <Plus size={13} /> Statement
           </button>
         </div>
@@ -613,8 +644,209 @@ function AnswerEditor({ q, set }: { q: Question; set: (p: Partial<Question>) => 
         </div>
       )
     }
+    case 'select': {
+      const rows = q.choices.map((text, i) => ({ text, correct: q.correct.includes(i) }))
+      return (
+        <div className="list-editor">
+          <p className="muted small">Check every correct choice. Prints “Select all that apply.”</p>
+          <SortableList
+            items={rows}
+            onReorder={(next) => set({ choices: next.map((r) => r.text), correct: next.map((r, i) => (r.correct ? i : -1)).filter((i) => i >= 0) })}
+            render={(r, i, h) => (
+              <div className={`edit-row ${r.correct ? 'correct' : ''}`}>
+                <DragHandle handle={h} />
+                <input
+                  type="checkbox"
+                  checked={r.correct}
+                  title="Correct"
+                  onChange={() => set({ correct: r.correct ? q.correct.filter((c) => c !== i) : [...q.correct, i].sort((a, b) => a - b) })}
+                />
+                <span className="muted">{'ABCDEFGH'[i]}.</span>
+                <input placeholder={`Choice ${'ABCDEFGH'[i]} ($math$ allowed)`} value={r.text} onChange={(e) => set({ choices: q.choices.map((x, j) => (j === i ? e.target.value : x)) })} />
+                <span className="preview-chip">
+                  <MathText text={wrapMath(r.text || ' ')} inline />
+                </span>
+                <RemoveBtn
+                  onClick={() =>
+                    set({
+                      choices: q.choices.filter((_, j) => j !== i),
+                      correct: q.correct.filter((c) => c !== i).map((c) => (c > i ? c - 1 : c)),
+                    })
+                  }
+                />
+              </div>
+            )}
+          />
+          <div className="row">
+            <button type="button" className="ghost small" onClick={() => set({ choices: [...q.choices, ''] })}>
+              <Plus size={13} /> Choice
+            </button>
+            <label className="toggle">
+              <input type="checkbox" checked={!!q.shuffle} onChange={(e) => set({ shuffle: e.target.checked })} /> Shuffle choices per form
+            </label>
+          </div>
+        </div>
+      )
+    }
+    case 'decide': {
+      const presets: [string, string[]][] = [
+        ['Yes / No', ['Yes', 'No']],
+        ['True / False', ['True', 'False']],
+        ['Must / Could / Can’t', ['Must be', 'Could be', 'Can’t be']],
+        ['A / S / N', ['Always', 'Sometimes', 'Never']],
+        ['Agree / Disagree', ['Agree', 'Disagree']],
+      ]
+      return (
+        <div className="list-editor">
+          <div className="row wrap">
+            <span className="field-label">Choices</span>
+            {presets.map(([label, ch]) => (
+              <button key={label} type="button" className="ghost small" onClick={() => set({ choices: ch, correct: 0 })}>
+                {label}
+              </button>
+            ))}
+          </div>
+          {q.choices.map((c, i) => (
+            <div key={i} className={`edit-row ${i === q.correct ? 'correct' : ''}`}>
+              <button type="button" className={`correct-dot ${i === q.correct ? 'on' : ''}`} title="Mark correct" onClick={() => set({ correct: i })}>
+                {i === q.correct ? <CheckCircle2 size={16} /> : <Circle size={16} />}
+              </button>
+              <input value={c} onChange={(e) => set({ choices: q.choices.map((x, j) => (j === i ? e.target.value : x)) })} />
+              <RemoveBtn onClick={() => set({ choices: q.choices.filter((_, j) => j !== i), correct: q.correct > i ? q.correct - 1 : q.correct === i ? 0 : q.correct })} />
+            </div>
+          ))}
+          <button type="button" className="ghost small" onClick={() => set({ choices: [...q.choices, ''] })}>
+            <Plus size={13} /> Choice
+          </button>
+          <div className="row">
+            <label className="inline">
+              Label{' '}
+              <select value={q.justifyLabel ?? 'Justify'} onChange={(e) => set({ justifyLabel: e.target.value })}>
+                {['Justify', 'Explain', 'Counterexample', 'Reason', 'Proof or counterexample'].map((l) => (
+                  <option key={l}>{l}</option>
+                ))}
+              </select>
+            </label>
+            <label className="inline">
+              Lines <input type="number" min={1} max={20} value={q.justifyLines ?? 3} style={{ width: 56 }} onChange={(e) => set({ justifyLines: Number(e.target.value) || 3 })} />
+            </label>
+          </div>
+          <RichField label="Model justification (answer key)" value={q.justification} rows={3} onChange={(justification) => set({ justification })} />
+        </div>
+      )
+    }
+    case 'cloze': {
+      const blanks = clozeParts(q.text).filter((p) => p.blank)
+      return (
+        <div className="list-editor">
+          <p className="muted small">
+            Wrap each answer in double brackets: <code>If two angles are [[vertical angles]], then they are congruent.</code> Each blank prints as a numbered line; the key fills it in.
+          </p>
+          <RichField label="Statement" value={q.text} rows={4} onChange={(text) => set({ text })} />
+          <div className="muted small">
+            {blanks.length} blank{blanks.length === 1 ? '' : 's'}
+            {blanks.length > 0 && `: ${blanks.map((b) => b.blank).join(' · ')}`}
+          </div>
+          <label className="toggle">
+            <input type="checkbox" checked={!!q.wordBank} onChange={(e) => set({ wordBank: e.target.checked || undefined })} /> Print a word bank
+          </label>
+          {q.wordBank && (
+            <label className="block">
+              <span className="field-label">Extra words for the bank (one per line)</span>
+              <textarea rows={2} value={(q.extraWords ?? []).join('\n')} onChange={(e) => set({ extraWords: e.target.value.split('\n').filter((s) => s.trim()) })} />
+            </label>
+          )}
+        </div>
+      )
+    }
+    case 'order':
+      return (
+        <div className="list-editor">
+          <p className="muted small">Enter the steps in the correct order. They print scrambled (differently for each form); the key gives the letter order.</p>
+          <SortableList
+            items={q.items}
+            onReorder={(items) => set({ items })}
+            render={(it, i, h) => (
+              <div className="edit-row">
+                <DragHandle handle={h} />
+                <span className="muted">{i + 1}.</span>
+                <input placeholder="Step ($math$ allowed)" value={it} onChange={(e) => set({ items: q.items.map((x, j) => (j === i ? e.target.value : x)) })} />
+                <RemoveBtn onClick={() => set({ items: q.items.filter((_, j) => j !== i) })} />
+              </div>
+            )}
+          />
+          <div className="row">
+            <button type="button" className="ghost small" onClick={() => set({ items: [...q.items, ''] })}>
+              <Plus size={13} /> Step
+            </button>
+            <label className="toggle">
+              <input type="checkbox" checked={!!q.fixFirst} onChange={(e) => set({ fixFirst: e.target.checked || undefined })} /> Keep the first step in place
+            </label>
+          </div>
+        </div>
+      )
+    case 'error':
+      return (
+        <div className="list-editor">
+          <label className="inline">
+            Student name <input value={q.studentName} onChange={(e) => set({ studentName: e.target.value })} />
+          </label>
+          <RichField label="Student’s work (one step per line; $math$ allowed)" value={q.work} rows={5} onChange={(work) => set({ work })} />
+          <RichField label="Answer key: the error and the correction" value={q.answer} rows={3} onChange={(answer) => set({ answer })} />
+        </div>
+      )
+    case 'table':
+      return (
+        <div className="list-editor">
+          <p className="muted small">Checked cells print on the student copy; unchecked cells are blanks to fill in (shown on the key).</p>
+          <div className="table-edit">
+            <div className="table-edit-row">
+              {q.headers.map((h, c) => (
+                <span key={c} className="table-edit-cell head">
+                  <input value={h} onChange={(e) => set({ headers: q.headers.map((x, j) => (j === c ? e.target.value : x)) })} />
+                  {q.headers.length > 1 && (
+                    <button type="button" className="icon-btn" title="Remove column" onClick={() => set({ headers: q.headers.filter((_, j) => j !== c), rows: q.rows.map((r) => r.filter((_, j) => j !== c)) })}>
+                      <X size={12} />
+                    </button>
+                  )}
+                </span>
+              ))}
+              <span className="table-edit-x" />
+            </div>
+            {q.rows.map((row, r) => (
+              <div key={r} className="table-edit-row">
+                {row.map((cell, c) => (
+                  <span key={c} className={`table-edit-cell ${cell.given ? 'given' : ''}`}>
+                    <input value={cell.value} onChange={(e) => set({ rows: q.rows.map((rr, i) => (i === r ? rr.map((cc, j) => (j === c ? { ...cc, value: e.target.value } : cc)) : rr)) })} />
+                    <input
+                      type="checkbox"
+                      title="Print on the student copy"
+                      checked={cell.given}
+                      onChange={(e) => set({ rows: q.rows.map((rr, i) => (i === r ? rr.map((cc, j) => (j === c ? { ...cc, given: e.target.checked } : cc)) : rr)) })}
+                    />
+                  </span>
+                ))}
+                <span className="table-edit-x">
+                  <RemoveBtn onClick={() => set({ rows: q.rows.filter((_, i) => i !== r) })} />
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="row">
+            <button type="button" className="ghost small" onClick={() => set({ rows: [...q.rows, q.headers.map((_, c) => ({ value: '', given: c === 0 }))] })}>
+              <Plus size={13} /> Row
+            </button>
+            <button type="button" className="ghost small" onClick={() => set({ headers: [...q.headers, ''], rows: q.rows.map((r) => [...r, { value: '', given: false }]) })}>
+              <Plus size={13} /> Column
+            </button>
+          </div>
+        </div>
+      )
   }
 }
+
+const TF_CODES: Record<'tf' | 'asn' | 'mcc', string[]> = { tf: ['T', 'F'], asn: ['A', 'S', 'N'], mcc: ['M', 'C', 'X'] }
+const TF_TITLES: Record<string, string> = { T: 'True', F: 'False', A: 'Always', S: 'Sometimes', N: 'Never', M: 'Must be', C: 'Could be', X: 'Can’t be' }
 
 function RemoveBtn({ onClick }: { onClick: () => void }) {
   return (

@@ -148,3 +148,35 @@ export function typesForLessons(codes: string[]): string[] {
   for (const c of codes) for (const id of catalog.byLesson.get(c) ?? []) if (!out.includes(id)) out.push(id)
   return out
 }
+
+/** How each catalog response format is produced in the app. */
+export const FORMAT_SUPPORT: Record<string, string> = {
+  mc_single: 'Multiple choice',
+  select_all: 'Select all',
+  true_false: 'True/False (blank or choices to circle)',
+  always_sometimes_never: 'True/False type, A/S/N mode',
+  must_could_cant: 'True/False type, Must/Could/Can’t mode · Decide and justify',
+  matching: 'Matching',
+  shared_stem_group: 'Shared stem on a test (#5–8)',
+  shared_answer_bank: 'Shared stem with answer bank',
+  numeric_answer: 'Short / numeric answer',
+  answer_pair_blanks: 'Short answer, “Answer: ___ and ___” layout',
+  short_justification: 'Free response',
+  decide_and_justify: 'Decide and justify',
+  fill_blank_statement: 'Fill in the blanks',
+  fill_in_proof: 'Proof (cells hidden on the student copy)',
+  two_column_proof: 'Proof, two-column',
+  paragraph_proof: 'Proof, paragraph',
+  any_format: 'Proof, any format',
+  error_analysis: 'Error analysis',
+  draw_on_diagram: 'Short answer or free response with a diagram',
+  image_table: 'Fill-in table',
+  short_answer: 'Short answer',
+  counterexample: 'Decide and justify (counterexample)',
+  prove_or_disprove: 'Decide and justify',
+  count_cases: 'Short / numeric answer',
+  guided_derivation: 'Free response',
+  proof_plan: 'Free response',
+  ordering: 'Put in order',
+  sketch: 'Free response',
+}
