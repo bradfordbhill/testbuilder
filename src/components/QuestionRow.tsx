@@ -2,7 +2,9 @@ import { AlignLeft, ArrowLeftRight, CircleDot, ListOrdered, PencilLine, ToggleLe
 import type { ReactNode } from 'react'
 import { courseMap } from '../lib/courseMap'
 import { type Question, QUESTION_TYPE_LABELS, type QuestionType } from '../model/types'
+import { questionTypes } from '../gen'
 import { DebugTag } from './DebugTag'
+import { TypeChips } from './ProblemTypes'
 import { promptSummary } from './QuestionView'
 
 export const TYPE_ICONS: Record<QuestionType, typeof PencilLine> = {
@@ -77,6 +79,7 @@ export function QuestionRow({
         {q.honors && <span className="mini-tag honors">H</span>}
         {q.gen && <span className="mini-tag gen" title="Generated: new numbers per form">gen</span>}
       </span>
+      <TypeChips ids={questionTypes(q)} max={1} />
       {trail}
       {showDebug && <DebugTag q={q} />}
       {actions && <span className="qrow-actions" onClick={(e) => e.stopPropagation()}>{actions}</span>}

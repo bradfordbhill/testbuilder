@@ -22,7 +22,7 @@ A browser-only app for building geometry tests and quizzes for UHS Honors Geomet
   - turn on a coordinate grid
 
   Labels are placed automatically and can be adjusted.
-- **Random problem generators (Units 1–4)**: 42 generators, with the algebra folded into the geometry. Many have options; for example, any short-answer problem with distractors can be turned into multiple choice. They cover:
+- **Random problem generators (Units 1–4)**: 68 generators, with the algebra folded into the geometry. Many have options; for example, any short-answer problem with distractors can be turned into multiple choice. They cover:
   - angle relationships and parallel lines (including the converse)
   - triangle angle sum and exterior angles
   - isosceles triangles
@@ -50,6 +50,15 @@ A browser-only app for building geometry tests and quizzes for UHS Honors Geomet
   - a header with name, date and period lines
   - up to six versions (Forms A–F); generated questions get new numbers in each form, and question order can be shuffled
 - **Print**: student copies and answer keys (with optional worked solutions) for each form. Print or save as PDF from the browser.
+
+## Problem-type catalog
+
+`src/data/problem-types.yaml` lists the 85 problem types seen in the decks, homework and assessments (PRF, CRIT, ANG, ALG, QUAD, TRF, CON, LOC, DIL, SIM, PYTH, SRT, TRIG, POLY, RAD, UC, OBL, TASK).
+
+- **Tagging**: every generator declares the catalog types it produces, so generated questions are tagged automatically. Written questions get types in the editor; the types listed for the question's lessons are suggested first.
+- **Coverage page** (press **P**): for each type it shows the generators, bank count, test count, and the catalog's task, formats, misconceptions and where it was seen. Each type is labeled as having generators, a gap, write by hand (open proofs and derivations) or classroom only (constructions and routines). Every generatable Unit 1–4 type has at least one generator; a test enforces this.
+- **Balance** (test builder): a test's points broken down by family, response format and unit, a tally of its types, and the types its lessons include but the test does not, each with a one-click link to generate it or write it by hand.
+- **Bank filter**: filter by problem type, or search types from the command palette.
 
 ## Working fast
 

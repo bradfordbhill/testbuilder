@@ -17,6 +17,7 @@ import {
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
+  BarChart3,
   ChevronDown,
   ChevronRight,
   Copy,
@@ -37,6 +38,7 @@ import {
 } from 'lucide-react'
 import { type ReactNode, useEffect, useMemo, useState } from 'react'
 import { DebugTag } from '../components/DebugTag'
+import { TestBalance } from '../components/TestBalance'
 import { LessonChips, QuestionRow, TypeBadge } from '../components/QuestionRow'
 import { promptSummary, QuestionView } from '../components/QuestionView'
 import { firstLesson, generators, newQuestionFromGenerator } from '../gen'
@@ -173,6 +175,7 @@ export function TestBuilder({ id }: { id: string }) {
   const questions = useStore((s) => s.questions)
   const [panel, setPanel] = useState<'bank' | 'generate'>('bank')
   const [showSettings, setShowSettings] = useState(false)
+  const [showBalance, setShowBalance] = useState(false)
   const [open, setOpen] = useState<string | null>(null)
   const [layout, setLayout] = useState<Record<string, string[]> | null>(null)
   const [dragging, setDragging] = useState<DragData | null>(null)
@@ -320,6 +323,9 @@ export function TestBuilder({ id }: { id: string }) {
               <span>{test.versions > 1 ? `Forms A–${versionLetter(test.versions - 1)}` : 'Form A'}</span>
             </div>
             <div className="actions">
+              <button type="button" className={`ghost ${showBalance ? 'on' : ''}`} onClick={() => setShowBalance(!showBalance)} title="Balance across problem types, formats and units">
+                <BarChart3 size={14} /> Balance
+              </button>
               <button type="button" className={`ghost ${showSettings ? 'on' : ''}`} onClick={() => setShowSettings(!showSettings)}>
                 <Settings2 size={14} /> Settings
               </button>
@@ -332,6 +338,7 @@ export function TestBuilder({ id }: { id: string }) {
             </div>
           </div>
 
+          {showBalance && <TestBalance test={test} questions={questions} />}
           {showSettings && <TestSettings test={test} set={set} generatedCount={generatedCount} totalQ={totalQ} />}
 
           {test.sections.map((sec, si) => (

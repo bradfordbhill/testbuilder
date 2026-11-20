@@ -1,0 +1,1916 @@
+# UHS Honors Geometry 2026–27: problem-type catalog (machine-readable)
+# Load with yaml.safe_load. Every type lists where it was seen (decks / homework / assessments).
+
+meta:
+  title: 'UHS Honors Geometry 2026–27: problem-type catalog (machine-readable)'
+  version: '2026-11-20'
+  purpose: Every problem type seen in the lesson decks, homework and assessments, with where it appears. Use it to write new
+    problems, balance assessments, and check coverage.
+  companions:
+  - claude/course_topics.yaml (what is taught)
+  - claude/style_guide.yaml (how it looks)
+  - claude/assessment-style-guide.md (item-writing detail)
+  id_scheme: 'FAMILY.NAME. Families: PRF proof, CRIT criteria, ANG angles, ALG algebra fold-in, QUAD quadrilaterals, TRF transformations,
+    CON constructions, LOC locus, DIL dilations, SIM similarity, PYTH Pythagorean, SRT special right triangles, TRIG right-triangle
+    trig, POLY polygons/π, RAD/UC radians and unit circle, OBL oblique triangles, TASK classroom routines.'
+  seen_in_keys:
+    decks: lesson code + slide title (Beamer/PPTX)
+    homework: IM practice problems (solution decks) and the Congruence Proof Packet
+    assessments: item numbers; status given unless marked “built, not given”
+  rules:
+  - Teacher Guide is the starting point; teacher decides.
+  - Algebra and trig are folded into geometry problems, not separate drills.
+  - Trapezoid is exclusive; isosceles trapezoid = congruent legs; kite is inclusive.
+  - Geometric mean is an honors extension.
+  - 'Whiteboard problems: markers only.'
+  - Use only results proven by that point in the unit.
+sources:
+  decks:
+    range: 2B.06 – 4D.21 (48 decks)
+    taught_through: 3C.13 (2026-11-20)
+    built_not_taught: 3C.14 – 4D.21
+    not_cataloged: Unit 1 and 2A decks (not in the project sources)
+    slide_roles:
+    - Whiteboard Problem
+    - Connections
+    - Warm-Up
+    - Definition/Theorem frames
+    - Examples (numbered)
+    - Honors (if time)
+    - Reference Chart / Today’s Summary
+    - Exit Ticket
+  homework:
+    im_practice: Unit 2 and Unit 3 Practice Problem Solutions (IM practice problems; formats listed under response_formats)
+    proof_packet:
+      file: Congruence Proof Packet (52 problems)
+      pb_types:
+      - Skill
+      - Explain
+      - Critique
+      - Statement
+      - Proof
+      - Fill in
+      - Converse
+      - Decide
+      - Counterexample
+      - Challenge
+  assessments:
+  - name: Exam 1A Constructions
+    status: given
+    source: item types via assessment-style-guide.md
+  - name: Exam 1B Transformations A
+    status: given
+    source: item types via assessment-style-guide.md
+  - name: Exam 1C–1D A
+    status: given
+    source: item types via assessment-style-guide.md
+  - name: Exam 2A.1 – 2B.8 Congruent Figures A and B (Unit 2 Exam)
+    status: given; returned 2026-11
+    source: teacher uploads
+  - name: Unit 2 Exam C (alternate retake) + Test Corrections form
+    status: built for retakes
+  - name: Mini Quiz 3A–3B
+    status: scheduled 2026-11-18; source not in project
+  - name: Unit 3 Exams A/B and study guide
+    status: built, not given (exam 2026-12-03)
+  - name: Semester 1 Final A–D
+    status: built, not given (2026-12-14/15)
+response_formats:
+  mc_single: 4 options a–d; one defensible answer; misconception distractors.
+  select_all: 5–6 options a–f; “Select all” with all underlined.
+  true_false: 'Written as MC: a. True / b. False.'
+  always_sometimes_never: A/S/N, often with a one-sentence justification [2 pts].
+  must_could_cant: Must be / could be / can’t be true; must vs might.
+  matching: Letters to numbers (A–3); IM practice.
+  shared_stem_group: Italic range tag “(#5–8) …”, items refer back.
+  shared_answer_bank: One list of choices (e.g., SSS/SAS/ASA/None) for several items.
+  numeric_answer: “x = ___”, boxed; exact and/or decimal as stated.
+  answer_pair_blanks: '“Answer: ___ and ___”.'
+  short_justification: “Briefly explain” + 3–5 writing lines.
+  decide_and_justify: Yes/no or choice, then a reason or counterexample.
+  fill_blank_statement: Complete a theorem/criterion sentence.
+  fill_in_proof: Blanks in statements or reasons of a given proof.
+  two_column_proof: Statement | Reason table.
+  paragraph_proof: Prose proof with a reason for every claim.
+  any_format: Student chooses two-column, paragraph or flow (Final).
+  error_analysis: Find and fix the mistake in named student work; “Do you agree with X?”.
+  construction: Compass and straightedge; arcs visible.
+  draw_on_diagram: Draw/label image, line, center or symmetry on the given figure or grid.
+  image_table: Original | Image two-column table.
+  information_gap: Problem card / data card pairs.
+  card_sort: Sort or match cards.
+  open_task: BTC whiteboard thinking task.
+  short_answer: A name, statement or expression on a blank.
+  counterexample: One labeled sketch or numeric example that breaks the claim.
+  prove_or_disprove: Decide, then prove or give a counterexample.
+  count_cases: How many (0, 1, 2) triangles/points; justify.
+  guided_derivation: Scaffolded derivation of a formula, step by step.
+  proof_plan: Work-backward plan before writing the proof.
+  ordering: Arrange scrambled proof steps.
+  notice_wonder: Notice and wonder launch.
+  which_three: Which three go together? (four items, many right answers).
+  mixed: Mixed formats.
+  sketch: Freehand sketch, “go over in class” in solution decks.
+scoring_conventions:
+  mc: 1 pt each on mixed exams (Final); no per-item points on all-MC exams.
+  free_response: 4 pts basic FR; 2 pts T/F and A/S/N; 6–8 pts proofs (Unit 2); 1–4 holistic per FR on the Final.
+  proof_final: 1–8 scale.
+  extra_credit: +2 pts, bold, honors-level.
+index_by_lesson:
+  2B.6:
+  - PRF.TRI_CONG
+  - PRF.ISOSCELES_PERPBIS
+  - PRF.ORDER_STEPS
+  - CRIT.ENOUGH_INFO
+  - CRIT.CORRESPONDENCE
+  - ANG.CHASE
+  - TRF.DESCRIBE_SEQUENCE
+  - CON.COMPASS
+  2B.7:
+  - PRF.TRI_CONG
+  - PRF.QUAD_PROPERTY
+  - PRF.CRITIQUE
+  - PRF.COUNTEREXAMPLE
+  - CRIT.WHICH_CONGRUENCE
+  - ANG.CHASE
+  - ANG.NAME_PAIRS
+  - CON.MEASURE_BUILD
+  2B.8:
+  - PRF.ISOSCELES_PERPBIS
+  - PRF.CRITIQUE
+  - PRF.CONVERSE
+  - LOC.EQUIDISTANT
+  2B.9:
+  - PRF.TRI_CONG
+  - PRF.QUAD_PROPERTY
+  - PRF.WHY_CONSTRUCTION
+  - CRIT.WHICH_CONGRUENCE
+  - ANG.CHASE
+  - CON.COMPASS
+  2B.10:
+  - PRF.TRI_CONG
+  - PRF.OVERLAP
+  - PRF.ISOSCELES_PERPBIS
+  - PRF.CRITIQUE
+  - PRF.WORK_BACKWARD
+  - PRF.CHALLENGE
+  - TASK.CARD_SORT
+  2B.11:
+  - PRF.COUNTEREXAMPLE
+  - CRIT.WHICH_CONGRUENCE
+  - CRIT.ENOUGH_INFO
+  - CRIT.SSA_COUNT
+  - CON.MEASURE_BUILD
+  - TASK.REVIEW_SET
+  2C.12:
+  - PRF.QUAD_PROPERTY
+  - PRF.CRITIQUE
+  - PRF.STATEMENT_PRECISION
+  - PRF.CHALLENGE
+  - QUAD.ASN
+  - QUAD.MUST_COULD_CANT
+  2C.13:
+  - PRF.OVERLAP
+  - PRF.QUAD_PROPERTY
+  - PRF.PROVE_PARALLELOGRAM
+  - PRF.STATEMENT_PRECISION
+  - PRF.CONVERSE
+  - PRF.WORK_BACKWARD
+  2C.14:
+  - PRF.TRI_CONG
+  - PRF.QUAD_PROPERTY
+  - PRF.WHY_CONSTRUCTION
+  - PRF.SYMMETRY_MIRROR
+  - PRF.CRITIQUE
+  - CRIT.WHICH_CONGRUENCE
+  2D.15:
+  - PRF.QUAD_PROPERTY
+  - PRF.PROVE_PARALLELOGRAM
+  - PRF.SYMMETRY_MIRROR
+  - PRF.QUAD_CONGRUENCE
+  - PRF.FILL_IN_REASONS
+  - QUAD.MUST_COULD_CANT
+  - TRF.SYMMETRY
+  - TASK.CARD_SORT
+  - TASK.REVIEW_SET
+  3A.1:
+  - DIL.SCALED_COPY
+  - DIL.SCALE_MODEL
+  - DIL.AREA_PERIMETER_SCALE
+  3A.2:
+  - DIL.SCALE_MODEL
+  - DIL.AREA_PERIMETER_SCALE
+  3A.3:
+  - CON.COMPASS
+  - CON.MEASURE_BUILD
+  - DIL.DRAW
+  - DIL.COORDINATES
+  - DIL.FIND_CENTER_K
+  - DIL.DISTANCES
+  - DIL.PROPERTIES
+  3A.4:
+  - PRF.DILATION_THEOREM
+  - DIL.COORDINATES
+  - DIL.FIND_CENTER_K
+  - DIL.DISTANCES
+  - DIL.PROPERTIES
+  3A.5:
+  - PRF.DILATION_THEOREM
+  - PRF.CHALLENGE
+  - DIL.DRAW
+  - DIL.MIDSEGMENT_PARTITION
+  - TASK.REVIEW_SET
+  3B.6:
+  - PRF.CRITIQUE
+  - CRIT.CORRESPONDENCE
+  - TRF.DESCRIBE_SEQUENCE
+  - SIM.INDIRECT_MEASUREMENT
+  3B.7:
+  - ALG.SIMILAR_EXPRESSIONS
+  - TRF.DESCRIBE_SEQUENCE
+  - DIL.AREA_PERIMETER_SCALE
+  - SIM.SOLVE
+  - SIM.ASPECT_RATIO
+  3B.8:
+  - PRF.SIMILARITY
+  - PRF.CRITIQUE
+  - PRF.COUNTEREXAMPLE
+  - SIM.ASN
+  - SIM.ASPECT_RATIO
+  3B.9:
+  - PRF.SIMILARITY
+  - PRF.CHALLENGE
+  - CRIT.CORRESPONDENCE
+  - SIM.WHICH_CRITERION
+  - SIM.INDIRECT_MEASUREMENT
+  3B.10:
+  - PRF.SIMILARITY
+  - PRF.COUNTEREXAMPLE
+  - CRIT.CORRESPONDENCE
+  - SIM.WHICH_CRITERION
+  3B.11:
+  - PRF.DILATION_THEOREM
+  - PRF.CONVERSE
+  - SIM.TRIANGLE_PROPORTIONALITY
+  3B.12:
+  - ALG.SIMILAR_EXPRESSIONS
+  - ALG.RADICALS
+  - SIM.SOLVE
+  - SIM.ASPECT_RATIO
+  3C.13:
+  - ALG.RADICALS
+  - CON.COMPASS
+  - SIM.RIGHT_ALTITUDE
+  - PYTH.FIND_SIDE
+  3C.14:
+  - PRF.FORMULA_DERIVATION
+  - PRF.CRITIQUE
+  - ALG.RADICALS
+  - SIM.ASPECT_RATIO
+  - PYTH.FIND_SIDE
+  3C.15:
+  - PRF.FORMULA_DERIVATION
+  - PRF.CONVERSE
+  - PYTH.CLASSIFY
+  3C.16:
+  - SIM.SOLVE
+  - SIM.INDIRECT_MEASUREMENT
+  - TASK.INFO_GAP
+  3D.17:
+  - SIM.INDIRECT_MEASUREMENT
+  - TASK.REVIEW_SET
+  4A.1:
+  - SRT.STEEPNESS
+  4A.2:
+  - ALG.RADICALS
+  - SRT.45_45_90
+  4A.3:
+  - PRF.CONVERSE
+  - SRT.30_60_90
+  4A.4:
+  - PRF.FORMULA_DERIVATION
+  - SRT.STEEPNESS
+  - SRT.RATIO_TABLE
+  4A.5:
+  - PYTH.TRIPLES
+  - SRT.RATIO_TABLE
+  4B.6:
+  - TRIG.RATIOS
+  - TRIG.SOLVE_RIGHT
+  4B.7:
+  - TRIG.SOLVE_RIGHT
+  - TRIG.ELEVATION_DEPRESSION
+  - TASK.INFO_GAP
+  4B.8:
+  - PRF.FORMULA_DERIVATION
+  - TRIG.RATIOS
+  - TRIG.COFUNCTION
+  4B.9:
+  - PRF.FORMULA_DERIVATION
+  - PRF.COUNTEREXAMPLE
+  - TRIG.IDENTITY
+  4B.10:
+  - TRIG.INVERSE
+  4C.11:
+  - POLY.REGULAR_CIRCLE
+  - TASK.CARD_SORT
+  4C.12:
+  - PRF.FORMULA_DERIVATION
+  - POLY.REGULAR_CIRCLE
+  4D.13:
+  - RAD.MEASURE
+  4D.14:
+  - UC.COORDINATES
+  4D.15:
+  - UC.COORDINATES
+  4D.16:
+  - PRF.FORMULA_DERIVATION
+  - POLY.REGULAR_CIRCLE
+  - OBL.AREA_SAS
+  4D.17:
+  - PRF.FORMULA_DERIVATION
+  - ALG.RADICALS
+  - OBL.LAW_OF_SINES
+  4D.18:
+  - CRIT.SSA_COUNT
+  - OBL.LAW_OF_SINES
+  4D.19:
+  - PRF.FORMULA_DERIVATION
+  - OBL.LAW_OF_COSINES
+  4D.20:
+  - PYTH.CLASSIFY
+  - OBL.LAW_OF_COSINES
+  - OBL.WHICH_LAW
+  4D.21:
+  - PRF.FORMULA_DERIVATION
+  - PYTH.CLASSIFY
+  - OBL.HERON
+types:
+- id: PRF.TRI_CONG
+  name: Prove two triangles congruent, then use CPCTC
+  family: proof
+  units:
+  - 2
+  task: From stated givens and a marked figure, prove a triangle congruence by SAS, ASA, AAS, SSS or HL; part (b) asks what
+    else must be true (CPCTC).
+  formats:
+  - two_column_proof
+  - paragraph_proof
+  - any_format
+  answer_format: Proof with a reason for every claim; part (b) names the congruent part and cites CPCTC.
+  figure: Two triangles sharing a side or vertex, or crossing segments (vertical angles); tick/arc/parallel marks match givens
+    only.
+  misconceptions_distractors:
+  - Using SSA or AAA as a criterion
+  - Wrong correspondence order in the congruence statement
+  - Circular reasoning (using CPCTC before the congruence)
+  - Forgetting the reflexive side or vertical angles as a reason
+  scoring: 'Exams: 6 pts (Unit 2), 1–4 holistic or 1–8 (Final proof).'
+  seen_in:
+    decks:
+    - 2B.06 Ex2 (midpoint of both segments)
+    - 2B.06 Ex3 (bisected angle + shared side)
+    - 2B.07 Ex2–4
+    - 2B.09 Ex2
+    - 2B.10 Ex4–7
+    - 2C.14 Ex2
+    homework:
+    - IM practice 2B.6–2B.11
+    - 'Congruence Proof Packet: Proof'
+    assessments:
+    - 'Unit 2 Exam A #7 (parallelogram KLMN ⇒ △KNL≅△MLN) [6 pts]'
+    - Unit 2 Exam B parallel item
+    - Unit 2 Exam C
+- id: PRF.OVERLAP
+  name: 'Overlapping triangles: pull them apart'
+  family: proof
+  units:
+  - 2
+  task: Two triangles share part of a side or angle; students redraw them separately, mark shared parts, and prove a congruence
+    or part equality.
+  formats:
+  - two_column_proof
+  - paragraph_proof
+  answer_format: Separated sketch plus proof.
+  figure: Overlapping triangles; color or separate redraw recommended.
+  seen_in:
+    decks:
+    - 2B.10 Ex4 Overlapping Triangles
+    - 2C.13 Pull the Overlapping Triangles Apart
+    - 2C.13 Ex5 Diagonals of an Isosceles Trapezoid
+    homework:
+    - 'Proof Packet: Proof'
+- id: PRF.QUAD_PROPERTY
+  name: Prove a property of a special quadrilateral
+  family: proof
+  units:
+  - 2
+  task: 'Starting from a definition (parallelogram, rectangle, rhombus, kite, isosceles trapezoid), prove a property: opposite
+    sides congruent, opposite angles congruent, diagonals bisect each other, rectangle diagonals congruent, rhombus diagonals
+    perpendicular, kite diagonal bisects angles.'
+  formats:
+  - two_column_proof
+  - paragraph_proof
+  - any_format
+  answer_format: Proof using a diagonal to form congruent triangles.
+  misconceptions_distractors:
+  - Assuming the property being proved (e.g., using “diagonals bisect” to prove diagonals bisect)
+  - Using a property of a rectangle for a general parallelogram
+  seen_in:
+    decks:
+    - 2B.07 Ex2 Opposite Sides of a Parallelogram
+    - 2B.09 Ex3 Opposite Angles
+    - 2B.09 Ex4 Kites
+    - 2C.12 Ex1, Ex3, Ex6
+    - '2C.13 Proof: The Diagonals of a Parallelogram'
+    - 2C.14 Ex7 The Rhombus
+    - 2D.15 Ex7
+    homework:
+    - IM practice 2C.12–2C.14
+    - 'Proof Packet: Proof, Challenge'
+    assessments:
+    - Semester 1 Final C (PQRS parallelogram ⇒ ∠P≅∠R) — built, not given
+  notes: Trapezoid is exclusive; isosceles trapezoid means congruent legs; kite is inclusive (rhombus is a kite).
+- id: PRF.PROVE_PARALLELOGRAM
+  name: Prove a quadrilateral is a parallelogram (converse direction)
+  family: proof
+  units:
+  - 2
+  task: Given diagonals that bisect each other, or one pair of sides both parallel and congruent, or both pairs of opposite
+    sides congruent, prove the quadrilateral is a parallelogram (show both pairs of opposite sides parallel via alternate
+    interior angles).
+  formats:
+  - two_column_proof
+  - paragraph_proof
+  - fill_in_proof
+  - any_format
+  answer_format: Proof ending with the definition of parallelogram.
+  misconceptions_distractors:
+  - Concluding parallel from congruent sides alone
+  - Citing “alternate interior angles congruent” in the wrong direction (theorem vs converse)
+  seen_in:
+    decks:
+    - 2C.13 Ex1 The Converse
+    - 2C.13 Ex4 One Pair Is Enough
+    - 2C.13 Honors Build It from Two Segments
+    - 2D.15 Ex6 Congruent and Parallel (fill in)
+    homework:
+    - IM practice 2C.13
+    - 'Proof Packet: Converse, Proof'
+    assessments:
+    - 'Unit 2 Exam A #8 / B #9 (fill in the reasons, 8 statements) [1 pt each]'
+    - Semester 1 Final A (diagonals bisect ⇒ parallelogram), B (WX∥ZY and WX≅ZY), D (JKLM diagonals bisect) — built, not given
+- id: PRF.PARALLEL_VIA_CONG
+  name: Prove lines parallel using congruent triangles
+  family: proof
+  units:
+  - 2
+  task: 'Given segment congruences at an intersection point, prove two lines parallel: congruent triangles (SAS with vertical
+    angles) give congruent alternate interior angles.'
+  formats:
+  - two_column_proof
+  - paragraph_proof
+  answer_format: Proof ending with the converse of the alternate interior angles theorem.
+  seen_in:
+    assessments:
+    - 'Unit 2 Exam A #1 (AE≅EB, CE≅ED ⇒ AC∥BD) [6 pts]'
+    - Unit 2 Exam B parallel item
+    - Unit 2 Exam C
+- id: PRF.ISOSCELES_PERPBIS
+  name: Isosceles triangle and perpendicular bisector theorems and converses
+  family: proof
+  units:
+  - 2
+  task: Prove or use the isosceles triangle theorem (base angles), its converse, the perpendicular bisector theorem (equidistant
+    points) and its converse; the proofs use an auxiliary line (angle bisector, midpoint, or reflection).
+  formats:
+  - two_column_proof
+  - paragraph_proof
+  - short_justification
+  answer_format: Proof with the auxiliary line justified.
+  misconceptions_distractors:
+  - Drawing an auxiliary line with two properties at once (“the bisector that is also the perpendicular bisector”)
+  seen_in:
+    decks:
+    - 2B.06 Auxiliary Lines and the Isosceles Triangle Theorem
+    - '2B.08 Proof of the Theorem (SAS), Another Proof: Reflection, Proof of the Converse'
+    - 2B.10 Ex2 Equilateral ⇒ equiangular
+    - 2B.10 Ex6 Converse of the Isosceles Triangle Theorem
+    homework:
+    - IM practice 2B.8, 2B.10
+    - Proof Packet
+- id: PRF.WHY_CONSTRUCTION
+  name: Why does this construction work?
+  family: proof
+  units:
+  - 1
+  - 2
+  task: Explain with congruent triangles why a compass-and-straightedge construction works (angle bisector, copying an angle,
+    perpendicular bisector, parallel line).
+  formats:
+  - paragraph_proof
+  - short_justification
+  answer_format: Identify the congruent triangles the arcs create and the criterion (usually SSS), then CPCTC.
+  seen_in:
+    decks:
+    - 2B.09 Ex6 Why the Bisector Construction Works
+    - 2C.14 Warm-Up
+    - 2C.14 Ex3 Why Copying an Angle Works
+    homework:
+    - IM practice 2B.9, 2C.14
+    - 'Proof Packet: Explain'
+- id: PRF.SYMMETRY_MIRROR
+  name: Is this line a mirror? (symmetry proofs)
+  family: proof
+  units:
+  - 2
+  task: Decide whether a diagonal or angle bisector is a line of symmetry of a figure and prove it (reflection takes the figure
+    onto itself, via congruent triangles or perpendicular-bisector reasoning).
+  formats:
+  - decide_and_justify
+  - paragraph_proof
+  answer_format: Yes/no plus proof or counterexample.
+  seen_in:
+    decks:
+    - 2C.14 Ex4 Is the Bisector a Mirror?
+    - 2C.14 Ex6 Which Diagonals Are Mirrors
+    - 2C.14 Honors When Is a Diagonal a Mirror?
+    - 2D.15 Ex4 Symmetry Sort
+    - 2D.15 Ex5 Rhombus Symmetry (fill in)
+    homework:
+    - IM practice 2C.14, 2D.15
+    - 'Proof Packet: Decide'
+- id: PRF.QUAD_CONGRUENCE
+  name: Congruence criteria for parallelograms
+  family: proof
+  units:
+  - 2
+  task: 'Invent and prove criteria that guarantee two parallelograms (or quadrilaterals) are congruent: SAS parallelogram
+    congruence, SSA for parallelograms, “make your own”; decide when quadrilaterals are floppy.'
+  formats:
+  - paragraph_proof
+  - decide_and_justify
+  - counterexample
+  answer_format: Proof that the fourth vertex is forced, or a counterexample.
+  seen_in:
+    decks:
+    - 2D.15 Ex1 Floppy Quadrilaterals
+    - 2D.15 SAS Parallelogram Congruence + Why It Works
+    - 2D.15 Ex2 Make Your Own Congruence Theorem
+    - 2D.15 Ex3 Prove SSA Parallelogram Congruence
+    - 2D.15 Honors Beyond Parallelograms
+    homework:
+    - IM practice 2D.15
+- id: PRF.SIMILARITY
+  name: Prove triangles (or figures) similar
+  family: proof
+  units:
+  - 3
+  task: Prove two triangles similar by AA, SAS~ or SSS~ (often from parallel lines or a shared angle), or prove a general
+    similarity claim (any two squares / circles / regular n-gons are similar) with a dilation plus rigid motions.
+  formats:
+  - paragraph_proof
+  - two_column_proof
+  - prove_or_disprove
+  answer_format: Proof naming the criterion or the similarity transformation.
+  misconceptions_distractors:
+  - Using SSA~
+  - Mismatched correspondence after a turned-around triangle
+  seen_in:
+    decks:
+    - 3B.08 Ex3 Prove or Disprove
+    - '3B.08 Always Similar: Circles and Regular Polygons'
+    - 3B.09 AA Similarity and Why
+    - 3B.10 SAS and SSS Similarity, and Why They Work
+    homework:
+    - IM practice 3B.6–3B.10
+    assessments:
+    - 'Unit 3 Exams A/B #25–27 (paragraph proofs: AB∥DE with crossing segments; DE∥BC in a triangle; altitude to hypotenuse)
+      — built, not given (12/3)'
+    - 'Unit 3 study guide #23–24'
+    - Semester 1 Final u3pf proof-justification set — built, not given
+- id: PRF.DILATION_THEOREM
+  name: Prove a dilation or proportionality theorem
+  family: proof
+  units:
+  - 3
+  task: 'Prove: a dilation takes a line not through the center to a parallel line (synthetic and coordinate proofs); the triangle
+    midsegment theorem; the triangle proportionality theorem and its converse; angle bisector theorem (honors).'
+  formats:
+  - paragraph_proof
+  - paragraph_proof
+  answer_format: Proof by dilation from a vertex, or by similar triangles.
+  seen_in:
+    decks:
+    - '3A.04 Proof in Parallel, Another Proof: Coordinates, Angles Keep Their Measure'
+    - 3A.05 Dilating From a Vertex, Convince a Skeptic
+    - 3B.11 A Parallel Line Divides the Sides Proportionally, The Converse
+    - 3B.11 Honors Angle Bisector Theorem
+    homework:
+    - IM practice 3A.4–3A.5, 3B.11
+- id: PRF.FORMULA_DERIVATION
+  name: Prove a formula or identity
+  family: proof
+  units:
+  - 3
+  - 4
+  task: 'Derive a central result: Pythagorean theorem (area two ways; similar triangles), its converse, sine/cosine of complements,
+    the Pythagorean identity and tan = sin/cos, the SAS area formula, the Law of Sines, the Law of Cosines, Heron’s formula,
+    the n-gon perimeter formula.'
+  formats:
+  - guided_derivation
+  - error_analysis
+  - paragraph_proof
+  answer_format: Chain of equalities with each step justified.
+  honors_extension: Parallelogram law (4D.19), two more identities (4D.15), Archimedes’ doubling trick (4C.12).
+  seen_in:
+    decks:
+    - '3C.14 Warm-Up Area Two Ways (Proof 1), Proof 2: Similar Triangles, Check the Proof'
+    - 3C.15 The Converse and Why It Is True
+    - 4A.04 Honors Proving the Patterns
+    - '4B.08 Theorem: Sine and Cosine of Complements'
+    - 4B.09 The Pythagorean Identity
+    - '4C.12 n Sides: One Formula'
+    - 4D.16 The SAS Area Formula
+    - 4D.17 The Law of Sines
+    - 4D.19 The Law of Cosines, One Theorem Three Old Friends
+    - 4D.21 Proof of Heron’s Formula
+- id: PRF.ORDER_STEPS
+  name: Put the proof in order
+  family: proof
+  units:
+  - 2
+  task: Scrambled statements and reasons are given; students arrange them into a valid proof.
+  formats:
+  - ordering
+  answer_format: Ordered list of statement numbers.
+  seen_in:
+    decks:
+    - 2B.06 Ex6 Put the Proof in Order
+    homework:
+    - IM practice (card-sort style proofs)
+- id: PRF.FILL_IN_REASONS
+  name: Fill in the missing statements or reasons
+  family: proof
+  units:
+  - 2
+  - 3
+  task: A proof is given with blanks; students supply the missing reasons (sometimes statements). Exams often frame it as
+    a named student’s proof of a claim.
+  formats:
+  - fill_in_proof
+  - fill_in_proof
+  answer_format: One reason per blank, in course vocabulary.
+  misconceptions_distractors:
+  - Reason restates the statement
+  - “Given” used for a derived fact
+  seen_in:
+    decks:
+    - 2D.15 Ex5 Rhombus Symmetry (Fill in)
+    - 2D.15 Ex6 Congruent and Parallel (Fill in)
+    homework:
+    - IM practice fill-in proofs (Units 2–3)
+    - 'Proof Packet: Fill in'
+    assessments:
+    - 'Unit 2 Exam A #8 (Mariam), B #9 (Mateo): one-pair-parallel-and-congruent ⇒ parallelogram [1 pt each]'
+    - Unit 2 Exam C
+- id: PRF.PROOF_ANALYSIS_MC
+  name: Proof-justification set (multiple choice)
+  family: proof
+  units:
+  - 1
+  - 2
+  - 3
+  task: 'A short student proof (quoted in italics) is followed by one MC item per claim: “What would be a correct justification
+    for the statement ‘…’?”, plus a definition check and a True/False check.'
+  formats:
+  - shared_stem_group
+  - mc_single
+  - true_false
+  answer_format: Letter answers a–d.
+  misconceptions_distractors:
+  - “Corresponding parts of congruent triangles are corresponding”
+  - “They probably seem to be the same measure”
+  - Definition vs theorem confusion
+  seen_in:
+    assessments:
+    - Unit 1 exams (1C–1D) — given
+    - Semester 1 Final u2pf (congruence) and u3pf (similarity) 3-item sets — built, not given
+- id: PRF.CRITIQUE
+  name: 'Critique a proof: find the flaw, fix it, or rank drafts'
+  family: proof
+  units:
+  - 2
+  - 3
+  task: Students read one or more student drafts (named characters), find the error or gap (wrong criterion, circular step,
+    unjustified claim, arithmetic slip, faulty dilation), and repair it.
+  formats:
+  - error_analysis
+  - error_analysis
+  - error_analysis
+  answer_format: Name the faulty step and the reason it fails; give a corrected step or proof.
+  seen_in:
+    decks:
+    - 2B.07 Fix the Proof (Jordan)
+    - 2B.08 Critique the Drafts
+    - 2B.10 Ex3 Find the Flaw
+    - 2C.12 Ex2 Critique the Rewrite
+    - 2C.12 Ex5 Check a Proof
+    - 2C.14 Ex1 Critique the Drafts
+    - 2C.14 Ex5 Find the Flaws
+    - 3B.06 Warm-Up Dilation Miscalculation
+    - 3B.08 Ex1 Find the Faulty Step
+    - 3C.14 Check the Proof
+    homework:
+    - IM practice “agree with X?” and error-analysis items
+    - 'Proof Packet: Critique'
+- id: PRF.STATEMENT_PRECISION
+  name: 'Say it precisely: conjecture → theorem statement'
+  family: proof
+  units:
+  - 2
+  task: Turn an observation into a precise if-then statement, write the converse, and decide whether an if-and-only-if (biconditional)
+    is true.
+  formats:
+  - short_justification
+  - fill_blank_statement
+  answer_format: A precise conditional or biconditional, with true/false judgment.
+  seen_in:
+    decks:
+    - 2C.12 Ex3 From Conjecture to Proof
+    - 2C.13 Say It Precisely
+    - 2C.13 If and Only If
+    - 2C.13 Ex2 True “If and Only If”?
+    homework:
+    - 'Proof Packet: Statement'
+- id: PRF.CONVERSE
+  name: Write and decide the converse
+  family: proof
+  units:
+  - 2
+  - 3
+  - 4
+  task: State the converse of a theorem and decide whether it is true (proof or counterexample).
+  formats:
+  - decide_and_justify
+  - prove_or_disprove
+  answer_format: Converse statement + True/False + proof or counterexample.
+  seen_in:
+    decks:
+    - 2B.08 Converses, Ex1 Is the Converse True?
+    - 2C.13 Ex1
+    - 3B.11 The Converse
+    - 3C.15 The Converse and Why It Is True
+    - 4A.03 Honors The Converse, and a Formula
+    homework:
+    - 'Proof Packet: Converse'
+- id: PRF.COUNTEREXAMPLE
+  name: Disprove with a counterexample
+  family: proof
+  units:
+  - 2
+  - 3
+  - 4
+  task: Show a claim is false with one sketch or numerical example (AAA congruence, SSA, “two rectangles are similar”, “adding
+    2 to each side keeps similarity”, a false trig identity).
+  formats:
+  - counterexample
+  - prove_or_disprove
+  answer_format: A labeled counterexample.
+  seen_in:
+    decks:
+    - 2B.07 What About AAA?
+    - 2B.11 Two Answers / How Many Triangles?
+    - 3B.08 Ex3 Prove or Disprove
+    - 3B.10 Honors Is There an SSA Similarity?
+    - 4B.09 Ex2 Must It Be True?
+    homework:
+    - 'Proof Packet: Counterexample'
+- id: PRF.WORK_BACKWARD
+  name: Plan a proof by working backward
+  family: proof
+  units:
+  - 2
+  task: From the Prove statement, ask “what would I need?” step by step until reaching the givens; write a plan before the
+    proof.
+  formats:
+  - proof_plan
+  answer_format: Backward chain of needed facts, then the forward proof.
+  seen_in:
+    decks:
+    - 2C.13 Work Backward
+    - 2B.10 Anatomy of a Proof / Proof Toolkit
+- id: PRF.CHALLENGE
+  name: Challenge proof (honors)
+  family: proof
+  units:
+  - 2
+  - 3
+  task: Multi-step non-routine proof requiring an auxiliary construction or several congruences (inside a square, two circles,
+    midpoints of any quadrilateral form a parallelogram, quadrilateral AA).
+  formats:
+  - paragraph_proof
+  answer_format: Full proof.
+  seen_in:
+    decks:
+    - 2B.10 Honors Inside a Square
+    - 2C.12 Honors Two Circles
+    - 3A.05 Honors Midpoints of Any Quadrilateral
+    - 3B.09 Honors AA for Quadrilaterals
+    homework:
+    - 'Proof Packet: Challenge'
+- id: CRIT.WHICH_CONGRUENCE
+  name: Which congruence criterion (or none)?
+  family: classification
+  units:
+  - 2
+  task: For pairs of marked triangles, name the criterion (SSS, SAS, ASA, AAS, HL) that proves congruence, or write none and
+    say why.
+  formats:
+  - shared_answer_bank
+  - mc_single
+  - short_answer
+  answer_format: Criterion name or “none — SSA/AAA”.
+  figure: 2×2 grid of triangle pairs; marks only, never drawn-to-scale cues.
+  misconceptions_distractors:
+  - SSA offered as a criterion
+  - AAA offered as a criterion
+  - Reflexive side not noticed
+  seen_in:
+    decks:
+    - 2B.07 Ex1
+    - 2B.09 Ex1
+    - 2B.11 Ex4 Which Always Work?
+    - 2C.14 Ex8 Is It Enough?
+    homework:
+    - IM practice 2B.7–2B.11
+    assessments:
+    - Unit 1/2 exams answer bank (a. SSS b. SAS c. ASA d. None) — given
+    - 'Unit 2 Exam A/B #3 (a, b) [2 pts each]'
+    - Semester 1 Final Unit 2 MC — built, not given
+- id: CRIT.ENOUGH_INFO
+  name: Must they be congruent? (enough information)
+  family: classification
+  units:
+  - 2
+  task: Decide whether the given information forces congruence; must vs might.
+  formats:
+  - must_could_cant
+  - decide_and_justify
+  answer_format: Must/might + criterion or counterexample sketch.
+  seen_in:
+    decks:
+    - 2B.06 Ex1 Enough Information?
+    - 2B.06 Information Overload?
+    - 2B.11 Ex2 Must They Be Congruent?
+    - 2B.11 Ex5 Must or Might?
+    homework:
+    - IM practice 2B
+- id: CRIT.SSA_COUNT
+  name: How many triangles? (SSA / ambiguous case)
+  family: classification
+  units:
+  - 2
+  - 4
+  task: Given two sides and a non-included angle, determine whether 0, 1 or 2 triangles exist; HL as the special case; later
+    solve both triangles with the Law of Sines.
+  formats:
+  - count_cases
+  - sketch
+  - numeric_answer
+  answer_format: Number of triangles with justification; both solutions when 2.
+  algebra_fold_in: sin⁻¹ gives two supplementary candidates.
+  seen_in:
+    decks:
+    - 2B.11 Warm-Up, How Many Triangles? It Depends on BC, So When Does SSA Work?, Ex1 Count the Triangles
+    - 2B.11 Why HL Works
+    - 4D.18 The Ambiguous Case, Ex1 How Many Triangles?, Ex2 Solve Both Triangles, Ex4 The Forgotten Triangle
+- id: CRIT.CORRESPONDENCE
+  name: Write the congruence or similarity statement / list corresponding parts
+  family: classification
+  units:
+  - 1
+  - 2
+  - 3
+  task: Write a congruence (≅) or similarity (~) statement with vertices in corresponding order; list all corresponding parts;
+    read parts off a statement.
+  formats:
+  - short_answer
+  - mc_single
+  answer_format: Statement with correct vertex order.
+  misconceptions_distractors:
+  - Alphabetical order instead of correspondence order
+  seen_in:
+    decks:
+    - 2B.06 Warm-Up
+    - 3B.06 Ex3 Writing Similarity Statements
+    - 3B.09 Ex3 A Tricky Correspondence
+    - 3B.10 Ex2 Turned Around
+    assessments:
+    - Unit 1/2 exams (write the correct congruence statement) — given
+- id: ANG.CHASE
+  name: Angle chase
+  family: computation
+  units:
+  - 1
+  - 2
+  task: Find unknown angles from isosceles triangles, angle bisectors, parallel lines, triangle sum, kites, parallelograms.
+  formats:
+  - numeric_answer
+  - numeric_answer
+  answer_format: Angle measures in degrees, each with a reason.
+  seen_in:
+    decks:
+    - 2B.06 Ex5 Angle Chase (36° isosceles, golden triangle)
+    - 2B.07 Parallel Lines Review
+    - 2B.09 Ex5 Kite Angle Chase
+    - 2B.07 Whiteboard Where Does the Side Go?
+    assessments:
+    - Unit 1 exams (parallel-line angle chases, x = ___) — given
+    - Semester 1 Final Unit 1 angle items — built, not given
+- id: ANG.NAME_PAIRS
+  name: Name angle-pair relationships
+  family: classification
+  units:
+  - 1
+  task: Name a pair of each kind (linear pair, vertical, corresponding, alternate interior, same-side interior) in a parallel-line
+    figure.
+  formats:
+  - answer_pair_blanks
+  - mc_single
+  answer_format: '“Answer: ∠__ and ∠__”.'
+  seen_in:
+    decks:
+    - 2B.07 Parallel Lines Review (b)
+    assessments:
+    - Unit 1 exams — given
+- id: ALG.QUAD_EQUATION
+  name: Algebra with quadrilateral or isosceles-triangle properties
+  family: computation
+  units:
+  - 2
+  task: 'Set up and solve an equation from a property: consecutive angles supplementary, opposite angles congruent, base angles
+    of an isosceles triangle congruent, diagonals bisect each other; then find the requested measures.'
+  formats:
+  - numeric_answer
+  answer_format: Value of x and all requested measures.
+  misconceptions_distractors:
+  - Setting consecutive angles equal instead of supplementary
+  - Answering x instead of the angle
+  seen_in:
+    assessments:
+    - 'Unit 2 Exam A #5 (one angle 100° more than the other) [4 pts]'
+    - 'Unit 2 Exam B #5 (30° less than twice another) [4 pts]'
+    - 'Unit 2 Exam A #6 (base angles 3x+5, 4x−4; find ∠K) [4 pts]'
+    - Unit 2 Exam C
+    - Semester 1 Final u2alg1, u2alg2 — built, not given
+- id: ALG.SIMILAR_EXPRESSIONS
+  name: Similar figures with algebraic sides
+  family: computation
+  units:
+  - 3
+  task: Corresponding sides given as expressions; set up a proportion and solve (sometimes quadratic).
+  formats:
+  - numeric_answer
+  answer_format: x and the side lengths.
+  seen_in:
+    decks:
+    - 3B.07 Ex1
+    - 3B.12 Warm-Up Solve Each Proportion
+    assessments:
+    - 'Unit 3 Exams #16 — built, not given'
+    - 'Unit 3 study guide #11, #14'
+- id: ALG.RADICALS
+  name: Simplest radical form; exact vs approximate
+  family: computation
+  units:
+  - 3
+  - 4
+  task: Simplify radicals, rationalize denominators, give exact answers and decimals to a stated place.
+  formats:
+  - numeric_answer
+  answer_format: Exact form a√b, plus decimal when asked.
+  misconceptions_distractors:
+  - √20 vs 2√5 treated as different answers
+  seen_in:
+    decks:
+    - '3B.12 Toolkit: Simplest Radical Form'
+    - 3C.13 Ex3 Exact or Approximate?
+    - 3C.14 Ex1 Exact Answers
+    - 4A.02 Ex3 Exact or Estimate?
+    - 4D.17 Ex4 Exact Values
+    assessments:
+    - 'Unit 3 study guide #16, #19'
+- id: QUAD.ASN
+  name: Always, sometimes, or never (quadrilateral properties)
+  family: classification
+  units:
+  - 2
+  task: Decide whether a property statement about a quadrilateral family is always, sometimes or never true, and justify in
+    a sentence.
+  formats:
+  - always_sometimes_never
+  answer_format: A/S/N + one-sentence justification or counterexample.
+  misconceptions_distractors:
+  - Kite diagonals bisect each other
+  - Parallelogram diagonals congruent
+  seen_in:
+    decks:
+    - 2C.12 Warm-Up Do You Agree?
+    - 2C.12 Ex1 All Rectangles Are Parallelograms
+    assessments:
+    - 'Unit 2 Exam A/B #2 a–d [2 pts each]'
+    - Unit 2 Exam C
+    - Semester 1 Final Unit 2 MC — built, not given
+- id: QUAD.MUST_COULD_CANT
+  name: Must, could, or can’t be (classification from given facts)
+  family: classification
+  units:
+  - 2
+  task: Given a few facts about a quadrilateral (or a marked figure), decide whether it must, could, or can’t be a given type;
+    e.g., “must it be a rhombus?”.
+  formats:
+  - must_could_cant
+  - decide_and_justify
+  answer_format: Choice + justification or counterexample sketch.
+  seen_in:
+    decks:
+    - 2D.15 Warm-Up Must, Could, or Can’t?
+    - 2C.12 Ex4 One Right Angle Is Enough
+    - 2D.15 Ex7 Special Parallelograms
+    homework:
+    - IM practice must/could/can’t items
+    assessments:
+    - 'Unit 2 Exam A #4 (must it be a rhombus?) [4 pts]'
+- id: QUAD.SELECT_PROPERTIES
+  name: Select all quadrilaterals with a property
+  family: classification
+  units:
+  - 1
+  - 2
+  task: From a list (trapezoid, isosceles trapezoid, parallelogram, rhombus, rectangle, square, kite), select every type that
+    always has a property (180° rotational symmetry, a line of symmetry, perpendicular diagonals …).
+  formats:
+  - select_all
+  answer_format: Set of letters.
+  misconceptions_distractors:
+  - Forgetting that a square is a rhombus and rectangle
+  - Including the exclusive trapezoid
+  seen_in:
+    assessments:
+    - 'Unit 2 Exam A #7 (180° rotational symmetry) [4 pts]'
+    - 'Unit 2 Exam B #7 (at least one line of symmetry) [4 pts]'
+    - Semester 1 Final select-all item — built, not given
+    homework:
+    - IM practice select-all items
+- id: TRF.DRAW_IMAGE
+  name: Draw the image under a transformation
+  family: transformation
+  units:
+  - 1
+  task: On a dot grid or plain figure, draw and label the image under a translation (by a vector), rotation (center, angle),
+    reflection (line), or a sequence.
+  formats:
+  - draw_on_diagram
+  - image_table
+  answer_format: Labeled image (primes), or an Original | Image table.
+  figure: Dot grid or isometric grid.
+  seen_in:
+    assessments:
+    - Unit 1 exams 1B, 1C–1D — given
+- id: TRF.DESCRIBE_SEQUENCE
+  name: Precisely describe a sequence of transformations
+  family: transformation
+  units:
+  - 1
+  - 3
+  task: 'Describe a rigid-motion (or similarity) sequence taking one figure onto another, with every parameter: vector, center
+    and angle with direction, line of reflection, scale factor and center.'
+  formats:
+  - short_answer
+  - short_justification
+  answer_format: Ordered list of fully specified transformations.
+  misconceptions_distractors:
+  - Rotation without a center or direction
+  - Reflection line not named
+  seen_in:
+    decks:
+    - 2B.06 Why SAS Works (move △ABC onto △DEF)
+    - 3B.06 Ex1 Describe the Sequence
+    - 3B.07 Ex2 Two Different Sequences
+    - 3B.06 Whiteboard Does the Order Matter?
+    assessments:
+    - Unit 1 exams — given
+    - 'Unit 3 Exams #15 on a grid — built, not given'
+    - 'Unit 3 study guide #7'
+- id: TRF.FIND_ELEMENT
+  name: Find the line of reflection, center of rotation or translation vector
+  family: transformation
+  units:
+  - 1
+  task: Given a figure and its image, locate and draw the line of reflection (perpendicular bisector of PP′), the center of
+    rotation, or the translation vector.
+  formats:
+  - draw_on_diagram
+  answer_format: Drawn element, labeled.
+  seen_in:
+    assessments:
+    - Unit 1 exams — given
+- id: TRF.SYMMETRY
+  name: Lines of symmetry and rotational symmetry
+  family: transformation
+  units:
+  - 1
+  - 2
+  task: Draw all lines of symmetry; state the angles of rotational symmetry of a figure or regular polygon.
+  formats:
+  - draw_on_diagram
+  - select_all
+  - short_answer
+  answer_format: Lines drawn; angle list such as 72°, 144°, ….
+  seen_in:
+    decks:
+    - 2D.15 Ex4 Symmetry Sort
+    assessments:
+    - Unit 1 exams — given
+    - 'Unit 2 Exam A/B #7'
+    - Semester 1 Final symmetry item — built, not given
+- id: TRF.DEFINITION_CHECK
+  name: Definitions of rigid motion and congruence
+  family: classification
+  units:
+  - 1
+  task: Identify the correct definition of congruence (a sequence of rigid motions) or which transformations are rigid.
+  formats:
+  - mc_single
+  - true_false
+  answer_format: Letter.
+  misconceptions_distractors:
+  - Non-rigid definitions of congruence (“same shape”)
+  seen_in:
+    assessments:
+    - Unit 1 exams — given
+    - Semester 1 Final Unit 1 MC — built, not given
+- id: CON.COMPASS
+  name: Compass-and-straightedge construction
+  family: construction
+  units:
+  - 1
+  - 2
+  - 3
+  task: 'Construct with compass and straightedge and label: perpendicular bisector, angle bisector, copy of a segment or angle,
+    regular hexagon, square, parallel line, triangle from SSS or SAS, dilation of a point, √n segment.'
+  formats:
+  - construction
+  answer_format: Construction with arcs left visible, labeled as instructed.
+  seen_in:
+    decks:
+    - 2B.06 Ex4 Construct It (SAS triangle)
+    - 2B.09 Ex7 Build a Triangle from Three Segments
+    - 3A.03 Dilating With a Compass
+    - 3C.13 Honors Construct √6
+    assessments:
+    - Unit 1 Exam 1A Constructions — given (4–6 pts each)
+  notes: Never on whiteboard problems (markers only). Excluded from the Semester 1 Final by teacher decision.
+- id: CON.MEASURE_BUILD
+  name: Build it with ruler and protractor, then compare
+  family: construction
+  units:
+  - 2
+  - 3
+  task: Draw a triangle to given measures, measure the rest, compare with classmates to discover whether the data determine
+    the triangle.
+  formats:
+  - open_task
+  answer_format: Measurements + conclusion (unique / not unique).
+  seen_in:
+    decks:
+    - 2B.07 Warm-Up Build It
+    - 2B.11 Warm-Up Build It
+    - 3A.03 Ex6 Measure, Then Predict
+- id: LOC.EQUIDISTANT
+  name: Equidistant points and locus
+  family: application
+  units:
+  - 2
+  task: Find all points equidistant from two (or three) points or satisfying distance conditions; perpendicular bisector as
+    locus; count the points.
+  formats:
+  - sketch
+  - short_justification
+  answer_format: Locus described and sketched; count of points.
+  seen_in:
+    decks:
+    - 2B.08 Whiteboard Buried Treasure
+    - 2B.08 Ex4 The Cell Tower
+    - 2B.08 Ex6 How Many Points?
+    - 2B.08 Ex2 Fold It
+    - 2B.08 Ex5 Kites
+- id: DIL.SCALED_COPY
+  name: Is it a scaled copy? Find the scale factor
+  family: classification
+  units:
+  - 3
+  task: Decide whether figures are scaled copies (all lengths multiplied by one k, angles kept) and find k; copies of copies
+    multiply factors.
+  formats:
+  - decide_and_justify
+  - numeric_answer
+  - select_all
+  answer_format: Yes/no + k.
+  seen_in:
+    decks:
+    - 3A.01 Warm-Up, Ex1, Ex2 Scaled or Not?, Ex4 Copies of Copies, Ex5 Which Proportions Are True?
+    homework:
+    - IM practice 3A.1
+- id: DIL.SCALE_MODEL
+  name: Scale drawings, maps and models
+  family: application
+  units:
+  - 3
+  task: 'Use a scale (1 in : 2.5 mi, 1 : 24) to convert between model and real sizes and distances, with unit conversion;
+    build a scale model of the Earth–Moon–Sun.'
+  formats:
+  - numeric_answer
+  answer_format: Length with units.
+  seen_in:
+    decks:
+    - 3A.01 Ex3 Reading a Map
+    - 3A.02 Setting the Scale, Ex1 Model Sizes, Ex2 Model Distances, Ex3 Eclipses and Coins, Ex4 A Hallway Model
+    assessments:
+    - 'Unit 3 Exams #12 — built, not given'
+    - 'Unit 3 study guide #3'
+- id: DIL.DRAW
+  name: Dilate a figure (grid, compass, center inside)
+  family: transformation
+  units:
+  - 3
+  task: Draw the image of a figure under a dilation with given center and k on a grid or with a compass; centers inside or
+    outside the figure; k < 1 and k > 1; negative k (honors).
+  formats:
+  - draw_on_diagram
+  answer_format: Labeled image.
+  seen_in:
+    decks:
+    - 3A.03 Ex1 Dilate on a Grid
+    - 3A.03 Ex2 Center Inside the Figure
+    - 3A.05 Honors A Negative Scale Factor?
+    homework:
+    - IM practice 3A.3
+- id: DIL.COORDINATES
+  name: Dilations with coordinates
+  family: computation
+  units:
+  - 3
+  task: 'Find the image of a point under a dilation with center at the origin or at another point: P + k(A − P).'
+  formats:
+  - numeric_answer
+  - mc_single
+  answer_format: Ordered pair.
+  misconceptions_distractors:
+  - Multiplying coordinates by k when the center is not the origin
+  seen_in:
+    decks:
+    - 3A.03 Ex5 Dilations With Coordinates
+    - '3A.04 Another Proof: Coordinates'
+    - 3A.04 Ex2 Dilating an Equation
+    assessments:
+    - 'Unit 3 Exams #11 — built, not given'
+    - 'Unit 3 study guide #1–2'
+- id: DIL.FIND_CENTER_K
+  name: Find the center and scale factor; image or not?
+  family: transformation
+  units:
+  - 3
+  task: Given a figure and image, locate the center (intersect lines through corresponding points) and compute k; decide whether
+    a figure can be a dilation image.
+  formats:
+  - draw_on_diagram
+  - decide_and_justify
+  answer_format: Center marked; k as a ratio.
+  seen_in:
+    decks:
+    - 3A.03 Ex3 Find the Center and Scale Factor
+    - 3A.04 Ex4 Work Backwards
+    - 3A.04 Ex6 Image or Not? Where Is the Center?
+- id: DIL.DISTANCES
+  name: Distances along the ray from the center
+  family: computation
+  units:
+  - 3
+  task: Use OA′ = k·OA and A′B′ = k·AB; find k from OA and AA′; find missing lengths.
+  formats:
+  - numeric_answer
+  answer_format: Lengths and k.
+  misconceptions_distractors:
+  - Using AA′ as OA′
+  seen_in:
+    decks:
+    - 3A.03 Ex4 Distances on the Ray
+    - 3A.04 Whiteboard Tripled Rays
+    assessments:
+    - 'Unit 3 Exams #13 — built, not given'
+    - 'Unit 3 study guide #4'
+- id: DIL.PROPERTIES
+  name: What a dilation preserves (lines, angles, parallelism)
+  family: classification
+  units:
+  - 3
+  task: 'True/false and must-be-true items about dilations: lines through the center map to themselves, others to parallel
+    lines; angles and ratios preserved; lengths scaled.'
+  formats:
+  - true_false
+  - always_sometimes_never
+  - must_could_cant
+  answer_format: Choice + reason.
+  seen_in:
+    decks:
+    - 3A.03 What Stays the Same?
+    - 3A.04 What a Dilation Does, Ex3 True or False?, Ex5 What Must Be True?
+    - 3A.04 Honors Where Does the Midpoint Go?
+    assessments:
+    - 'Unit 3 Exams #1, #5 — built, not given'
+    - 'Unit 3 study guide #6'
+- id: DIL.MIDSEGMENT_PARTITION
+  name: Midsegments and partitioning a segment
+  family: computation
+  units:
+  - 3
+  task: Use the midsegment theorem (half and parallel) to find lengths or x; find the point a given fraction of the way along
+    a segment; decide whether a segment is parallel.
+  formats:
+  - numeric_answer
+  - decide_and_justify
+  answer_format: Lengths / coordinates.
+  seen_in:
+    decks:
+    - '3A.05 Notice and Wonder: Three Midpoints, Ex1, Ex2 Midsegments, Ex3 Parallel or Not?, Ex4 Three-Fifths of the Way,
+      Section A Check'
+    assessments:
+    - 'Unit 3 study guide #5'
+- id: DIL.AREA_PERIMETER_SCALE
+  name: Perimeter and area under scaling
+  family: computation
+  units:
+  - 3
+  task: Perimeter scales by k, area by k²; find side ratio from an area ratio; decide whether adding a constant to lengths
+    gives a similar figure.
+  formats:
+  - numeric_answer
+  - true_false
+  - always_sometimes_never
+  answer_format: Ratio or value.
+  misconceptions_distractors:
+  - Area scales by k
+  - Adding the same amount keeps similarity
+  seen_in:
+    decks:
+    - 3A.01 Honors What Happens to Area?
+    - 3B.07 Honors Perimeter and Area
+    - 3A.02 Honors How Many Earths Fit in the Sun?
+    assessments:
+    - 'Unit 3 Exams #8, #10, #24 — built, not given'
+    - 'Unit 3 study guide #15'
+- id: SIM.ASN
+  name: 'Always, sometimes, never: similar figures'
+  family: classification
+  units:
+  - 3
+  task: Decide whether two figures of a family are always, sometimes or never similar (equilateral triangles, rectangles,
+    squares, rhombuses, isosceles triangles, isosceles right triangles, circles, regular polygons, parabolas).
+  formats:
+  - always_sometimes_never
+  answer_format: A/S/N with justification.
+  seen_in:
+    decks:
+    - 3B.08 Warm-Up Always, Sometimes, or Never?
+    - '3B.08 Always Similar: Circles and Regular Polygons'
+    - 3B.08 Honors Are All Parabolas Similar?
+    assessments:
+    - 'Unit 3 Exams #1–4, #9 — built, not given'
+    - 'Unit 3 study guide #6, #9'
+    - Semester 1 Final Unit 3 MC — built, not given
+- id: SIM.WHICH_CRITERION
+  name: Similar by AA, SAS~, SSS~ (or not)?
+  family: classification
+  units:
+  - 3
+  task: Decide whether two triangles are similar and name the criterion; check side ratios or angle sums.
+  formats:
+  - decide_and_justify
+  - mc_single
+  answer_format: Criterion + similarity statement, or “not similar”.
+  misconceptions_distractors:
+  - Comparing non-corresponding ratios
+  - Accepting SSA~
+  seen_in:
+    decks:
+    - 3B.09 Warm-Up Two Angles, Ex1 Similar by AA?
+    - 3B.10 Ex1 Which Criterion?
+    - 3B.10 Ex4 Similar Sails?
+    assessments:
+    - 'Unit 3 Exams #6 — built, not given'
+    - 'Unit 3 study guide #10, #12'
+    - Semester 1 Final — built, not given
+- id: SIM.SOLVE
+  name: Solve for missing sides in similar figures
+  family: computation
+  units:
+  - 3
+  task: Use a similarity statement or marked figure to find unknown sides (including nested and overlapping triangles, trapezoid
+    diagonals).
+  formats:
+  - numeric_answer
+  answer_format: Lengths.
+  seen_in:
+    decks:
+    - 3B.07 Ex1 Cutting a Smaller Sail
+    - 3B.12 Ex1 A Garden Plan, Ex2 Trapezoid Diagonals, Ex3 Proportional Sides Give a Quadratic
+    - '3C.16 Example: Every Length'
+    assessments:
+    - 'Unit 3 Exams #16 — built, not given'
+    - Semester 1 Final FR “sim” — built, not given
+- id: SIM.TRIANGLE_PROPORTIONALITY
+  name: Triangle proportionality theorem and converse
+  family: computation
+  units:
+  - 3
+  task: 'A line parallel to one side divides the other two proportionally: solve for x; use the converse to decide whether
+    a segment is parallel; parallel streets / brace problems.'
+  formats:
+  - numeric_answer
+  - decide_and_justify
+  answer_format: x and lengths; parallel yes/no with ratios.
+  misconceptions_distractors:
+  - Using AD/DB = DE/BC (mixing a part with the whole)
+  seen_in:
+    decks:
+    - 3B.11 Whiteboard Trails and Power Lines, Ex1 Solve for x, Ex2 Parallel? Enough Information?, Ex3 A Slide and Its Brace,
+      Ex4 Parallel Streets
+    assessments:
+    - 'Unit 3 Exams #18, #19 — built, not given'
+    - 'Unit 3 study guide #13'
+- id: SIM.INDIRECT_MEASUREMENT
+  name: 'Indirect measurement: shadows, mirrors, across the pond'
+  family: application
+  units:
+  - 3
+  task: Find an unreachable height or distance with similar triangles (shadows at the same moment, mirror reflection with
+    equal angles, surveying across water, two lines across a river).
+  formats:
+  - numeric_answer
+  - information_gap
+  answer_format: Length with units; similarity justified (AA).
+  seen_in:
+    decks:
+    - 3B.06 Ex4 Across the Pond
+    - 3B.09 Ex2 Shadows, Ex4 Across the Pond
+    - 3B.09 Whiteboard A Bounce Off the Floor
+    - 3C.16 Two Ways to Use Similarity, Information Gap, Shadows and a Flagpole, A Shed Roof
+    - 3D.17 Angles of Incidence and Reflection, Measuring a Tree With a Mirror, A Bank Shot in Handball
+    - 3D.17 Honors Shortest Path
+    assessments:
+    - 'Unit 3 Exams #17 (shadows), #22 (mirror) — built, not given'
+    - 'Unit 3 study guide #21–22'
+- id: SIM.ASPECT_RATIO
+  name: Aspect ratios and similar rectangles
+  family: application
+  units:
+  - 3
+  task: Decide whether rectangles (screens, photos, paper sizes) are similar; enlarge or crop a photo; A-series paper (√2
+    ratio); golden rectangle.
+  formats:
+  - decide_and_justify
+  - numeric_answer
+  answer_format: Ratio comparison; exact ratio.
+  seen_in:
+    decks:
+    - 3B.07 Whiteboard Enlarging a Photo, Ex3 Phone or Tablet?
+    - 3B.08 Ex4 A-Series Paper
+    - 3B.12 Whiteboard Why Paper Sizes Work, Ex4 Enlarging a Photo, Honors The Golden Rectangle
+    - 3C.14 Ex3 How Big Is a 55-inch TV?
+    assessments:
+    - 'Unit 3 study guide #8'
+    - 'Semester 1 Final Extra Credit: golden rectangle (+2) — built, not given'
+- id: SIM.RIGHT_ALTITUDE
+  name: Altitude to the hypotenuse; geometric mean
+  family: computation
+  units:
+  - 3
+  task: The altitude to the hypotenuse makes three similar right triangles; find the altitude and legs (h² = xy, a² = yc,
+    b² = xc).
+  formats:
+  - numeric_answer
+  - paragraph_proof
+  answer_format: Exact lengths.
+  honors_extension: Geometric mean language is an honors extension.
+  seen_in:
+    decks:
+    - 3C.13 Whiteboard Cutting a Right Triangle, The Altitude to the Hypotenuse, Pull Them Apart, Ex1 Tangled Triangles, Ex2
+      A Shortcut Through the Park
+    assessments:
+    - 'Unit 3 Exams #20, #27 — built, not given'
+    - 'Unit 3 study guide #17, #20'
+- id: PYTH.FIND_SIDE
+  name: 'Pythagorean theorem: find a side'
+  family: computation
+  units:
+  - 3
+  task: Find a missing side exactly and/or approximately; applications (ladder, ramp, TV diagonal, shortcut through a park,
+    tilted squares on a grid).
+  formats:
+  - numeric_answer
+  answer_format: Exact radical and decimal.
+  seen_in:
+    decks:
+    - 3C.13 Warm-Up Pythagorean Refresh
+    - 3C.14 Whiteboard Tilted Squares on a Grid, Ex1 Exact Answers, Ex2 A Ladder and Other Quadratics, Ex3 How Big Is a 55-inch
+      TV?
+    assessments:
+    - 'Unit 3 Exams #21 — built, not given'
+    - 'Unit 3 study guide #19'
+    - Semester 1 Final FR “pyth” — built, not given
+- id: PYTH.CLASSIFY
+  name: 'Converse: right, acute, obtuse, or not a triangle'
+  family: classification
+  units:
+  - 3
+  - 4
+  task: Use c² vs a² + b² and the triangle inequality to classify a triangle or find the range of a third side.
+  formats:
+  - true_false
+  - mc_single
+  - numeric_answer
+  answer_format: Classification; inequality range for x.
+  misconceptions_distractors:
+  - Comparing with the wrong side as c
+  seen_in:
+    decks:
+    - 3C.15 Whiteboard The Hinge, Warm-Up A Knotted Rope, Acute Right or Obtuse?, The Triangle Inequality, A Triangular Flower
+      Bed, Square the Corner
+    - 3C.15 Honors A Machine for Right Triangles
+    - 4D.21 Ex4 Can These Be a Triangle?
+    - 4D.20 Honors When Three Lengths Fail
+    assessments:
+    - 'Unit 3 Exams #7, #23 — built, not given'
+    - 'Unit 3 study guide #18'
+- id: PYTH.TRIPLES
+  name: Pythagorean triples
+  family: computation
+  units:
+  - 4
+  task: Generate and recognize whole-number right triangles; scale primitive triples.
+  formats:
+  - numeric_answer
+  - select_all
+  answer_format: Triples.
+  seen_in:
+    decks:
+    - 4A.05 Whiteboard Whole-Number Right Triangles, Ex1 Pythagorean Triples
+- id: SRT.45_45_90
+  name: 45-45-90 (half a square)
+  family: computation
+  units:
+  - 4
+  task: Leg ↔ hypotenuse with factor √2; squares and diagonals; diamonds, gardens, rhombus diagonals.
+  formats:
+  - numeric_answer
+  answer_format: Exact lengths.
+  misconceptions_distractors:
+  - Multiplying the hypotenuse by √2 to get a leg
+  seen_in:
+    decks:
+    - 4A.02 Whiteboard Double the Square, Warm-Up Diagonals of Rectangles, Half a Square, Ex1 Generalize, Ex2 Diamonds and
+      Gardens, Ex3 Exact or Estimate?, Honors Rhombus Diagonals
+    assessments:
+    - Semester 1 Final 4A MC (one 45-45-90) — built, not given
+- id: SRT.30_60_90
+  name: 30-60-90 (half an equilateral triangle)
+  family: computation
+  units:
+  - 4
+  task: 'Short leg : long leg : hypotenuse = 1 : √3 : 2; hexagons, kites, yield signs.'
+  formats:
+  - numeric_answer
+  answer_format: Exact lengths.
+  misconceptions_distractors:
+  - Putting √3 on the side opposite 30°
+  seen_in:
+    decks:
+    - 4A.03 Whiteboard Across the Hexagon, Half an Equilateral Triangle, Ex1, Ex2 Kites and Trees, Ex3 Yield!, Honors The
+      Converse, and a Formula
+    assessments:
+    - Semester 1 Final 4A MC (one 30-60-90) — built, not given
+- id: SRT.STEEPNESS
+  name: 'Steepness: angle and ratio'
+  family: classification
+  units:
+  - 4
+  task: Compare steepness of ramps, slides and ladders by angle or by rise/run; recognize that one acute angle fixes all side
+    ratios of a right triangle.
+  formats:
+  - decide_and_justify
+  - numeric_answer
+  answer_format: Comparison with ratios.
+  seen_in:
+    decks:
+    - 4A.01 Whiteboard Which Slide Is Steepest?, Warm-Up Ratios Galore, One Acute Angle Fixes Every Ratio, Ex1 Is It Accessible?,
+      Ex2 Setting a Ladder, Ex3 Two Ways to a Side
+    - 4A.04 Whiteboard Which Ladder Is Steeper?
+    assessments:
+    - Semester 1 Final 4A — built, not given
+- id: SRT.RATIO_TABLE
+  name: Use the right-triangle ratio table
+  family: computation
+  units:
+  - 4
+  task: Name the legs adjacent/opposite to a chosen angle; read a table of ratios to find sides or approximate an angle.
+  formats:
+  - numeric_answer
+  answer_format: Lengths or angle estimate.
+  seen_in:
+    decks:
+    - 4A.04 Naming the Legs, Your Angle Decides the Ratios, Ex1 Tons of Triangles, The Right Triangle Table, Ex2 Tons of Ratios,
+      Ex3 Road Signs and Ski Trails
+    - 4A.05 Two Ways to Use the Table, Ex2 How Long?, Ex3 Ladder Safety, Ex4 Moving-Truck Ramp
+- id: TRIG.RATIOS
+  name: Write sine, cosine, tangent ratios
+  family: computation
+  units:
+  - 4
+  task: Write the three ratios for each acute angle; write all six equations for one triangle.
+  formats:
+  - short_answer
+  answer_format: Fractions/expressions.
+  seen_in:
+    decks:
+    - 4B.06 New Names for Our Three Columns, Ex1 New Names Same Ratios, Ex2 Six Equations for One Roof
+    - 4B.08 Ex1 Twin Triangles
+- id: TRIG.SOLVE_RIGHT
+  name: Solve a right triangle
+  family: computation
+  units:
+  - 4
+  task: Given a side and an acute angle (or two sides), find all missing sides and angles; ramps, glide paths, kites, roofs.
+  formats:
+  - numeric_answer
+  answer_format: Decimals to a stated place.
+  seen_in:
+    decks:
+    - 4B.06 Whiteboard The Kite Line, Ex3 Solve the Triangle, Ex4 Ramps and Glide Paths
+    - 4B.07 What Does a Right Triangle Need?, Ex1 Information Gap
+    assessments:
+    - Semester 1 Final Extra Credit option (4B.6–4B.7) — superseded by golden rectangle
+- id: TRIG.ELEVATION_DEPRESSION
+  name: Angles of elevation and depression
+  family: application
+  units:
+  - 4
+  task: Heights and distances we cannot reach (flagpoles, towers, windows), including two-triangle problems.
+  formats:
+  - numeric_answer
+  answer_format: Length with units.
+  seen_in:
+    decks:
+    - 4B.07 Whiteboard How Tall Is the Flagpole?, Looking Up, Ex2 How Tall Is the Tower?, Ex3 Up and Down from a Window, Honors
+      Two Sightings
+- id: TRIG.COFUNCTION
+  name: Sine and cosine of complementary angles
+  family: computation
+  units:
+  - 4
+  task: sin θ = cos(90° − θ); use it to rewrite and solve.
+  formats:
+  - numeric_answer
+  - true_false
+  answer_format: Angle or ratio.
+  seen_in:
+    decks:
+    - 4B.08 Whiteboard Two Points of View, Theorem, Ex2 Using the Theorem, Ex3 The Roof Truss, Ex4 A Safe Ladder, Honors Who
+      Is Bigger?
+- id: TRIG.IDENTITY
+  name: Pythagorean identity and tan = sin/cos
+  family: computation
+  units:
+  - 4
+  task: Find one ratio from another without the angle; decide whether trig statements must be true.
+  formats:
+  - numeric_answer
+  - must_could_cant
+  answer_format: Exact value.
+  seen_in:
+    decks:
+    - 4B.09 Warm-Up Squaring, The Pythagorean Identity, A Second Identity, Ex1 Cosine from Sine, Ex2 Must It Be True?, Ex3
+      Steepest Legal Ramp, Ex4 A Drone’s Flight Log, Honors How Big Can sin+cos Be?
+- id: TRIG.INVERSE
+  name: Find an angle with inverse trig
+  family: computation
+  units:
+  - 4
+  task: Use arcsin, arccos, arctan to find angles from ratios; ladder 4-to-1 rule; ramp steepness limits.
+  formats:
+  - numeric_answer
+  answer_format: Degrees to a stated place.
+  seen_in:
+    decks:
+    - 4B.10 Whiteboard Which Angle Is It?, Working Backwards, Ex1 From Ratios to Angles, Ex2 The 4 to 1 Rule, Ex3 Will the
+      Ladder Reach?, Ex4 How Steep Is a Wheelchair Ramp?, Honors Why Is There Only One Angle?
+- id: POLY.REGULAR_CIRCLE
+  name: Regular polygons in and around circles; approximating π
+  family: computation
+  units:
+  - 4
+  task: Find the perimeter or area of a regular n-gon inscribed in or circumscribed about a circle with trig; use them to
+    bound π.
+  formats:
+  - numeric_answer
+  - card_sort
+  answer_format: Perimeter/area; π estimate.
+  seen_in:
+    decks:
+    - 4C.11 Whiteboard Hexagon to Dodecagon, Regular Polygons in Circles, Ex1 Card Sort, Ex2 Growing Regular Polygons, Ex3
+      A Hexagonal Gazebo, Ex4 Up the Mountain, Honors The Golden Decagon
+    - 4C.12 Whiteboard Squeeze the Circle, n Sides, Ex1 So Many Sides, Ex2 A Ferris Wheel, Squeezing π from Above, Ex3 The
+      Stop Sign, Honors Archimedes’ Doubling Trick
+    - 4D.16 Honors Polygons Closing In on π
+- id: RAD.MEASURE
+  name: Radian measure, arc length, sectors
+  family: computation
+  units:
+  - 4
+  task: Convert degrees ↔ radians; arc length s = rθ; distance traveled by a wheel; wiper sweep; sector area (honors).
+  formats:
+  - numeric_answer
+  answer_format: Exact multiples of π and decimals.
+  seen_in:
+    decks:
+    - 4D.13 Whiteboard The Radius-Length Arc, Warm-Up Arcs on Similar Circles, The Radian, Ex1 Friendly Angles, Ex2 How Far
+      Does the Bike Go?, Ex3 The Windshield Wiper, Ex4 Distance Along the Earth, Honors Sectors
+- id: UC.COORDINATES
+  name: 'Unit circle: coordinates and trig of any angle'
+  family: computation
+  units:
+  - 4
+  task: Find (cos θ, sin θ) for any angle using reference angles, symmetry, coterminal and negative angles; reciprocal ratios;
+    Ferris wheel, robot arm, wind turbine heights.
+  formats:
+  - numeric_answer
+  answer_format: Exact coordinates/values with signs.
+  misconceptions_distractors:
+  - Wrong sign by quadrant
+  seen_in:
+    decks:
+    - 4D.14 Whiteboard Where Is the Point?, Angles of Any Size, Ex1 Mirrors Around the Circle, Ex2 The Ferris Wheel, Ex3 The
+      Robot Arm, Honors Turning a Quarter Turn
+    - 4D.15 Whiteboard Spin Cycle, Three More Ratios, Coterminal Negative and Reference Angles, Ex1 Reciprocal Ratios, Ex2
+      Back to One Turn, Ex3 Any Angle at All, Ex4 The Wind Turbine
+- id: OBL.AREA_SAS
+  name: Area of a triangle from two sides and the included angle
+  family: computation
+  units:
+  - 4
+  task: Area = ½ab sin C; work backward to an angle or side; lots and sails.
+  formats:
+  - numeric_answer
+  answer_format: Area with units.
+  seen_in:
+    decks:
+    - 4D.16 Whiteboard The Hinged Sticks, Warm-Up Fence No Height, Ex1–Ex4
+- id: OBL.LAW_OF_SINES
+  name: Law of Sines (AAS, ASA, SSA)
+  family: computation
+  units:
+  - 4
+  task: Solve triangles; surveying across canyons, fire towers, lighthouse beams; exact values with special angles.
+  formats:
+  - numeric_answer
+  answer_format: All sides and angles.
+  seen_in:
+    decks:
+    - 4D.17 Whiteboard, Warm-Up One Height Two Ways, Solving a Triangle, Ex1 AAS, Ex2 Across the Canyon, Ex3 Spotting a Fire,
+      Ex4 Exact Values, Honors The Biggest Side
+    - 4D.18 Ex3 Into the Lighthouse Beam
+- id: OBL.LAW_OF_COSINES
+  name: Law of Cosines (SAS, SSS)
+  family: computation
+  units:
+  - 4
+  task: Find the third side (SAS) or an angle (SSS); tunnels, boats, baseball diamond, kayak course, robot elbow.
+  formats:
+  - numeric_answer
+  answer_format: Sides/angles.
+  seen_in:
+    decks:
+    - 4D.19 Whiteboard The Bent Hinge, Warm-Up The Sign of the Cosine, Ex1–Ex4, Honors The Parallelogram Law
+    - 4D.20 Whiteboard A Hidden Friendly Angle, Angles from Three Sides, Ex1–Ex3
+- id: OBL.WHICH_LAW
+  name: Which law? (choose a method)
+  family: classification
+  units:
+  - 4
+  task: Given a set of measurements, decide Law of Sines, Law of Cosines, right-triangle trig, or not determined; and the
+    triangle’s type.
+  formats:
+  - decide_and_justify
+  answer_format: Method + reason.
+  seen_in:
+    decks:
+    - 4D.20 Which Law?, Ex4 Which Law, and Which Kind?
+- id: OBL.HERON
+  name: Heron’s formula and polygon areas
+  family: computation
+  units:
+  - 4
+  task: Area from three sides; four-sided lots split by a diagonal; check triangle inequality first.
+  formats:
+  - numeric_answer
+  answer_format: Area.
+  seen_in:
+    decks:
+    - 4D.21 Whiteboard Only the Fence, Warm-Up Difference of Squares, Heron’s Formula, Ex1 Heron’s Own Triangle, Ex2 Buying
+      Land, Ex3 A Four-Sided Lot, Ex4, Honors The Inscribed Circle
+- id: TASK.WHITEBOARD
+  name: Whiteboard thinking task (BTC)
+  family: routine
+  task: 'Opening Building-Thinking-Classrooms problem at vertical whiteboards: low floor, high ceiling, starts from prior
+    knowledge, freehand sketch, one core question plus extensions; foreshadows the lesson.'
+  formats:
+  - open_task
+  answer_format: Group work on boards; no single answer format.
+  seen_in:
+    decks:
+    - every deck 2B.06–4D.21 (slide 2)
+  notes: 'Markers only: no compass, ruler, protractor or grid paper.'
+- id: TASK.WARMUP
+  name: Warm-up
+  family: routine
+  task: 'Short retrieval or launch: notice and wonder, which three go together, guess first, do you agree?, ratio rivalry,
+    build it.'
+  formats:
+  - notice_wonder
+  - which_three
+  - short_answer
+  answer_format: Brief.
+  seen_in:
+    decks:
+    - every deck
+- id: TASK.INFO_GAP
+  name: Information gap
+  family: routine
+  task: One partner has a problem card, the other a data card; students must ask for exactly the information they need.
+  formats:
+  - information_gap
+  answer_format: List of needed measurements, then solution.
+  seen_in:
+    decks:
+    - '3C.16 Information Gap: What Do You Need?'
+    - 4B.07 Ex1 Information Gap
+- id: TASK.CARD_SORT
+  name: Card sort / matching
+  family: routine
+  task: Sort or match cards (figures, statements, formulas) into groups.
+  formats:
+  - card_sort
+  - matching
+  answer_format: Groups or pairs.
+  seen_in:
+    decks:
+    - 4C.11 Ex1 Card Sort
+    - 2D.15 Ex4 Symmetry Sort
+    - 2B.10 Ex1 Match the Statement to the Reason
+    homework:
+    - IM practice matching items (A–3)
+- id: TASK.EXIT_TICKET
+  name: Exit ticket
+  family: routine
+  task: 'Two-part check: fill in the blank of the day’s theorem/criterion statement, then one quick problem.'
+  formats:
+  - fill_blank_statement
+  - short_answer
+  answer_format: Brief.
+  seen_in:
+    decks:
+    - every deck (last slide)
+- id: TASK.REVIEW_SET
+  name: Section/unit review slides
+  family: routine
+  task: Mixed retrieval of the section’s skills at the end of a section or unit.
+  formats:
+  - mixed
+  answer_format: Mixed.
+  seen_in:
+    decks:
+    - 2B.11 Section 2B Summary
+    - 2D.15 Unit 2 Review
+    - 3A.05 Section A Check
+    - 3D.17 Unit 3 Review (two slides)
+- id: TASK.SPIRAL_REVIEW
+  name: Spiral review (homework)
+  family: routine
+  task: IM practice problems tagged “from Unit X, Lesson Y” revisit earlier skills.
+  formats:
+  - mixed
+  answer_format: Mixed.
+  seen_in:
+    homework:
+    - IM practice problems, Units 2–3 (violet review tag in solution decks)

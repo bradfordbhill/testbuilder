@@ -4,6 +4,7 @@ import { toast } from '../ui/toast'
 import { parseDebugCode } from '../gen/debugCode'
 import { QuestionView } from '../components/QuestionView'
 import { LessonCodes } from '../components/TopicPicker'
+import { TypeChips } from '../components/ProblemTypes'
 import { firstLesson, generatorById, generators, newQuestionFromGenerator, runGenerator, supportsMC, unitOf } from '../gen'
 import type { Generator } from '../gen/types'
 import { compareCodes, courseMap } from '../lib/courseMap'
@@ -24,15 +25,17 @@ export function GeneratePage({ query }: { query: URLSearchParams }) {
   const fromCode = parsed?.kind === 'generated' ? parsed : null
   const [genId, setGenId] = useState<string | null>(fromCode?.generatorId ?? query.get('gen'))
   const targetTest = query.get('test')
+  const typeFilter = query.get('type')
 
   const list = useMemo(() => {
     const s = search.trim().toLowerCase()
     return generators
       .filter((g) => (!unit || unitOf(g) === Number(unit) || g.lessons.some((c) => courseMap.byCode.get(c)?.unit === Number(unit))))
       .filter((g) => !lesson || g.lessons.includes(lesson))
+      .filter((g) => !typeFilter || g.types.includes(typeFilter))
       .filter((g) => !s || `${g.title} ${g.description} ${g.lessons.join(' ')}`.toLowerCase().includes(s))
       .sort((a, b) => compareCodes(firstLesson(a), firstLesson(b)))
-  }, [unit, lesson, search])
+  }, [unit, lesson, search, typeFilter])
 
   const unitLessons = unit ? courseMap.units.find((u) => u.unit === Number(unit))?.sections.flatMap((s) => s.lessons) ?? [] : []
   const gen = genId ? generatorById.get(genId) : undefined
@@ -85,6 +88,7 @@ export function GeneratePage({ query }: { query: URLSearchParams }) {
                   <span className="gen-title">{g.title}</span>
                   <span className="gen-meta">
                     <LessonCodes codes={g.lessons} />
+                    <TypeChips ids={g.types} max={2} />
                     {g.honors && <span className="tag honors">honors</span>}
                   </span>
                 </button>

@@ -2,7 +2,8 @@ import { Copy, Download, FilePlus2, ListPlus, Pencil, Trash2, Upload, Wand2, X }
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { QuestionRow } from '../components/QuestionRow'
 import { QuestionView } from '../components/QuestionView'
-import { generatorById } from '../gen'
+import { generatorById, questionTypes } from '../gen'
+import { catalog } from '../lib/catalog'
 import { compareCodes, courseMap } from '../lib/courseMap'
 import { type Question, QUESTION_TYPE_LABELS, type QuestionType } from '../model/types'
 import { href, navigate } from '../router'
@@ -29,15 +30,18 @@ export interface BankFilters {
   type: string
   text: string
   source: string
+  /** Problem-type catalog id. */
+  ptype?: string
 }
 
-export const emptyFilters: BankFilters = { unit: '', lesson: '', type: '', text: '', source: '' }
+export const emptyFilters: BankFilters = { unit: '', lesson: '', type: '', text: '', source: '', ptype: '' }
 
 export function filterQuestions(questions: Record<string, Question>, f: BankFilters): Question[] {
   const t = f.text.trim().toLowerCase()
   return Object.values(questions)
     .filter((q) => {
       if (f.type && q.type !== f.type) return false
+      if (f.ptype && !questionTypes(q).includes(f.ptype)) return false
       if (f.lesson && !q.lessons.includes(f.lesson)) return false
       if (f.unit && !q.lessons.some((c) => courseMap.byCode.get(c)?.unit === Number(f.unit))) return false
       if (f.source === 'generated' && !q.gen) return false
@@ -116,6 +120,20 @@ export function QuestionFilters({ f, setF, compact, autoFocusSearch }: { f: Bank
             </option>
           ))}
         </select>
+        <select value={f.ptype ?? ''} onChange={(e) => setF({ ...f, ptype: e.target.value })} title="Problem type (catalog)">
+          <option value="">Any problem type</option>
+          {catalog.groups.map((g) => (
+            <optgroup key={g.prefix} label={`${g.prefix} · ${g.label}`}>
+              {catalog.types
+                .filter((t) => t.group === g.prefix)
+                .map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+            </optgroup>
+          ))}
+        </select>
         <select value={f.source} onChange={(e) => setF({ ...f, source: e.target.value })}>
           <option value="">Any source</option>
           <option value="written">Written</option>
@@ -127,8 +145,8 @@ export function QuestionFilters({ f, setF, compact, autoFocusSearch }: { f: Bank
   )
 }
 
-export function BankPage() {
-  const [f, setF] = useState<BankFilters>(emptyFilters)
+export function BankPage({ query }: { query?: URLSearchParams }) {
+  const [f, setF] = useState<BankFilters>({ ...emptyFilters, ptype: query?.get('ptype') ?? '' })
   const list = useFilteredQuestions(f)
   const tests = useStore((s) => s.tests)
   const total = useStore((s) => Object.keys(s.questions).length)

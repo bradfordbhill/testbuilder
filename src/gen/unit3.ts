@@ -20,6 +20,7 @@ const SCALES: [number, number][] = [
 
 export const dilationGrid: Generator = {
   id: 'dilation-grid',
+  types: ['DIL.COORDINATES', 'DIL.DRAW'],
   title: 'Dilate a figure on the grid',
   lessons: ['3A.1', '3A.3', '3A.4'],
   description: 'Dilate a triangle with a given center and scale factor; or find the scale factor from a figure and its image.',
@@ -91,6 +92,7 @@ export const dilationGrid: Generator = {
 
 export const midsegment: Generator = {
   id: 'midsegment',
+  types: ['DIL.MIDSEGMENT_PARTITION'],
   title: 'Triangle midsegment: solve for x',
   lessons: ['3A.5'],
   description: 'The segment joining midpoints of two sides is parallel to the third side and half as long.',
@@ -130,7 +132,7 @@ export const midsegment: Generator = {
 // ---------------------------------------------------------------- triangle proportionality (side splitter)
 
 /** Triangle with apex A, base BC; D on AB and E on AC with AD/AB = AE/AC = t. Side lengths AB, AC set the shape. */
-function splitterFigure(A: string, B: string, C: string, D: string, E: string, t: number, ab = 6, ac = 6) {
+export function splitterFigure(A: string, B: string, C: string, D: string, E: string, t: number, ab = 6, ac = 6) {
   // Build from the apex: sides AB and AC leave A symmetrically about the downward vertical,
   // so the triangle is never degenerate. Very unequal sides are softened so the figure stays readable.
   const ratio = Math.min(2, Math.max(0.5, ac / ab))
@@ -149,6 +151,7 @@ function splitterFigure(A: string, B: string, C: string, D: string, E: string, t
 
 export const sideSplitter: Generator = {
   id: 'side-splitter',
+  types: ['SIM.TRIANGLE_PROPORTIONALITY', 'ALG.SIMILAR_EXPRESSIONS'],
   title: 'Triangle proportionality (side splitter)',
   lessons: ['3B.11', '3A.5'],
   description:
@@ -186,6 +189,7 @@ export const sideSplitter: Generator = {
         const other = -(p + s) - X
         return {
           type: 'short',
+          types: ['SIM.TRIANGLE_PROPORTIONALITY', 'ALG.SIMILAR_EXPRESSIONS'],
           prompt: `In the figure, $${seg(D, E)} \\parallel ${seg(B, C)}$. Find the value of $x$. Explain why only one solution of your equation works.`,
           diagram: d.noScale().build(250),
           answers: [ans('x', X)],
@@ -231,6 +235,7 @@ export const sideSplitter: Generator = {
       d.seg(A, D, { label: String(p) }).seg(D, B, { label: String(q) }).seg(A, E, { label: String(r) }).seg(E, C, { label: lin(e.a, e.b) })
       return {
         type: 'short',
+        types: ['SIM.TRIANGLE_PROPORTIONALITY', 'ALG.SIMILAR_EXPRESSIONS'],
         prompt: `$${seg(D, E)} \\parallel ${seg(B, C)}$. Find the value of $x$ and $${E}${C}$.`,
         diagram: d.build(250),
         answers: [ans('x', x), ans(`${E}${C}`, ec)],
@@ -256,6 +261,7 @@ export const sideSplitter: Generator = {
 
 export const similarTriangles: Generator = {
   id: 'similar-triangles',
+  types: ['SIM.SOLVE'],
   title: 'Similar triangles: find missing sides',
   lessons: ['3B.6', '3B.7', '3B.9'],
   description: 'Given a similarity statement and marked figure, use the scale factor to find two missing side lengths.',
@@ -334,6 +340,7 @@ export const similarTriangles: Generator = {
 
 export const nestedTriangles: Generator = {
   id: 'nested-triangles',
+  types: ['SIM.SOLVE', 'SIM.WHICH_CRITERION'],
   title: 'Nested similar triangles (parallel segment)',
   lessons: ['3B.9', '3B.11'],
   description: 'A segment parallel to a side forms a similar triangle by AA. Find a side of the large triangle (watch whole vs. part).',
@@ -367,6 +374,7 @@ export const nestedTriangles: Generator = {
 
 export const similarityProof: Generator = {
   id: 'similarity-proof',
+  types: ['PRF.SIMILARITY'],
   title: 'Two-column similarity proof (AA)',
   lessons: ['3B.9', '3B.11'],
   description: 'Prove triangles similar with the Angle-Angle Triangle Similarity Theorem (nested triangles or an "hourglass").',
@@ -429,6 +437,7 @@ export const similarityProof: Generator = {
 
 export const pythagorean: Generator = {
   id: 'pythagorean',
+  types: ['PYTH.FIND_SIDE', 'ALG.RADICALS'],
   title: 'Pythagorean Theorem: missing side (simplest radical form)',
   lessons: ['3C.14'],
   description: 'Find a missing side of a right triangle as an exact simplest radical and a decimal.',
@@ -494,6 +503,7 @@ export const pythagorean: Generator = {
 
 export const classifyTriangle: Generator = {
   id: 'classify-triangle',
+  types: ['PYTH.CLASSIFY'],
   title: 'Acute, right, obtuse, or not a triangle?',
   lessons: ['3C.15'],
   description: 'Converse of the Pythagorean Theorem and the Triangle Inequality: compare c² with a² + b².',
@@ -552,6 +562,7 @@ export const classifyTriangle: Generator = {
 
 export const altitudeHypotenuse: Generator = {
   id: 'altitude-hypotenuse',
+  types: ['SIM.RIGHT_ALTITUDE', 'ALG.RADICALS'],
   title: 'Altitude to the hypotenuse (geometric mean)',
   lessons: ['3C.13', '3B.12'],
   honors: true,
@@ -633,6 +644,7 @@ export const altitudeHypotenuse: Generator = {
 
 export const indirectMeasurement: Generator = {
   id: 'indirect-measurement',
+  types: ['SIM.INDIRECT_MEASUREMENT'],
   title: 'Mirror and shadow problems',
   lessons: ['3D.17'],
   description: 'Similar right triangles from a mirror (angle of incidence = angle of reflection) or shadows.',
@@ -685,6 +697,7 @@ const round1 = (v: number) => Math.round(v * 10) / 10
 
 export const similarAreaRatio: Generator = {
   id: 'similar-area-ratio',
+  types: ['DIL.AREA_PERIMETER_SCALE'],
   title: 'Similar figures: ratio of areas',
   lessons: ['3B.7', '3B.8'],
   honors: true,

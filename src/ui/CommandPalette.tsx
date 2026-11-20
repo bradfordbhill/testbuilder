@@ -10,12 +10,14 @@ import {
   Printer,
   Search,
   Sparkles,
+  Target,
   Wand2,
 } from 'lucide-react'
 import { type ReactNode, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { promptSummary } from '../components/QuestionView'
 import { generators } from '../gen'
 import { parseDebugCode } from '../gen/debugCode'
+import { catalog } from '../lib/catalog'
 import { courseMap } from '../lib/courseMap'
 import { QUESTION_TYPE_LABELS, type QuestionType } from '../model/types'
 import { navigate } from '../router'
@@ -84,7 +86,7 @@ function score(c: Command, words: string[]): number {
   return s
 }
 
-const GROUP_ORDER = ['Debug code', 'Actions', 'Go to', 'Tests', 'Generators', 'Questions', 'Lessons']
+const GROUP_ORDER = ['Debug code', 'Actions', 'Go to', 'Tests', 'Generators', 'Problem types', 'Questions', 'Lessons']
 
 export function CommandPalette() {
   const isOpen = usePaletteOpen()
@@ -109,6 +111,7 @@ function PaletteBody() {
       { id: 'nav-gen', group: 'Go to', label: 'Generate problems', hint: 'G', icon: <Wand2 size={15} />, run: go('/generate') },
       { id: 'nav-tests', group: 'Go to', label: 'Tests', hint: 'T', icon: <ListChecks size={15} />, run: go('/tests') },
       { id: 'nav-course', group: 'Go to', label: 'Course topics', hint: 'C', icon: <BookOpen size={15} />, run: go('/course') },
+      { id: 'nav-coverage', group: 'Go to', label: 'Problem-type coverage', hint: 'P', icon: <Target size={15} />, run: go('/coverage') },
       {
         id: 'new-test',
         group: 'Actions',
@@ -146,6 +149,17 @@ function PaletteBody() {
         run: go(`/generate?gen=${g.id}`),
       })
     }
+    for (const t of catalog.types) {
+      out.push({
+        id: `ptype-${t.id}`,
+        group: 'Problem types',
+        label: t.name,
+        hint: t.id,
+        keywords: `${t.task} ${t.lessons.join(' ')}`,
+        icon: <Target size={15} />,
+        run: go(`/coverage?type=${t.id}`),
+      })
+    }
     for (const l of courseMap.lessons) {
       out.push({
         id: `lesson-${l.code}`,
@@ -181,7 +195,7 @@ function PaletteBody() {
     }
     for (const c of commands) {
       // Lessons only appear once the user types something.
-      if (c.group === 'Lessons' && !words.length) continue
+      if ((c.group === 'Lessons' || c.group === 'Problem types') && !words.length) continue
       if (c.group === 'Tests' && c.id.startsWith('print-') && !words.length) continue
       const s = score(c, words)
       if (s > 0) list.push({ ...c, s })

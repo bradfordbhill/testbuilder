@@ -10,6 +10,7 @@ const solveLin = (a: number, b: number, c: number, d: number) => (d - b) / (a - 
 
 export const verticalAngles: Generator = {
   id: 'vertical-angles',
+  types: ['ANG.CHASE'],
   title: 'Vertical angles & linear pairs: solve for x',
   lessons: ['1D.19'],
   description: 'Two intersecting lines with angle expressions. Students set vertical angles equal or a linear pair to 180°.',
@@ -150,6 +151,7 @@ function parallelFigure(alpha: number) {
 
 export const parallelTransversal: Generator = {
   id: 'parallel-transversal',
+  types: ['ANG.CHASE', 'ANG.NAME_PAIRS'],
   title: 'Parallel lines cut by a transversal: solve for x',
   lessons: ['1D.20'],
   description:
@@ -226,6 +228,7 @@ export const parallelTransversal: Generator = {
 
 export const triangleAngleSum: Generator = {
   id: 'triangle-angle-sum',
+  types: ['ANG.CHASE'],
   title: 'Triangle Angle Sum: solve for x',
   lessons: ['1D.21'],
   description: 'Interior angles given as expressions (and possibly one number). Sum is 180°.',
@@ -283,6 +286,7 @@ export const triangleAngleSum: Generator = {
 
 export const exteriorAngle: Generator = {
   id: 'exterior-angle',
+  types: ['ANG.CHASE'],
   title: 'Exterior angle of a triangle: solve for x',
   lessons: ['1D.21'],
   description: 'An exterior angle equals the sum of the two remote interior angles.',
@@ -339,6 +343,7 @@ const TRANSFORMS: Tf[] = [
 
 export const coordinateTransform: Generator = {
   id: 'coordinate-transform',
+  types: ['TRF.DRAW_IMAGE'],
   title: 'Rigid transformations of a triangle on the grid',
   lessons: ['1B.11', '1B.12', '1B.14', '1C.17'],
   description: 'Give the image coordinates under a reflection, rotation, translation, or a sequence of two.',
@@ -416,6 +421,7 @@ const POLY_NAMES: Record<number, string> = {
 
 export const polygonSymmetry: Generator = {
   id: 'polygon-symmetry',
+  types: ['TRF.SYMMETRY'],
   title: 'Symmetry of regular polygons',
   lessons: ['1C.15', '1C.16'],
   description: 'Lines of symmetry, smallest rotation angle, and which rotations map the polygon onto itself.',

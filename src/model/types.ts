@@ -166,6 +166,8 @@ interface QuestionBase {
   /** Blank space for student work, in lines (≈ 0.3 in each). */
   workLines?: number
   gen?: GenRef
+  /** Problem-type catalog ids, e.g. ["SIM.TRIANGLE_PROPORTIONALITY"]. */
+  problemTypes?: string[]
   createdAt: number
   updatedAt: number
 }

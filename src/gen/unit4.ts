@@ -62,6 +62,7 @@ const surdVal = (a: Surd) => (a.n * Math.sqrt(a.r)) / a.d
 
 export const specialRight: Generator = {
   id: 'special-right',
+  types: ['SRT.45_45_90', 'SRT.30_60_90', 'ALG.RADICALS'],
   title: 'Special right triangles (45-45-90, 30-60-90)',
   lessons: ['4A.2', '4A.3'],
   description: 'Given one side, find the other two in simplest radical form.',
@@ -98,6 +99,7 @@ export const specialRight: Generator = {
         .seg(A, B, { label: givenHyp ? surdText(hyp) : 'y' })
       return {
         type: 'short',
+        types: ['SRT.45_45_90', 'ALG.RADICALS'],
         prompt: 'Find the exact values of $x$ and $y$ in simplest radical form.',
         diagram: d.build(190),
         answers: givenHyp
@@ -136,6 +138,7 @@ export const specialRight: Generator = {
       .map(([, l, v]) => ans(l as string, surdLatex(v as Surd), surdVal(v as Surd)))
     return {
       type: 'short',
+      types: ['SRT.30_60_90', 'ALG.RADICALS'],
       prompt: 'Find the exact values of $x$ and $y$ in simplest radical form.',
       diagram: d.build(230),
       answers,
@@ -149,6 +152,7 @@ export const specialRight: Generator = {
 
 export const trigRatios: Generator = {
   id: 'trig-ratios',
+  types: ['TRIG.RATIOS'],
   title: 'Write cosine, sine, and tangent ratios',
   lessons: ['4A.4', '4B.6', '4B.8'],
   description: 'Right triangle with Pythagorean-triple sides. Write cos, sin, tan of an acute angle (course order: cos, sin, tan).',
@@ -186,6 +190,7 @@ type Role = 'opp' | 'adj' | 'hyp'
 
 export const trigFindSide: Generator = {
   id: 'trig-find-side',
+  types: ['TRIG.SOLVE_RIGHT'],
   title: 'Use a trig ratio to find a side',
   lessons: ['4B.6', '4B.7'],
   description: 'Right triangle with an acute angle and one side. Includes the variable-in-the-denominator case.',
@@ -229,6 +234,7 @@ export const trigFindSide: Generator = {
 
 export const trigFindAngle: Generator = {
   id: 'trig-find-angle',
+  types: ['TRIG.INVERSE'],
   title: 'Use an inverse trig ratio to find an angle',
   lessons: ['4B.10'],
   description: 'Two sides of a right triangle are given. Find an acute angle with arccos, arcsin, or arctan.',
@@ -278,6 +284,7 @@ export const trigFindAngle: Generator = {
 
 export const elevationDepression: Generator = {
   id: 'elevation-depression',
+  types: ['TRIG.ELEVATION_DEPRESSION', 'TRIG.INVERSE', 'SRT.STEEPNESS'],
   title: 'Angles of elevation and depression; ladders and ramps',
   lessons: ['4B.7', '4B.10', '4C.11', '4A.1'],
   description: 'Real-world right-triangle trig: buildings, cliffs, ladders, kite strings, ADA ramps (1:12, 4.8°).',
@@ -363,6 +370,7 @@ export const elevationDepression: Generator = {
     const ok = rise / run <= 1 / 12 + 1e-9
     return {
       type: 'short',
+      types: ['TRIG.INVERSE', 'SRT.STEEPNESS'],
       prompt: `A wheelchair ramp rises ${rise} in over a horizontal distance of ${run} in. (a) Find the angle the ramp makes with the ground, rounded to ${placeWord(places)} degree. (b) The ADA requires a slope of at most 1:12 (about $4.8^\\circ$). Does the ramp meet the requirement?`,
       answers: [ans('(a)', `${fixed(theta, places)}^\\circ`, round(theta, places)), ans('(b)', ok ? '\\text{Yes}' : '\\text{No}')],
       solution: `$\\theta = \\tan^{-1}\\left(\\frac{${rise}}{${run}}\\right) \\approx ${fixed(theta, places)}^\\circ$. ${ok ? 'This is at most' : 'This exceeds'} $4.8^\\circ$.`,
@@ -375,6 +383,7 @@ export const elevationDepression: Generator = {
 
 export const cofunction: Generator = {
   id: 'cofunction',
+  types: ['TRIG.COFUNCTION'],
   title: 'sin θ = cos(90° − θ): solve for x',
   lessons: ['4B.8'],
   description: 'Complementary angles: sin of one equals cos of the other. Includes an algebra version.',
@@ -401,6 +410,7 @@ export const cofunction: Generator = {
 
 export const pythagoreanIdentity: Generator = {
   id: 'pythagorean-identity',
+  types: ['TRIG.IDENTITY'],
   title: 'Pythagorean Identity: given one ratio, find the others',
   lessons: ['4B.9'],
   description: 'cos²θ + sin²θ = 1 for an acute angle. Exact answers (radicals when needed).',
@@ -436,6 +446,7 @@ const NGON: Record<number, string> = { 5: 'pentagon', 6: 'hexagon', 8: 'octagon'
 
 export const inscribedPolygon: Generator = {
   id: 'inscribed-polygon',
+  types: ['POLY.REGULAR_CIRCLE'],
   title: 'Perimeter and area of a regular polygon inscribed in a circle',
   lessons: ['4C.11', '4C.12', '4D.16'],
   description: 'Split into isosceles triangles; use trig to find the side and apothem. Round results.',
@@ -479,6 +490,7 @@ export const inscribedPolygon: Generator = {
 
 export const radians: Generator = {
   id: 'radians',
+  types: ['RAD.MEASURE'],
   title: 'Radian measure, arc length, sector area',
   lessons: ['4D.13'],
   description: 'Convert degrees ↔ radians (exact, in terms of π); s = rθ; sector area ½r²θ (honors).',
@@ -572,6 +584,7 @@ const SPECIAL = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300,
 
 export const unitCircle: Generator = {
   id: 'unit-circle',
+  types: ['UC.COORDINATES'],
   title: 'Unit circle exact values',
   lessons: ['4D.14', '4D.15'],
   description: 'Exact sin, cos, tan (and csc, sec, cot for honors) of special angles in degrees or radians, including negative and coterminal angles.',
@@ -641,6 +654,7 @@ export const unitCircle: Generator = {
 
 export const referenceCoterminal: Generator = {
   id: 'reference-coterminal',
+  types: ['UC.COORDINATES'],
   title: 'Reference angles and coterminal angles',
   lessons: ['4D.15', '4D.14'],
   description: 'Find a reference angle, the quadrant, and positive/negative coterminal angles (degrees or radians).',
@@ -677,6 +691,7 @@ function obliqueFigure(rng: Rng, A: number, B: number) {
 
 export const areaSine: Generator = {
   id: 'area-sine',
+  types: ['OBL.AREA_SAS'],
   title: 'Area of a triangle = ½ab sin C',
   lessons: ['4D.16'],
   description: 'Two sides and the included angle. Honors option: area of a regular polygon.',
@@ -707,6 +722,7 @@ export const areaSine: Generator = {
 
 export const lawOfSines: Generator = {
   id: 'law-of-sines',
+  types: ['OBL.LAW_OF_SINES'],
   title: 'Law of Sines (AAS / ASA)',
   lessons: ['4D.17'],
   description: 'Two angles and a side: find a missing side (and the third angle).',
@@ -750,6 +766,7 @@ export const lawOfSines: Generator = {
 
 export const ambiguousCase: Generator = {
   id: 'ambiguous-case',
+  types: ['CRIT.SSA_COUNT', 'OBL.LAW_OF_SINES'],
   title: 'Law of Sines: the ambiguous case (SSA)',
   lessons: ['4D.18'],
   description: 'Given A, a, b: decide whether there are 0, 1, or 2 triangles (height test h = b sin A) and find B.',
@@ -798,6 +815,7 @@ export const ambiguousCase: Generator = {
 
 export const lawOfCosines: Generator = {
   id: 'law-of-cosines',
+  types: ['OBL.LAW_OF_COSINES'],
   title: 'Law of Cosines (SAS and SSS)',
   lessons: ['4D.19', '4D.20'],
   description: 'SAS: find the third side. SSS: find an angle with cos C = (a² + b² − c²)/(2ab).',
@@ -860,6 +878,7 @@ export const lawOfCosines: Generator = {
 
 export const heron: Generator = {
   id: 'heron',
+  types: ['OBL.HERON'],
   title: "Heron's Formula",
   lessons: ['4D.21'],
   description: 'Area from three sides using the semiperimeter. Honors option: inradius from Area = r·s.',

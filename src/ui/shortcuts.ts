@@ -15,6 +15,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   { keys: 'G', description: 'Generate problems', group: 'Go to' },
   { keys: 'T', description: 'Tests', group: 'Go to' },
   { keys: 'C', description: 'Course topics', group: 'Go to' },
+  { keys: 'P', description: 'Problem-type coverage', group: 'Go to' },
   { keys: 'N', description: 'New question', group: 'Create' },
   { keys: '/', description: 'Focus the search box on this page', group: 'Lists' },
   { keys: '↑ ↓', description: 'Move through questions', group: 'Lists' },

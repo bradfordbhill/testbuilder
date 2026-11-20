@@ -2,6 +2,8 @@ import type { AnswerPart, Diagram, MatchPair, ProofRow, TFItem } from '../model/
 import type { Rng } from '../lib/rng'
 
 interface Common {
+  /** Overrides the generator's catalog types for this particular problem (e.g. by template). */
+  types?: string[]
   prompt: string
   diagram?: Diagram
   diagramPos?: 'right' | 'below'
@@ -40,6 +42,8 @@ export interface Generator {
   title: string
   /** Lesson codes this generator practices. */
   lessons: string[]
+  /** Problem-type catalog ids this generator produces. */
+  types: string[]
   description: string
   honors?: boolean
   difficulty?: 1 | 2 | 3

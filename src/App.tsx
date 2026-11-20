@@ -1,6 +1,7 @@
-import { BookOpen, Keyboard, Library, ListChecks, Search, Shapes, Wand2 } from 'lucide-react'
+import { BookOpen, Keyboard, Library, ListChecks, Search, Shapes, Target, Wand2 } from 'lucide-react'
 import { BankPage } from './pages/BankPage'
 import { CourseMapPage } from './pages/CourseMapPage'
+import { CoveragePage } from './pages/CoveragePage'
 import { GeneratePage } from './pages/GeneratePage'
 import { PrintView } from './pages/PrintView'
 import { QuestionEditor } from './pages/QuestionEditor'
@@ -16,6 +17,7 @@ const NAV = [
   { to: '/bank', label: 'Bank', key: 'B', icon: Library, match: ['bank', 'q', ''] },
   { to: '/generate', label: 'Generate', key: 'G', icon: Wand2, match: ['generate'] },
   { to: '/tests', label: 'Tests', key: 'T', icon: ListChecks, match: ['tests', 'test', 'print'] },
+  { to: '/coverage', label: 'Coverage', key: 'P', icon: Target, match: ['coverage'] },
   { to: '/course', label: 'Topics', key: 'C', icon: BookOpen, match: ['course'] },
 ]
 
@@ -33,6 +35,7 @@ export default function App() {
     g: () => navigate('/generate'),
     t: () => navigate('/tests'),
     c: () => navigate('/course'),
+    p: () => navigate('/coverage'),
     n: () => navigate('/q/new'),
     '/': () => {
       const el = document.querySelector<HTMLInputElement>('[data-page-search]')
@@ -62,8 +65,11 @@ export default function App() {
     case 'course':
       body = <CourseMapPage />
       break
+    case 'coverage':
+      body = <CoveragePage key={route.query.toString()} query={route.query} />
+      break
     default:
-      body = <BankPage />
+      body = <BankPage key={route.query.toString()} query={route.query} />
   }
   return (
     <div className="app">

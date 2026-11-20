@@ -5,6 +5,7 @@ import { MathText } from '../components/MathText'
 import { TYPE_ICONS, TypeBadge } from '../components/QuestionRow'
 import { QuestionView, wrapMath } from '../components/QuestionView'
 import { TopicPicker } from '../components/TopicPicker'
+import { ProblemTypePicker } from '../components/ProblemTypes'
 import { DiagramEditor } from '../diagram/DiagramEditor'
 import { DiagramView } from '../diagram/DiagramView'
 import { TEMPLATES } from '../diagram/templates'
@@ -130,7 +131,8 @@ export function QuestionEditor({ id, query }: { id: string; query: URLSearchPara
     if (stored) return structuredClone(stored)
     const type = (query.get('type') as QuestionType) || 'short'
     const lesson = query.get('lesson')
-    return withType({ id: uid(), lessons: lesson ? [lesson] : [] }, type)
+    const ptype = query.get('ptype')
+    return { ...withType({ id: uid(), lessons: lesson ? [lesson] : [] }, type), ...(ptype ? { problemTypes: [ptype] } : {}) } as Question
   })
   const [dirty, setDirty] = useState(id === 'new')
   const [preview, setPreview] = useState<'student' | 'key'>('student')
@@ -299,6 +301,15 @@ export function QuestionEditor({ id, query }: { id: string; query: URLSearchPara
               <div className="field">
                 <div className="field-label">Topic</div>
                 <TopicPicker value={draft.lessons} onChange={(lessons) => set({ lessons })} />
+              </div>
+              <div className="field">
+                <div className="field-label">Problem type (catalog)</div>
+                <ProblemTypePicker
+                  value={draft.problemTypes ?? []}
+                  lessons={draft.lessons}
+                  inherited={gen?.types}
+                  onChange={(problemTypes) => set({ problemTypes })}
+                />
               </div>
             </div>
           )}

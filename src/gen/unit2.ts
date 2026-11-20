@@ -13,6 +13,7 @@ const ang = (a: string) => `\\angle ${a}`
 
 export const isoscelesTriangle: Generator = {
   id: 'isosceles-triangle',
+  types: ['ALG.QUAD_EQUATION', 'ANG.CHASE'],
   title: 'Isosceles triangle: base angles and sides',
   lessons: ['2A.4'],
   description: 'Base angles of an isosceles triangle are congruent. Variants use base-angle expressions, the vertex angle, or side expressions.',
@@ -90,6 +91,7 @@ function parallelogramPts(theta: number, w = 5, h = 3) {
 
 export const parallelogramAngles: Generator = {
   id: 'parallelogram-angles',
+  types: ['ALG.QUAD_EQUATION'],
   title: 'Parallelogram: angle equations',
   lessons: ['2C.13'],
   description: 'Opposite angles are congruent; consecutive angles are supplementary.',
@@ -129,6 +131,7 @@ export const parallelogramAngles: Generator = {
 
 export const quadDiagonals: Generator = {
   id: 'quad-diagonals',
+  types: ['ALG.QUAD_EQUATION'],
   title: 'Diagonals of parallelograms, rectangles, rhombuses',
   lessons: ['2C.13', '2C.14'],
   description:
@@ -228,6 +231,7 @@ export const quadDiagonals: Generator = {
 
 export const kiteTrapezoid: Generator = {
   id: 'kite-trapezoid',
+  types: ['ALG.QUAD_EQUATION', 'ANG.CHASE'],
   title: 'Kites and isosceles trapezoids: angle equations',
   lessons: ['2C.12'],
   description: 'Kite: non-vertex angles congruent, angle sum 360°. Isosceles trapezoid: base angles congruent, angles along a leg supplementary.',
@@ -310,6 +314,7 @@ export const kiteTrapezoid: Generator = {
 
 export const perpendicularBisector: Generator = {
   id: 'perpendicular-bisector',
+  types: ['LOC.EQUIDISTANT', 'PRF.ISOSCELES_PERPBIS'],
   title: 'Perpendicular Bisector Theorem: solve for x',
   lessons: ['2B.8'],
   description: 'A point on the perpendicular bisector of a segment is equidistant from its endpoints.',
@@ -349,6 +354,7 @@ const CRITERIA = ['SSS', 'SAS', 'ASA', 'not enough information'] as const
 
 export const congruenceCriteria: Generator = {
   id: 'congruence-criteria',
+  types: ['CRIT.WHICH_CONGRUENCE'],
   title: 'Which triangle congruence criterion applies?',
   lessons: ['2B.6', '2B.7', '2B.9', '2B.11'],
   description: 'Two marked triangles; students choose SSS, SAS, ASA, or not enough information (SSA, AAA).',
@@ -436,6 +442,7 @@ export const congruenceCriteria: Generator = {
 
 export const correspondingParts: Generator = {
   id: 'corresponding-parts',
+  types: ['CRIT.CORRESPONDENCE'],
   title: 'Corresponding parts from a congruence statement',
   lessons: ['2A.1', '2A.3'],
   description: 'Matching: given a congruence statement, match each part with its corresponding part.',
@@ -507,6 +514,7 @@ const asnOption: GenOption = {
 
 export const quadHierarchy: Generator = {
   id: 'quad-hierarchy',
+  types: ['QUAD.ASN'],
   title: 'Quadrilateral hierarchy: Always / Sometimes / Never',
   lessons: ['2C.12', '2C.13', '2C.14'],
   description: 'Statements about parallelograms, rectangles, rhombuses, squares, kites, and (exclusive) trapezoids.',
@@ -567,122 +575,6 @@ function applyBlanks(rng: Rng, rows: ProofRow[], mode: string): ProofRow[] {
   })
 }
 
-export const congruenceProof: Generator = {
-  id: 'congruence-proof',
-  title: 'Two-column triangle congruence proof',
-  lessons: ['2B.6', '2B.7', '2B.8', '2B.9', '2B.10', '2C.13'],
-  description:
-    'Proof templates with random letters: midpoints + vertical angles (SAS), parallel segments (ASA), kite (SSS), perpendicular bisector (SAS), parallelogram sides (ASA). Uses course reason wording.',
-  options: [
-    {
-      key: 'template',
-      label: 'Template',
-      default: 'any',
-      choices: [
-        { value: 'any', label: 'Any' },
-        { value: 'midpoints', label: 'Midpoints + vertical angles (SAS)' },
-        { value: 'parallel', label: 'Parallel segments + midpoint (ASA)' },
-        { value: 'kite', label: 'Shared side (SSS) + CPCTC' },
-        { value: 'perpbis', label: 'Perpendicular bisector (SAS) + CPCTC' },
-        { value: 'parallelogram', label: 'Opposite sides of a parallelogram (ASA) + CPCTC' },
-      ],
-    },
-    proofModeOption,
-  ],
-  generate(rng, opts) {
-    const template =
-      !opts.template || opts.template === 'any' ? rng.pick(['midpoints', 'parallel', 'kite', 'perpbis', 'parallelogram']) : opts.template
-    const [A, B, C, D, E] = letters(rng, 5)
-    const s = seg
-    const tri = (p: string) => `\\triangle ${p}`
-    let given: string
-    let prove: string
-    let rows: ProofRow[]
-    const d = diagram()
-    if (template === 'midpoints' || template === 'parallel') {
-      const a = { x: -2.4, y: 1.4 }
-      const b = { x: -1.6, y: -1.3 }
-      d.pt(A, a.x, a.y).pt(B, b.x, b.y).pt(D, -a.x, -a.y).pt(C, -b.x, -b.y).pt(E, 0, 0)
-      d.seg(A, D).seg(B, C).seg(A, B).seg(C, D)
-      if (template === 'midpoints') {
-        given = `$${E}$ is the midpoint of $${s(A, D)}$ and $${s(B, C)}$.`
-        prove = `$${tri(A + E + B)} \\cong ${tri(D + E + C)}$`
-        rows = [
-          { statement: `$${E}$ is the midpoint of $${s(A, D)}$ and $${s(B, C)}$`, reason: 'Given' },
-          { statement: `$${s(A, E)} \\cong ${s(E, D)}$, $${s(B, E)} \\cong ${s(E, C)}$`, reason: 'Definition of midpoint' },
-          { statement: `$\\angle ${A}${E}${B} \\cong \\angle ${D}${E}${C}$`, reason: 'Vertical angles are congruent' },
-          { statement: `$${tri(A + E + B)} \\cong ${tri(D + E + C)}$`, reason: 'Side-Angle-Side Triangle Congruence Theorem (SAS)' },
-        ]
-      } else {
-        given = `$${s(A, B)} \\parallel ${s(C, D)}$ and $${E}$ is the midpoint of $${s(B, C)}$.`
-        prove = `$${tri(A + B + E)} \\cong ${tri(D + C + E)}$`
-        rows = [
-          { statement: `$${s(A, B)} \\parallel ${s(C, D)}$`, reason: 'Given' },
-          {
-            statement: `$\\angle ${A}${B}${E} \\cong \\angle ${D}${C}${E}$`,
-            reason: 'Alternate interior angles are congruent (parallel lines)',
-          },
-          { statement: `$${E}$ is the midpoint of $${s(B, C)}$`, reason: 'Given' },
-          { statement: `$${s(B, E)} \\cong ${s(C, E)}$`, reason: 'Definition of midpoint' },
-          { statement: `$\\angle ${A}${E}${B} \\cong \\angle ${D}${E}${C}$`, reason: 'Vertical angles are congruent' },
-          { statement: `$${tri(A + B + E)} \\cong ${tri(D + C + E)}$`, reason: 'Angle-Side-Angle Triangle Congruence Theorem (ASA)' },
-        ]
-      }
-    } else if (template === 'kite') {
-      d.pt(A, 0, 2.2).pt(B, -2, 0).pt(C, 0, -3.6).pt(D, 2, 0)
-      d.seg(A, B, { ticks: 1 }).seg(A, D, { ticks: 1 }).seg(B, C, { ticks: 2 }).seg(D, C, { ticks: 2 }).seg(A, C)
-      given = `$${s(A, B)} \\cong ${s(A, D)}$ and $${s(C, B)} \\cong ${s(C, D)}$.`
-      prove = `$\\angle ${A}${B}${C} \\cong \\angle ${A}${D}${C}$`
-      rows = [
-        { statement: `$${s(A, B)} \\cong ${s(A, D)}$, $${s(C, B)} \\cong ${s(C, D)}$`, reason: 'Given' },
-        { statement: `$${s(A, C)} \\cong ${s(A, C)}$`, reason: 'A segment is congruent to itself' },
-        { statement: `$${tri(A + B + C)} \\cong ${tri(A + D + C)}$`, reason: 'Side-Side-Side Triangle Congruence Theorem (SSS)' },
-        { statement: `$\\angle ${A}${B}${C} \\cong \\angle ${A}${D}${C}$`, reason: 'Corresponding parts of congruent triangles are congruent' },
-      ]
-    } else if (template === 'perpbis') {
-      d.pt(A, -2.2, 0).pt(B, 2.2, 0).pt(D, 0, 0).pt(C, 0.0, 3)
-      d.seg(A, D).seg(D, B).seg(C, D).seg(C, A).seg(C, B).right(B, D, C)
-      given = `$${s(C, D)} \\perp ${s(A, B)}$ and $${D}$ is the midpoint of $${s(A, B)}$.`
-      prove = `$${s(A, C)} \\cong ${s(B, C)}$`
-      rows = [
-        { statement: `$${D}$ is the midpoint of $${s(A, B)}$`, reason: 'Given' },
-        { statement: `$${s(A, D)} \\cong ${s(D, B)}$`, reason: 'Definition of midpoint' },
-        { statement: `$${s(C, D)} \\perp ${s(A, B)}$`, reason: 'Given' },
-        { statement: `$\\angle ${A}${D}${C}$ and $\\angle ${B}${D}${C}$ are right angles`, reason: 'Definition of perpendicular' },
-        { statement: `$\\angle ${A}${D}${C} \\cong \\angle ${B}${D}${C}$`, reason: 'All right angles are congruent' },
-        { statement: `$${s(C, D)} \\cong ${s(C, D)}$`, reason: 'A segment is congruent to itself' },
-        { statement: `$${tri(A + D + C)} \\cong ${tri(B + D + C)}$`, reason: 'Side-Angle-Side Triangle Congruence Theorem (SAS)' },
-        { statement: `$${s(A, C)} \\cong ${s(B, C)}$`, reason: 'Corresponding parts of congruent triangles are congruent' },
-      ]
-    } else {
-      const p = parallelogramPts(65, 5, 3)
-      d.pt(A, p.A.x, p.A.y).pt(B, p.B.x, p.B.y).pt(C, p.C.x, p.C.y).pt(D, p.D.x, p.D.y)
-      d.poly([A, B, C, D]).seg(A, C, { dashed: true })
-      given = `$${A}${B}${C}${D}$ is a parallelogram.`
-      prove = `$${s(A, B)} \\cong ${s(C, D)}$`
-      rows = [
-        { statement: `$${A}${B}${C}${D}$ is a parallelogram`, reason: 'Given' },
-        { statement: `$${s(A, B)} \\parallel ${s(D, C)}$, $${s(A, D)} \\parallel ${s(B, C)}$`, reason: 'Definition of parallelogram' },
-        { statement: `Draw $${s(A, C)}$`, reason: 'Two points determine a line (auxiliary segment)' },
-        { statement: `$\\angle ${B}${A}${C} \\cong \\angle ${D}${C}${A}$`, reason: 'Alternate interior angles are congruent (parallel lines)' },
-        { statement: `$\\angle ${B}${C}${A} \\cong \\angle ${D}${A}${C}$`, reason: 'Alternate interior angles are congruent (parallel lines)' },
-        { statement: `$${s(A, C)} \\cong ${s(A, C)}$`, reason: 'A segment is congruent to itself' },
-        { statement: `$${tri(A + B + C)} \\cong ${tri(C + D + A)}$`, reason: 'Angle-Side-Angle Triangle Congruence Theorem (ASA)' },
-        { statement: `$${s(A, B)} \\cong ${s(C, D)}$`, reason: 'Corresponding parts of congruent triangles are congruent' },
-      ]
-    }
-    return {
-      type: 'proof',
-      prompt: 'Complete the two-column proof.',
-      given,
-      prove,
-      rows: applyBlanks(rng, rows, opts.blanks || 'reasons'),
-      format: 'two-column',
-      diagram: d.build(220),
-    }
-  },
-}
-
 export const unit2Generators: Generator[] = [
   isoscelesTriangle,
   parallelogramAngles,
@@ -692,7 +584,6 @@ export const unit2Generators: Generator[] = [
   congruenceCriteria,
   correspondingParts,
   quadHierarchy,
-  congruenceProof,
 ]
 
 export { applyBlanks, proofModeOption }

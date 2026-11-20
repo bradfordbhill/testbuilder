@@ -6,8 +6,10 @@ import { unit1Generators } from './unit1'
 import { unit2Generators } from './unit2'
 import { unit3Generators } from './unit3'
 import { unit4Generators } from './unit4'
+import { proofGenerators } from './proofs'
+import { catalogGapGenerators } from './catalogGaps'
 
-export const generators: Generator[] = [...unit1Generators, ...unit2Generators, ...unit3Generators, ...unit4Generators]
+export const generators: Generator[] = [...unit1Generators, ...unit2Generators, ...proofGenerators, ...unit3Generators, ...unit4Generators, ...catalogGapGenerators]
 
 export const generatorById = new Map(generators.map((g) => [g.id, g]))
 
@@ -120,6 +122,7 @@ export function newQuestionFromGenerator(g: Generator, seed: number, opts: Recor
     honors: g.honors,
     difficulty: g.difficulty,
     gen: { generatorId: g.id, seed, options: resolveOptions(g, opts) },
+    problemTypes: p.types ?? g.types,
     createdAt: now,
     updatedAt: now,
   } as Question
@@ -140,4 +143,11 @@ export function questionForVersion(q: Question, v: number, salt = 0): Question {
   } catch {
     return q
   }
+}
+
+/** Catalog types of a question: explicit tags, else its generator's types. */
+export function questionTypes(q: Question): string[] {
+  if (q.problemTypes) return q.problemTypes
+  if (q.gen) return generatorById.get(q.gen.generatorId)?.types ?? []
+  return []
 }
