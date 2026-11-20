@@ -110,6 +110,21 @@ describe('generators', () => {
     }
   })
 
+  it('triangle-splitter figures are real triangles (not collapsed)', () => {
+    for (const id of ['side-splitter', 'nested-triangles', 'similarity-proof']) {
+      const g = generators.find((x) => x.id === id)!
+      for (const opts of optionCombos(g)) {
+        for (let seed = 1; seed <= 40; seed++) {
+          const p = runGenerator(g, seed * 7919, opts)
+          const [a, b, c] = p.diagram!.points
+          const cross = Math.abs((b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y))
+          const maxSide = Math.max(Math.hypot(b.x - a.x, b.y - a.y), Math.hypot(c.x - a.x, c.y - a.y), Math.hypot(c.x - b.x, c.y - b.y))
+          expect(cross / maxSide ** 2, `${id} seed=${seed} ${JSON.stringify(opts)}`).toBeGreaterThan(0.15)
+        }
+      }
+    }
+  })
+
   it('is deterministic for a given seed', () => {
     for (const g of generators) {
       expect(JSON.stringify(runGenerator(g, 12345))).toBe(JSON.stringify(runGenerator(g, 12345)))

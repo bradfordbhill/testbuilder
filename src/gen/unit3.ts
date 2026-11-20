@@ -131,12 +131,17 @@ export const midsegment: Generator = {
 
 /** Triangle with apex A, base BC; D on AB and E on AC with AD/AB = AE/AC = t. Side lengths AB, AC set the shape. */
 function splitterFigure(A: string, B: string, C: string, D: string, E: string, t: number, ab = 6, ac = 6) {
-  const bc = ((ab + ac) / 2) * 0.95
-  const Bp = { x: 0, y: 0 }
-  const Cp = { x: bc, y: 0 }
-  // Apex: distance ab from B and ac from C.
-  const cosB = (ab * ab + bc * bc - ac * ac) / (2 * ab * bc)
-  const Ap = { x: ab * cosB, y: ab * Math.sqrt(Math.max(0, 1 - cosB * cosB)) }
+  // Build from the apex: sides AB and AC leave A symmetrically about the downward vertical,
+  // so the triangle is never degenerate. Very unequal sides are softened so the figure stays readable.
+  const ratio = Math.min(2, Math.max(0.5, ac / ab))
+  const L = 6
+  const lab = L
+  const lac = L * ratio
+  const apex = 52 // degrees at A
+  const half = (apex / 2) * (Math.PI / 180)
+  const Ap = { x: 0, y: 0 }
+  const Bp = { x: -lab * Math.sin(half), y: -lab * Math.cos(half) }
+  const Cp = { x: lac * Math.sin(half), y: -lac * Math.cos(half) }
   const Dp = { x: Ap.x + (Bp.x - Ap.x) * t, y: Ap.y + (Bp.y - Ap.y) * t }
   const Ep = { x: Ap.x + (Cp.x - Ap.x) * t, y: Ap.y + (Cp.y - Ap.y) * t }
   return diagram().pt(A, Ap.x, Ap.y).pt(B, Bp.x, Bp.y).pt(C, Cp.x, Cp.y).pt(D, Dp.x, Dp.y).pt(E, Ep.x, Ep.y)
@@ -204,9 +209,14 @@ export const sideSplitter: Generator = {
       [5, 4],
       [4, 5],
     ])
-    const m1 = rng.int(1, 4)
-    let m2 = rng.int(1, 4)
-    if (m2 === m1) m2 = m1 === 4 ? 3 : m1 + 1
+    const [m1, m2] = rng.pick([
+      [1, 2],
+      [2, 1],
+      [2, 3],
+      [3, 2],
+      [3, 4],
+      [4, 3],
+    ])
     const p = ra * m1
     const q = rb * m1
     const r = ra * m2
