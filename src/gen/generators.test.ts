@@ -92,6 +92,24 @@ describe('generators', () => {
     })
   }
 
+  it('ambiguous case produces 0, 1, and 2 triangles', () => {
+    const g = generators.find((x) => x.id === 'ambiguous-case')!
+    const seen = new Set<string>()
+    for (let seed = 1; seed <= 60; seed++) {
+      const p = runGenerator(g, seed * 104729)
+      if (p.type === 'short') seen.add(p.answers[0].value)
+    }
+    expect([...seen].sort()).toEqual(['0', '1', '2'])
+  })
+
+  it('similar triangles have whole-number answers', () => {
+    const g = generators.find((x) => x.id === 'similar-triangles')!
+    for (let seed = 1; seed <= 60; seed++) {
+      const p = runGenerator(g, seed * 31337)
+      if (p.type === 'short') p.answers.forEach((a) => expect(Number.isInteger(Number(a.value)), a.value).toBe(true))
+    }
+  })
+
   it('is deterministic for a given seed', () => {
     for (const g of generators) {
       expect(JSON.stringify(runGenerator(g, 12345))).toBe(JSON.stringify(runGenerator(g, 12345)))

@@ -49,7 +49,9 @@ export const dilationGrid: Generator = {
       const all = [...pts, ...imgs, P]
       if (all.some((a) => Math.abs(a.x) > 9 || Math.abs(a.y) > 9)) continue
       const area = Math.abs((pts[1].x - pts[0].x) * (pts[2].y - pts[0].y) - (pts[2].x - pts[0].x) * (pts[1].y - pts[0].y))
-      if (area < 2) continue
+      // Avoid thin or tiny triangles.
+      const sides = [0, 1, 2].map((i) => Math.hypot(pts[i].x - pts[(i + 1) % 3].x, pts[i].y - pts[(i + 1) % 3].y))
+      if (area < 6 || Math.min(...sides) < 2 || area / Math.max(...sides) ** 2 < 0.2) continue
       if (pts.some((a) => a.x === P.x && a.y === P.y)) continue
       const [A, B, C] = letters(rng, 3, 'IOQP')
       const d = diagram().withGrid({ xmin: -9.5, xmax: 9.5, ymin: -9.5, ymax: 9.5 }, { numberEvery: 2 })
@@ -127,16 +129,17 @@ export const midsegment: Generator = {
 
 // ---------------------------------------------------------------- triangle proportionality (side splitter)
 
-function splitterFigure(A: string, B: string, C: string, D: string, E: string, t: number) {
-  const tri = triangleFromAngles(58, 64, 6)
-  // A is the apex (tri.C), B and C the base. D on AB, E on AC at fraction t from A.
-  const Ap = tri.C
-  const Bp = tri.A
-  const Cp = tri.B
+/** Triangle with apex A, base BC; D on AB and E on AC with AD/AB = AE/AC = t. Side lengths AB, AC set the shape. */
+function splitterFigure(A: string, B: string, C: string, D: string, E: string, t: number, ab = 6, ac = 6) {
+  const bc = ((ab + ac) / 2) * 0.95
+  const Bp = { x: 0, y: 0 }
+  const Cp = { x: bc, y: 0 }
+  // Apex: distance ab from B and ac from C.
+  const cosB = (ab * ab + bc * bc - ac * ac) / (2 * ab * bc)
+  const Ap = { x: ab * cosB, y: ab * Math.sqrt(Math.max(0, 1 - cosB * cosB)) }
   const Dp = { x: Ap.x + (Bp.x - Ap.x) * t, y: Ap.y + (Bp.y - Ap.y) * t }
   const Ep = { x: Ap.x + (Cp.x - Ap.x) * t, y: Ap.y + (Cp.y - Ap.y) * t }
-  const d = diagram().pt(A, Ap.x, Ap.y).pt(B, Bp.x, Bp.y).pt(C, Cp.x, Cp.y).pt(D, Dp.x, Dp.y).pt(E, Ep.x, Ep.y)
-  return d
+  return diagram().pt(A, Ap.x, Ap.y).pt(B, Bp.x, Bp.y).pt(C, Cp.x, Cp.y).pt(D, Dp.x, Dp.y).pt(E, Ep.x, Ep.y)
 }
 
 export const sideSplitter: Generator = {
@@ -172,7 +175,7 @@ export const sideSplitter: Generator = {
         const q = rng.pick(divisors)
         const r = N / q
         const AD = X + p
-        const d = splitterFigure(A, B, C, D, E, AD / (AD + q))
+        const d = splitterFigure(A, B, C, D, E, AD / (AD + q), AD + q, r + X + s)
         d.seg(A, D, { label: lin(1, p) }).seg(D, B, { label: String(q) }).seg(A, E, { label: String(r) }).seg(E, C, { label: lin(1, s) })
         d.seg(D, E, { arrows: 1 }).seg(B, C, { arrows: 1 })
         const other = -(p + s) - X
@@ -186,15 +189,30 @@ export const sideSplitter: Generator = {
         }
       }
     }
-    // numeric or linear: AD/DB = AE/EC
-    const p = rng.int(3, 12)
-    const q = rng.int(2, 10)
-    const g = gcd(p, q)
-    const m = rng.int(1, 4)
-    const r = (p / g) * m
-    const ec = (q / g) * m
+    // numeric or linear: AD/DB = AE/EC with AD:DB = a:b, scaled by different multipliers on each side.
+    const [ra, rb] = rng.pick([
+      [3, 2],
+      [2, 3],
+      [4, 3],
+      [3, 4],
+      [5, 2],
+      [2, 5],
+      [5, 3],
+      [3, 5],
+      [2, 1],
+      [1, 2],
+      [5, 4],
+      [4, 5],
+    ])
+    const m1 = rng.int(1, 4)
+    let m2 = rng.int(1, 4)
+    if (m2 === m1) m2 = m1 === 4 ? 3 : m1 + 1
+    const p = ra * m1
+    const q = rb * m1
+    const r = ra * m2
+    const ec = rb * m2
     const t = p / (p + q)
-    const d = splitterFigure(A, B, C, D, E, t)
+    const d = splitterFigure(A, B, C, D, E, t, p + q, r + ec)
     d.seg(D, E, { arrows: 1 }).seg(B, C, { arrows: 1 })
     if (variant === 'linear') {
       const x = rng.int(2, 9)
@@ -232,14 +250,6 @@ export const similarTriangles: Generator = {
   lessons: ['3B.6', '3B.7', '3B.9'],
   description: 'Given a similarity statement and marked figure, use the scale factor to find two missing side lengths.',
   generate(rng) {
-    let a = 0
-    let b = 0
-    let c = 0
-    do {
-      a = rng.int(4, 12)
-      b = rng.int(4, 12)
-      c = rng.int(4, 12)
-    } while (a + b <= c + 1 || a + c <= b + 1 || b + c <= a + 1 || new Set([a, b, c]).size < 3)
     const [num, den] = rng.pick([
       [2, 1],
       [3, 1],
@@ -248,7 +258,17 @@ export const similarTriangles: Generator = {
       [1, 2],
       [4, 3],
     ])
-    // Make sides divisible so all lengths are integers or halves.
+    // Sides are multiples of the denominator so every length is a whole number.
+    let a = 0
+    let b = 0
+    let c = 0
+    const lo = Math.ceil(4 / den)
+    const hi = Math.max(lo + 2, Math.floor(13 / den))
+    do {
+      a = den * rng.int(lo, hi)
+      b = den * rng.int(lo, hi)
+      c = den * rng.int(lo, hi)
+    } while (a + b <= c + 1 || a + c <= b + 1 || b + c <= a + 1 || new Set([a, b, c]).size < 3)
     const k = num / den
     const L = letters(rng, 6)
     const [A, B, C, D, E, F] = L
@@ -293,7 +313,7 @@ export const similarTriangles: Generator = {
     return {
       type: 'short',
       prompt: `$\\triangle ${A}${B}${C} \\sim \\triangle ${D}${E}${F}$. Find $x$ and $y$.`,
-      diagram: d.noScale().build(380, 0.1),
+      diagram: d.build(380, 0.1),
       diagramPos: 'below',
       answers: [ans('x', fmt(s2[unknown[0]])), ans('y', fmt(s2[unknown[1]]))],
       solution: `Scale factor from $\\triangle ${A}${B}${C}$ to $\\triangle ${D}${E}${F}$ is $${fracLatex(num, den)}$. $${names2[unknown[0]]} = ${fracLatex(num, den)} \\cdot ${names1[unknown[0]]}$, and similarly for $${names2[unknown[1]]}$.`,
@@ -313,10 +333,10 @@ export const nestedTriangles: Generator = {
       const p = rng.int(3, 10)
       const q = rng.int(2, 8)
       const g = gcd(p, p + q)
-      const r = (p / g) * rng.int(1, 4)
+      const r = (p / g) * Math.max(1, Math.round((g * rng.int(5, 12)) / 10))
       const x = (r * (p + q)) / p
       if (!Number.isInteger(x) || x > 40) continue
-      const d = splitterFigure(A, B, C, D, E, p / (p + q))
+      const d = splitterFigure(A, B, C, D, E, p / (p + q), p + q, (p + q) * (rng.int(8, 13) / 10))
       d.seg(A, D, { label: String(p) }).seg(D, B, { label: String(q) }).seg(A, E).seg(E, C)
       d.seg(D, E, { label: String(r), arrows: 1 }).seg(B, C, { label: 'x', arrows: 1 })
       return {
@@ -636,7 +656,7 @@ export const indirectMeasurement: Generator = {
         workLines: 4,
       }
     }
-    const height = rng.int(50, 74) / 10
+    const height = rng.int(48, 64) / 10
     const shadow = rng.int(30, 90) / 10
     const objShadow = rng.int(12, 60)
     const obj = rng.pick(['tree', 'flagpole', 'goalpost', 'statue'])

@@ -244,7 +244,7 @@ export const triangleAngleSum: Generator = {
   generate(rng, opts) {
     const n = Number(opts.exprs || 2)
     const x = rng.int(4, 18)
-    const angs = triangleAngles(rng, 30, 105)
+    const angs = triangleAngles(rng, 40, 95)
     const [A, B, C] = letters(rng, 3)
     const tri = triangleFromAngles(angs[0], angs[1])
     const labels: string[] = []
@@ -272,7 +272,7 @@ export const triangleAngleSum: Generator = {
     return {
       type: 'short',
       prompt: `Find the value of $x$. Then find $m\\angle ${A}$, $m\\angle ${B}$, and $m\\angle ${C}$.`,
-      diagram: d.build(250),
+      diagram: d.build(320),
       answers: [ans('x', x), ans(`m\\angle ${A}`, `${angs[0]}^\\circ`, angs[0]), ans(`m\\angle ${B}`, `${angs[1]}^\\circ`, angs[1]), ans(`m\\angle ${C}`, `${angs[2]}^\\circ`, angs[2])],
       distractors: numericDistractors(rng, x, [x + 2, x - 2, x + 5, angs[0]]),
       solution: `Triangle Angle Sum Theorem: $${exprs.join(' + ')} = 180$, so $x = ${x}$.`,
@@ -288,7 +288,7 @@ export const exteriorAngle: Generator = {
   description: 'An exterior angle equals the sum of the two remote interior angles.',
   generate(rng) {
     const x = rng.int(3, 16)
-    const [a, b] = [rng.int(30, 75), rng.int(30, 75)]
+    const [a, b] = [rng.int(40, 75), rng.int(40, 70)]
     const [A, B, C, D] = letters(rng, 4)
     const tri = triangleFromAngles(a, b)
     // Exterior angle at B (extend AB past B); remote interior angles are at A and C.
@@ -314,7 +314,7 @@ export const exteriorAngle: Generator = {
     return {
       type: 'short',
       prompt: `Find the value of $x$. Then find $m\\angle ${C}${B}${D}$.`,
-      diagram: d.build(270),
+      diagram: d.build(300),
       answers: [ans('x', x), ans(`m\\angle ${C}${B}${D}`, `${extB}^\\circ`, extB)],
       distractors: numericDistractors(rng, x, [x + 3, x - 2, (180 - e3.b - e1.b - (useNumber ? c : e2.b)) / (e3.a + e1.a + (useNumber ? 0 : e2.a))]),
       solution: `Exterior angle = sum of the remote interior angles: $${lin(e3.a, e3.b)} = ${sumExpr}$, so $x = ${x}$ and $m\\angle ${C}${B}${D} = ${extB}^\\circ$.`,

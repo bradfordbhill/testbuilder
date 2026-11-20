@@ -16,6 +16,7 @@ import type { Rng } from '../lib/rng'
 import { TRIPLES, triangleFromAngles, triangleFromSides } from './helpers'
 import { ans, type Generator, letters, linearFor, numericDistractors } from './types'
 
+const fmtN = (v: number) => String(Math.round(v * 100) / 100)
 const round = (v: number, p = 1) => Math.round(v * 10 ** p) / 10 ** p
 const placeOpt = {
   key: 'places',
@@ -297,7 +298,7 @@ export const elevationDepression: Generator = {
       return {
         type: 'short',
         prompt: `${nm} stands ${dist} ft from the base of a ${obj}. The angle of elevation from ${eye ? `${nm}'s eyes, ${eye} ft above the ground,` : 'the ground'} to the top of the ${obj} is $${theta}^\\circ$. How tall is the ${obj}? Round to ${placeWord(places)}.`,
-        diagram: d.noScale().build(220),
+        diagram: d.build(220),
         answers: [ans('h', `${fixed(h, places)} \\text{ ft}`, round(h, places))],
         solution: `$\\tan(${theta}^\\circ) = \\frac{h_1}{${dist}}$, so $h_1 = ${dist}\\tan(${theta}^\\circ)$${eye ? ` and the height is $h_1 + ${eye}$` : ''} $\\approx ${fixed(h, places)}$ ft.`,
         workLines: 5,
@@ -313,7 +314,7 @@ export const elevationDepression: Generator = {
       return {
         type: 'short',
         prompt: `From the top of a ${h}-ft ${place}, the angle of depression to a boat is $${theta}^\\circ$. How far is the boat from the base of the ${place}? Round to ${placeWord(places)}.`,
-        diagram: d.noScale().build(230),
+        diagram: d.build(230),
         answers: [ans('d', `${fixed(dist, places)} \\text{ ft}`, round(dist, places))],
         solution: `The angle of depression equals the angle of elevation from the boat (alternate interior angles). $\\tan(${theta}^\\circ) = \\frac{${h}}{d}$, so $d = \\frac{${h}}{\\tan(${theta}^\\circ)} \\approx ${fixed(dist, places)}$ ft.`,
         workLines: 5,
@@ -457,7 +458,7 @@ export const inscribedPolygon: Generator = {
     }
     d.poly(ids)
     const m = polar(2 * Math.cos(toRad(half)), -90)
-    d.hp('M', m.x, m.y).seg('O', 'V0', { label: String(r) }).seg('O', 'M', { dashed: true, label: 'a' }).right('O', 'M', 'V0')
+    d.hp('M', m.x, m.y).seg('O', 'V0', { label: String(r) }).seg('O', 'M', { dashed: true, label: 'a', labelSide: -1 }).right('O', 'M', 'V0')
     d.circle('O', 2)
     return {
       type: 'short',
@@ -468,7 +469,7 @@ export const inscribedPolygon: Generator = {
         ans('(b)', `${fixed(P, places)} \\text{ cm}`, round(P, places)),
         ans('(c)', `${fixed(A, places)} \\text{ cm}^2`, round(A, places)),
       ],
-      solution: `Each central angle is $\\frac{360^\\circ}{${n}} = ${fixed(360 / n, 2)}^\\circ$; half of it is $${fixed(half, 2)}^\\circ$. Side $= 2(${r})\\sin(${fixed(half, 2)}^\\circ) \\approx ${fixed(side, 3)}$, apothem $a = ${r}\\cos(${fixed(half, 2)}^\\circ) \\approx ${fixed(apothem, 3)}$. Area $= \\frac{1}{2}aP$.`,
+      solution: `Each central angle is $\\frac{360^\\circ}{${n}} = ${fmtN(360 / n)}^\\circ$; half of it is $${fmtN(half)}^\\circ$. Side $= 2(${r})\\sin(${fmtN(half)}^\\circ) \\approx ${fixed(side, 3)}$, apothem $a = ${r}\\cos(${fmtN(half)}^\\circ) \\approx ${fixed(apothem, 3)}$. Area $= \\frac{1}{2}aP$.`,
       workLines: 6,
     }
   },
@@ -528,7 +529,7 @@ export const radians: Generator = {
       return {
         type: 'short',
         prompt: `A circle has radius ${r} cm. Find the length of the arc intercepted by a central angle of $${thetaLatex}$ radians. Give the exact answer and a decimal rounded to the nearest tenth.`,
-        diagram: d.noScale().build(170),
+        diagram: d.build(170),
         answers: [ans('s', `${sLatex} \\approx ${fixed(s * Math.PI, 1)} \\text{ cm}`, round(s * Math.PI, 1))],
         solution: `$s = r\\theta = ${r} \\cdot ${thetaLatex} = ${sLatex}$ cm.`,
         workLines: 3,
@@ -539,7 +540,7 @@ export const radians: Generator = {
     return {
       type: 'short',
       prompt: `Find the area of a sector of a circle with radius ${r} in and central angle $${thetaLatex}$ radians. Give the exact answer and a decimal rounded to the nearest tenth.`,
-      diagram: d.noScale().build(170),
+      diagram: d.build(170),
       answers: [ans('A', `${aLatex} \\approx ${fixed(area * Math.PI, 1)} \\text{ in}^2`, round(area * Math.PI, 1))],
       solution: `$A = \\frac{1}{2}r^2\\theta = \\frac{1}{2}(${r})^2 \\cdot ${thetaLatex} = ${aLatex}$ in².`,
       workLines: 3,
@@ -695,7 +696,7 @@ export const areaSine: Generator = {
     return {
       type: 'short',
       prompt: `Find the area of $\\triangle ${L.join('')}$. Round to ${placeWord(places)}.`,
-      diagram: d.noScale().build(230),
+      diagram: d.build(230),
       answers: [ans('\\text{Area}', `${fixed(area, places)} \\text{ units}^2`, round(area, places))],
       distractors: numericDistractors(rng, round(area, places), [round(a * b * Math.sin(toRad(C)), places), round(0.5 * a * b * Math.cos(toRad(C)), places), round(0.5 * a * b, places)], 3, places),
       solution: `$A = \\frac{1}{2}ab\\sin C = \\frac{1}{2}(${a})(${b})\\sin(${C}^\\circ) \\approx ${fixed(area, places)}$.`,
@@ -739,7 +740,7 @@ export const lawOfSines: Generator = {
     return {
       type: 'short',
       prompt: `Find $x$. Round to ${placeWord(places)}.`,
-      diagram: d.noScale().build(250),
+      diagram: d.build(250),
       answers: [ans('x', fixed(x, places), round(x, places))],
       solution: `${thirdNeeded ? `First, the third angle is $180^\\circ - ${shownAngles.map((s) => angOf[s]).join('^\\circ - ')}^\\circ = ${angOf[['a', 'b', 'c'].find((s) => !shownAngles.includes(s))!]}^\\circ$. ` : ''}$\\frac{x}{\\sin(${angOf[unknown]}^\\circ)} = \\frac{${kv}}{\\sin(${angOf[known]}^\\circ)}$, so $x \\approx ${fixed(x, places)}$.`,
       workLines: 5,
@@ -829,7 +830,7 @@ export const lawOfCosines: Generator = {
       return {
         type: 'short',
         prompt: `Find $x$. Round to ${placeWord(places)}.`,
-        diagram: d.noScale().build(240),
+        diagram: d.build(240),
         answers: [ans('x', fixed(c, places), round(c, places))],
         distractors: numericDistractors(rng, round(c, places), [round(Math.sqrt(a * a + b * b + 2 * a * b * Math.cos(toRad(C))), places), round(Math.sqrt(a * a + b * b), places), round(a + b - c, places)], 3, places),
         solution: `$x^2 = ${a}^2 + ${b}^2 - 2(${a})(${b})\\cos(${C}^\\circ) \\approx ${fixed(c * c, 2)}$, so $x \\approx ${fixed(c, places)}$.`,

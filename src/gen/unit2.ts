@@ -164,7 +164,7 @@ export const quadDiagonals: Generator = {
     if (shape === 'parallelogram') {
       const half = rng.int(6, 30)
       const [e1, e2] = twoLinearFor(rng, x, half, { maxB: 25 })
-      d.seg(A, E, { label: lin(e1.a, e1.b) }).seg(E, C, { label: lin(e2.a, e2.b) }).seg(B, D)
+      d.seg(A, E, { label: lin(e1.a, e1.b), labelSide: -1 }).seg(E, C, { label: lin(e2.a, e2.b), labelSide: -1 }).seg(B, D)
       return {
         type: 'short',
         prompt: `$${A}${B}${C}${D}$ is a parallelogram with diagonals intersecting at $${E}$. Find $x$ and $${A}${C}$.`,
@@ -202,7 +202,7 @@ export const quadDiagonals: Generator = {
       return {
         type: 'short',
         prompt: `$${A}${B}${C}${D}$ is a rhombus with diagonals intersecting at $${E}$. Find the value of $x$.`,
-        diagram: d.build(240),
+        diagram: d.build(300),
         answers: [ans('x', x)],
         distractors: numericDistractors(rng, x, [(180 - e.b) / e.a, (45 - e.b) / e.a, x + 1]),
         solution: `Diagonals of a rhombus are perpendicular, so $${lin(e.a, e.b)} = 90$ and $x = ${x}$.`,
@@ -217,7 +217,7 @@ export const quadDiagonals: Generator = {
     return {
       type: 'short',
       prompt: `$${A}${B}${C}${D}$ is a rhombus. Find the value of $x$ and $m${ang(`${B}${A}${D}`)}$.`,
-      diagram: d.build(240),
+      diagram: d.build(300),
       answers: [ans('x', x), ans(`m${ang(`${B}${A}${D}`)}`, `${2 * halfInt}^\\circ`, 2 * halfInt)],
       distractors: numericDistractors(rng, x, [x + 2, x - 1, (90 - e1.b - e2.b) / (e1.a + e2.a)]),
       solution: `Each diagonal of a rhombus bisects a pair of opposite angles: $${lin(e1.a, e1.b)} = ${lin(e2.a, e2.b)}$, so $x = ${x}$ and $m${ang(`${B}${A}${D}`)} = 2(${halfInt}) = ${2 * halfInt}^\\circ$.`,
@@ -278,7 +278,7 @@ export const kiteTrapezoid: Generator = {
     const t = h / Math.tan((base * Math.PI) / 180)
     const w = 6
     d.pt(A, 0, 0).pt(B, w, 0).pt(C, w - t, h).pt(D, t, h)
-    d.seg(A, B, { arrows: 1 }).seg(B, C, { ticks: 1 }).seg(C, D, { arrows: 1 }).seg(D, A, { ticks: 1 })
+    d.seg(A, B, { arrows: 1 }).seg(B, C, { ticks: 1 }).seg(D, C, { arrows: 1 }).seg(D, A, { ticks: 1 })
     const leg = rng.bool()
     if (leg) {
       const e1 = linearFor(rng, x, base)

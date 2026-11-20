@@ -6,6 +6,7 @@ import {
   dist,
   frameOf,
   type Frame,
+  len,
   mul,
   norm,
   perp,
@@ -21,8 +22,19 @@ const STROKE = '#111'
 
 const UPRIGHT_WORDS = new Set(['sin', 'cos', 'tan', 'csc', 'sec', 'cot', 'cm', 'mm', 'km', 'in', 'ft', 'yd', 'mi', 'units', 'unit', 'not', 'to', 'scale', 'rad'])
 
+/** Approximate rendered width (px) of a label at the default font size. */
+export function textWidth(text: string): number {
+  let w = 0
+  for (const ch of text) w += /[()\s.,'′]/.test(ch) ? 4.5 : /[°]/.test(ch) ? 6 : /[mwMW]/.test(ch) ? 11 : 7.6
+  return w
+}
+
+/** Typographic minus signs for "3x - 5", "-4". */
+const prettyMinus = (t: string) => t.replace(/ - /g, ' − ').replace(/(^|[\s(=])-(?=[\d\w(√π])/g, '$1−')
+
 /** Split label text into tspans, italicizing variable letters. */
-export function LabelText({ text }: { text: string }) {
+export function LabelText({ text: raw }: { text: string }) {
+  const text = prettyMinus(raw)
   const parts: React.ReactNode[] = []
   const re = /([A-Za-z]+)|([^A-Za-z]+)/g
   let m: RegExpExecArray | null
@@ -80,6 +92,26 @@ export function DiagramView({ diagram, className, ...ix }: Props) {
     : { x: f.width / 2, y: f.height / 2 }
 
   const neighbors = neighborMap(diagram)
+  /** Centroid of the figure a segment belongs to (its endpoints and their neighbors). */
+  const localCentroid = (sh: Shape): Vec => {
+    if (sh.kind !== 'segment') return centroid
+    const ids = new Set([sh.a, sh.b, ...(neighbors.get(sh.a) ?? []), ...(neighbors.get(sh.b) ?? [])])
+    const ps = [...ids].map((id) => P(id)).filter((v): v is Vec => !!v)
+    if (ps.length <= 2) return centroid
+    return mul(ps.reduce((acc, v) => add(acc, v), { x: 0, y: 0 }), 1 / ps.length)
+  }
+  const obstacles = new Map<string, Vec[]>()
+  for (const sh of diagram.shapes) {
+    if (sh.kind !== 'angle' || (!sh.label && !sh.arcs && !sh.right)) continue
+    const v = P(sh.vertex)
+    const a = P(sh.a)
+    const b = P(sh.b)
+    if (!v || !a || !b) continue
+    let bis = add(norm(sub(a, v)), norm(sub(b, v)))
+    if (Math.hypot(bis.x, bis.y) < 1e-6) bis = perp(norm(sub(a, v)))
+    if (sh.reflex) bis = mul(bis, -1)
+    obstacles.set(sh.vertex, [...(obstacles.get(sh.vertex) ?? []), add(v, mul(norm(bis), 30))])
+  }
 
   return (
     <svg
@@ -105,7 +137,7 @@ export function DiagramView({ diagram, className, ...ix }: Props) {
       {diagram.shapes
         .filter((s) => s.kind !== 'polygon')
         .map((s) => (
-          <ShapeView key={s.id} s={s} f={f} P={P} centroid={centroid} ix={ix} />
+          <ShapeView key={s.id} s={s} f={f} P={P} centroid={localCentroid(s)} ix={ix} />
         ))}
       {diagram.points.map((p) => (
         <PointView
@@ -113,7 +145,7 @@ export function DiagramView({ diagram, className, ...ix }: Props) {
           p={p}
           f={f}
           centroid={centroid}
-          neighbors={(neighbors.get(p.id) ?? []).map((id) => P(id)).filter((v): v is Vec => !!v)}
+          neighbors={[...(neighbors.get(p.id) ?? []).map((id) => P(id)).filter((v): v is Vec => !!v), ...(obstacles.get(p.id) ?? [])]}
           ix={ix}
         />
       ))}
@@ -133,9 +165,31 @@ function neighborMap(d: Diagram): Map<string, string[]> {
     m.set(a, [...(m.get(a) ?? []), b])
     m.set(b, [...(m.get(b) ?? []), a])
   }
+  const one = (a: string, b: string) => {
+    if (a !== b) m.set(a, [...(m.get(a) ?? []), b])
+  }
+  const pts = new Map(d.points.map((p) => [p.id, p]))
+  const tol = (d.view.xmax - d.view.xmin) * 1e-3
   for (const s of d.shapes) {
-    if (s.kind === 'segment' || s.kind === 'line' || s.kind === 'ray') link(s.a, s.b)
-    else if (s.kind === 'polygon') s.points.forEach((p, i) => link(p, s.points[(i + 1) % s.points.length]))
+    if (s.kind === 'segment' || s.kind === 'line' || s.kind === 'ray') {
+      link(s.a, s.b)
+      // Points lying on the interior of the segment/line see both directions.
+      const A = pts.get(s.a)
+      const B = pts.get(s.b)
+      if (!A || !B) continue
+      const L = Math.hypot(B.x - A.x, B.y - A.y)
+      if (L < 1e-9) continue
+      for (const p of d.points) {
+        if (p.id === s.a || p.id === s.b) continue
+        const t = ((p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y)) / (L * L)
+        const off = Math.abs((p.x - A.x) * (B.y - A.y) - (p.y - A.y) * (B.x - A.x)) / L
+        const inside = s.kind === 'segment' ? t > 0 && t < 1 : s.kind === 'ray' ? t > 0 : true
+        if (off < tol && inside) {
+          one(p.id, s.b)
+          if (s.kind === 'segment' || t > 0) one(p.id, s.a)
+        }
+      }
+    } else if (s.kind === 'polygon') s.points.forEach((p, i) => link(p, s.points[(i + 1) % s.points.length]))
     else if (s.kind === 'angle') {
       link(s.vertex, s.a)
       link(s.vertex, s.b)
@@ -291,7 +345,9 @@ function ShapeView({ s, f, P, centroid, ix }: ShapeProps) {
       let n = perp(norm(sub(b, a)))
       const side = s.labelSide ?? (dot(sub(mid, centroid), n) >= 0 ? 1 : -1)
       n = mul(n, side)
-      const labelPos = add(mid, mul(n, 13 + (s.label ? s.label.length * 1.6 : 0)))
+      const tw = s.label ? textWidth(s.label) : 0
+      const nAbs = Math.abs(n.x)
+      const labelPos = add(mid, mul(n, 10 + nAbs * tw * 0.5 + (1 - nAbs) * 6))
       return (
         <g>
           <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={color} strokeWidth={sw} strokeDasharray={dash} strokeLinecap="round" />
@@ -468,12 +524,24 @@ function AngleView({
   }
   if (s.label) {
     const mid = t1 + delta / 2
-    // Narrow angles need the label farther out.
-    const narrow = Math.abs(delta) < 0.6 ? 14 / Math.max(Math.abs(delta), 0.25) : 0
-    const r = (s.right ? 16 : r0 + (arcs - 1) * 4) + 10 + s.label.length * 2.4 + narrow
+    // Push the label out along the bisector until its box fits between the two rays,
+    // but keep it near the vertex (shrinking the font if the angle is too tight).
+    const half = Math.abs(delta) / 2
+    const base = (s.right ? 14 : r0 + (arcs - 1) * 4) + 9
+    const cap = Math.min(110, 0.5 * Math.min(len(sub(a, v)), len(sub(b, v))))
+    const fitFor = (w: number) => (half < Math.PI / 2 ? (w / 2 + 4) / Math.max(Math.sin(half), 0.12) : 0)
+    let fontSize = FONT_SIZE
+    let w = textWidth(s.label)
+    if (fitFor(w) > cap) {
+      fontSize = 12.5
+      w *= fontSize / FONT_SIZE
+    }
+    // Also keep the label box clear of the vertex along the bisector direction.
+    const along = Math.abs(Math.cos(mid)) * (w / 2) + Math.abs(Math.sin(mid)) * 7
+    const r = Math.max(base + w * 0.12 + 6, base + along - 4, Math.min(fitFor(w) + 3, cap))
     const lp = { x: v.x + r * Math.cos(mid), y: v.y + r * Math.sin(mid) }
     els.push(
-      <text key="l" x={lp.x} y={lp.y} textAnchor="middle" dominantBaseline="central" fill={color}>
+      <text key="l" x={lp.x} y={lp.y} textAnchor="middle" dominantBaseline="central" fill={color} fontSize={fontSize}>
         <LabelText text={s.label} />
       </text>,
     )
@@ -518,10 +586,19 @@ function PointView({
   if (p.labelDir !== undefined) {
     dir = polar(1, -p.labelDir) // screen y is down
   } else if (neighbors.length) {
-    // Opposite of the average direction to neighbors; for straight angles use a perpendicular.
-    const sum = neighbors.map((n) => norm(sub(n, q))).reduce((s, v) => add(s, v), { x: 0, y: 0 })
-    dir = Math.hypot(sum.x, sum.y) < 0.3 ? norm(perp(sub(neighbors[0], q))) : norm(mul(sum, -1))
-    if (Math.hypot(sum.x, sum.y) < 0.3 && dot(dir, sub(q, centroid)) < 0) dir = mul(dir, -1)
+    // Bisector of the widest angular gap between neighbor directions.
+    const angs = neighbors.map((n) => Math.atan2(n.y - q.y, n.x - q.x)).sort((a, b) => a - b)
+    let best = 0
+    let bestGap = -1
+    for (let i = 0; i < angs.length; i++) {
+      const next = i + 1 < angs.length ? angs[i + 1] : angs[0] + 2 * Math.PI
+      const gap = next - angs[i]
+      if (gap > bestGap + 1e-6) {
+        bestGap = gap
+        best = angs[i] + gap / 2
+      }
+    }
+    dir = { x: Math.cos(best), y: Math.sin(best) }
   } else {
     const away = sub(q, centroid)
     dir = Math.hypot(away.x, away.y) < 1 ? { x: 0.7, y: -0.7 } : norm(away)
