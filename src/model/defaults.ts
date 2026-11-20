@@ -9,7 +9,7 @@ export function withType(q: Partial<Question> & { id: string }, type: QuestionTy
     prompt: q.prompt ?? '',
     diagram: q.diagram,
     diagramPos: q.diagramPos,
-    points: q.points ?? defaultPoints(type),
+    points: q.points === undefined || (q.type && q.points === defaultPoints(q.type)) ? defaultPoints(type) : q.points,
     difficulty: q.difficulty,
     honors: q.honors,
     tags: q.tags,

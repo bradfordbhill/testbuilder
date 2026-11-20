@@ -100,6 +100,13 @@ export function DiagramView({ diagram, className, ...ix }: Props) {
     if (ps.length <= 2) return centroid
     return mul(ps.reduce((acc, v) => add(acc, v), { x: 0, y: 0 }), 1 / ps.length)
   }
+  const angleLabels = new Map<string, AngleLabelLayout>()
+  for (const sh of diagram.shapes) {
+    if (sh.kind !== 'angle') continue
+    const lay = angleLabelLayout(sh, P)
+    if (lay) angleLabels.set(sh.id, lay)
+  }
+  resolveAngleLabels(angleLabels)
   const obstacles = new Map<string, Vec[]>()
   for (const sh of diagram.shapes) {
     if (sh.kind !== 'angle' || (!sh.label && !sh.arcs && !sh.right)) continue
@@ -132,12 +139,12 @@ export function DiagramView({ diagram, className, ...ix }: Props) {
       {diagram.shapes
         .filter((s) => s.kind === 'polygon')
         .map((s) => (
-          <ShapeView key={s.id} s={s} f={f} P={P} centroid={centroid} ix={ix} />
+          <ShapeView key={s.id} s={s} f={f} P={P} centroid={centroid} ix={ix} angleLabels={angleLabels} />
         ))}
       {diagram.shapes
         .filter((s) => s.kind !== 'polygon')
         .map((s) => (
-          <ShapeView key={s.id} s={s} f={f} P={P} centroid={localCentroid(s)} ix={ix} />
+          <ShapeView key={s.id} s={s} f={f} P={P} centroid={localCentroid(s)} ix={ix} angleLabels={angleLabels} />
         ))}
       {diagram.points.map((p) => (
         <PointView
@@ -314,6 +321,7 @@ function Marks({ a, b, ticks = 0, arrows = 0 }: { a: Vec; b: Vec; ticks?: number
 }
 
 interface ShapeProps {
+  angleLabels?: Map<string, AngleLabelLayout>
   s: Shape
   f: Frame
   P: (id: string) => Vec | null
@@ -321,7 +329,7 @@ interface ShapeProps {
   ix: Interaction
 }
 
-function ShapeView({ s, f, P, centroid, ix }: ShapeProps) {
+function ShapeView({ s, f, P, centroid, ix, angleLabels }: ShapeProps) {
   const selected = ix.selectedId === s.id
   const color = selected ? '#1d6fe0' : STROKE
   const sw = s.bold ? 2.6 : 1.6
@@ -438,7 +446,7 @@ function ShapeView({ s, f, P, centroid, ix }: ShapeProps) {
       )
     }
     case 'angle':
-      return <AngleView s={s} P={P} color={color} hit={hit} />
+      return <AngleView s={s} P={P} color={color} hit={hit} labelPos={angleLabels?.get(s.id)} />
     case 'polygon': {
       const ps = s.points.map(P)
       if (ps.some((p) => !p)) return null
@@ -479,21 +487,16 @@ function ShapeView({ s, f, P, centroid, ix }: ShapeProps) {
 
 const dot = (a: Vec, b: Vec) => a.x * b.x + a.y * b.y
 
-function AngleView({
-  s,
-  P,
-  color,
-  hit,
-}: {
-  s: AngleShape
-  P: (id: string) => Vec | null
-  color: string
-  hit: Record<string, unknown>
-}) {
-  const v = P(s.vertex)
-  const a = P(s.a)
-  const b = P(s.b)
-  if (!v || !a || !b) return null
+export interface AngleLabelLayout {
+  lp: Vec
+  /** Unit vector along the bisector (pixel space). */
+  dir: Vec
+  fontSize: number
+  w: number
+}
+
+/** Sweep from ray a to ray b (radians, screen space), honoring the reflex flag. */
+function angleSweep(s: AngleShape, v: Vec, a: Vec, b: Vec): { t1: number; delta: number } {
   const ua = norm(sub(a, v))
   const ub = norm(sub(b, v))
   const t1 = Math.atan2(ua.y, ua.x)
@@ -501,6 +504,77 @@ function AngleView({
   while (delta <= -Math.PI) delta += 2 * Math.PI
   while (delta > Math.PI) delta -= 2 * Math.PI
   if (s.reflex) delta = delta > 0 ? delta - 2 * Math.PI : delta + 2 * Math.PI
+  return { t1, delta }
+}
+
+/** Where an angle's label goes: along the bisector, far enough to clear both rays. */
+export function angleLabelLayout(s: AngleShape, P: (id: string) => Vec | null): AngleLabelLayout | null {
+  const v = P(s.vertex)
+  const a = P(s.a)
+  const b = P(s.b)
+  if (!v || !a || !b || !s.label) return null
+  const { t1, delta } = angleSweep(s, v, a, b)
+  const r0 = s.size ?? 18
+  const arcs = s.arcs ?? 1
+  const mid = t1 + delta / 2
+  // Push the label out along the bisector until its box fits between the two rays,
+  // but keep it near the vertex (shrinking the font if the angle is too tight).
+  const half = Math.abs(delta) / 2
+  const base = (s.right ? 14 : r0 + (arcs - 1) * 4) + 9
+  const cap = Math.min(110, 0.5 * Math.min(len(sub(a, v)), len(sub(b, v))))
+  const fitFor = (w: number) => (half < Math.PI / 2 ? (w / 2 + 4) / Math.max(Math.sin(half), 0.12) : 0)
+  let fontSize = FONT_SIZE
+  let w = textWidth(s.label)
+  if (fitFor(w) > cap) {
+    fontSize = 12.5
+    w *= fontSize / FONT_SIZE
+  }
+  // Also keep the label box clear of the vertex along the bisector direction.
+  const along = Math.abs(Math.cos(mid)) * (w / 2) + Math.abs(Math.sin(mid)) * 7
+  const r = Math.max(base + w * 0.12 + 6, base + along - 4, Math.min(fitFor(w) + 3, cap))
+  const dir = { x: Math.cos(mid), y: Math.sin(mid) }
+  return { lp: add(v, mul(dir, r)), dir, fontSize, w }
+}
+
+/** Nudge overlapping angle labels apart along their bisectors. */
+function resolveAngleLabels(layouts: Map<string, AngleLabelLayout>) {
+  const items = [...layouts.values()]
+  const overlap = (p: AngleLabelLayout, q: AngleLabelLayout) =>
+    Math.abs(p.lp.x - q.lp.x) < (p.w + q.w) / 2 + 3 && Math.abs(p.lp.y - q.lp.y) < 15
+  for (let iter = 0; iter < 30; iter++) {
+    let moved = false
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        if (!overlap(items[i], items[j])) continue
+        // Move both outward a little; the one whose bisector separates them more moves more.
+        for (const it of [items[i], items[j]]) it.lp = add(it.lp, mul(it.dir, 3))
+        moved = true
+      }
+    }
+    if (!moved) break
+  }
+}
+
+function AngleView({
+  s,
+  P,
+  color,
+  hit,
+  labelPos,
+}: {
+  s: AngleShape
+  P: (id: string) => Vec | null
+  color: string
+  hit: Record<string, unknown>
+  labelPos?: AngleLabelLayout
+}) {
+  const v = P(s.vertex)
+  const a = P(s.a)
+  const b = P(s.b)
+  if (!v || !a || !b) return null
+  const ua = norm(sub(a, v))
+  const ub = norm(sub(b, v))
+  const { t1, delta } = angleSweep(s, v, a, b)
   const r0 = s.size ?? 18
   const arcs = s.arcs ?? 1
   const els: React.ReactNode[] = []
@@ -523,28 +597,14 @@ function AngleView({
     }
   }
   if (s.label) {
-    const mid = t1 + delta / 2
-    // Push the label out along the bisector until its box fits between the two rays,
-    // but keep it near the vertex (shrinking the font if the angle is too tight).
-    const half = Math.abs(delta) / 2
-    const base = (s.right ? 14 : r0 + (arcs - 1) * 4) + 9
-    const cap = Math.min(110, 0.5 * Math.min(len(sub(a, v)), len(sub(b, v))))
-    const fitFor = (w: number) => (half < Math.PI / 2 ? (w / 2 + 4) / Math.max(Math.sin(half), 0.12) : 0)
-    let fontSize = FONT_SIZE
-    let w = textWidth(s.label)
-    if (fitFor(w) > cap) {
-      fontSize = 12.5
-      w *= fontSize / FONT_SIZE
+    const lay = labelPos ?? angleLabelLayout(s, P)
+    if (lay) {
+      els.push(
+        <text key="l" x={lay.lp.x} y={lay.lp.y} textAnchor="middle" dominantBaseline="central" fill={color} fontSize={lay.fontSize}>
+          <LabelText text={s.label} />
+        </text>,
+      )
     }
-    // Also keep the label box clear of the vertex along the bisector direction.
-    const along = Math.abs(Math.cos(mid)) * (w / 2) + Math.abs(Math.sin(mid)) * 7
-    const r = Math.max(base + w * 0.12 + 6, base + along - 4, Math.min(fitFor(w) + 3, cap))
-    const lp = { x: v.x + r * Math.cos(mid), y: v.y + r * Math.sin(mid) }
-    els.push(
-      <text key="l" x={lp.x} y={lp.y} textAnchor="middle" dominantBaseline="central" fill={color} fontSize={fontSize}>
-        <LabelText text={s.label} />
-      </text>,
-    )
   }
   const hitR = r0 + 6
   const hp1 = { x: v.x + hitR * Math.cos(t1), y: v.y + hitR * Math.sin(t1) }
