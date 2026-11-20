@@ -244,6 +244,8 @@ export type Question =
 // ---------------------------------------------------------------- Tests
 
 export interface TestItem {
+  /** Stable key for drag-and-drop (assigned automatically). */
+  key?: string
   questionId: string
   /** Overrides the question's points. */
   points?: number

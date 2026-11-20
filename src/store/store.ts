@@ -1,6 +1,7 @@
 // Tiny persistent store (localStorage) with a React hook.
 import { useSyncExternalStore } from 'react'
-import type { AppData, Question, Test } from '../model/types'
+import type { AppData, Question, Test, TestItem } from '../model/types'
+import { toast } from '../ui/toast'
 
 const KEY = 'testbuilder.data.v1'
 
@@ -26,13 +27,31 @@ function emit() {
   if (typeof localStorage === 'undefined') return
   if (saveTimer) clearTimeout(saveTimer)
   saveTimer = setTimeout(() => {
+    saveTimer = null
     try {
       localStorage.setItem(KEY, JSON.stringify(state))
     } catch (e) {
       console.error('Could not save', e)
-      alert('Could not save to browser storage (it may be full). Export your bank as JSON to keep a copy.')
+      toast('Could not save to browser storage (it may be full). Export your bank as JSON to keep a copy.', { kind: 'error', timeout: 10000 })
     }
   }, 150)
+}
+
+/** Write any pending change immediately (called when the page is hidden or closed). */
+export function flushSave() {
+  if (!saveTimer || typeof localStorage === 'undefined') return
+  clearTimeout(saveTimer)
+  saveTimer = null
+  try {
+    localStorage.setItem(KEY, JSON.stringify(state))
+  } catch {
+    // reported by the regular save path
+  }
+}
+if (typeof window !== 'undefined') {
+  window.addEventListener('pagehide', flushSave)
+  window.addEventListener('beforeunload', flushSave)
+  document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && flushSave())
 }
 
 export function getState(): AppData {
@@ -126,7 +145,7 @@ export function addQuestionsToTest(testId: string, questionIds: string[], sectio
   if (!t) return
   const sections = t.sections.map((s) => ({ ...s, items: [...s.items] }))
   const sec = sections.find((s) => s.id === sectionId) ?? sections[sections.length - 1]
-  for (const qid of questionIds) sec.items.push({ questionId: qid })
+  for (const qid of questionIds) sec.items.push({ key: itemKey(), questionId: qid })
   saveTest({ ...t, sections })
 }
 
@@ -189,4 +208,67 @@ export function downloadJSON(data: unknown, filename: string) {
   a.download = filename
   a.click()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+// ---------------------------------------------------------------- undo
+
+/**
+ * Run a mutation that can be undone from a toast. Snapshots the listed questions and tests
+ * (or their absence) beforehand and restores exactly those on Undo, leaving other edits alone.
+ */
+export function undoable(message: string, touched: { questions?: string[]; tests?: string[] }, mutate: () => void) {
+  const before = getState()
+  const qSnap = (touched.questions ?? []).map((id) => [id, before.questions[id]] as const)
+  const tSnap = (touched.tests ?? []).map((id) => [id, before.tests[id]] as const)
+  mutate()
+  toast(message, {
+    kind: 'success',
+    action: {
+      label: 'Undo',
+      run: () =>
+        setState((s) => {
+          const questions = { ...s.questions }
+          const tests = { ...s.tests }
+          for (const [id, q] of qSnap) {
+            if (q) questions[id] = q
+            else delete questions[id]
+          }
+          for (const [id, t] of tSnap) {
+            if (t) tests[id] = t
+            else delete tests[id]
+          }
+          return { ...s, questions, tests }
+        }),
+    },
+  })
+}
+
+/** Tests that reference any of the given questions. */
+export function testsUsing(questionIds: string[]): string[] {
+  const set = new Set(questionIds)
+  return Object.values(state.tests)
+    .filter((t) => t.sections.some((s) => s.items.some((i) => set.has(i.questionId))))
+    .map((t) => t.id)
+}
+
+/** Delete questions (and remove them from tests) with Undo. */
+export function deleteQuestionsUndoable(ids: string[]) {
+  undoable(ids.length === 1 ? 'Question deleted' : `${ids.length} questions deleted`, { questions: ids, tests: testsUsing(ids) }, () =>
+    ids.forEach((id) => deleteQuestion(id)),
+  )
+}
+
+/** Delete a test with Undo (its questions stay in the bank). */
+export function deleteTestUndoable(id: string) {
+  const title = state.tests[id]?.title ?? 'Test'
+  undoable(`Deleted “${title}”`, { tests: [id] }, () => deleteTest(id))
+}
+
+/** Give every test item a stable key (used by drag-and-drop). */
+export function itemKey(): string {
+  return `i${uid()}`
+}
+
+export function withKeys(items: TestItem[]): TestItem[] {
+  return items.map((i) => (i.key ? i : { ...i, key: itemKey() }))
 }

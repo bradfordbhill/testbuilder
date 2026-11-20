@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { DebugTag } from '../components/DebugTag'
+import { toast } from '../ui/toast'
 import { parseDebugCode } from '../gen/debugCode'
 import { QuestionView } from '../components/QuestionView'
 import { LessonCodes } from '../components/TopicPicker'
@@ -46,7 +47,7 @@ export function GeneratePage({ query }: { query: URLSearchParams }) {
       <div className="gen-layout">
         <aside className="gen-list">
           <div className="filters vertical">
-            <input type="search" placeholder="Search generators…" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <input type="search" data-page-search placeholder="Search generators…   ( / )" value={search} onChange={(e) => setSearch(e.target.value)} />
             <select
               value={unit}
               onChange={(e) => {
@@ -278,7 +279,7 @@ function CodeLookup({ initial, error }: { initial: string; error: string }) {
     const p = parseDebugCode(c)
     if (p?.kind === 'question') {
       if (questions[p.id]) navigate(`/q/${p.id}?return=${encodeURIComponent('/generate')}`)
-      else alert('No question with that id is in this browser’s bank.')
+      else toast('No question with that id is in this browser’s bank.', { kind: 'error' })
       return
     }
     navigate(`/generate?code=${encodeURIComponent(c)}`)

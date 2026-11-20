@@ -3,6 +3,7 @@ import type { Diagram, DPoint, Shape } from '../model/types'
 import { DiagramView } from './DiagramView'
 import { dist, fitView, frameOf, shapePointIds } from './geom'
 import { TEMPLATES } from './templates'
+import { confirmAsk } from '../ui/dialog'
 
 type Tool = 'select' | 'point' | 'segment' | 'line' | 'ray' | 'circle' | 'angle' | 'arc' | 'polygon' | 'text'
 
@@ -226,12 +227,12 @@ export function DiagramEditor({ value, onChange }: { value: Diagram; onChange: (
               Template{' '}
               <select
                 value=""
-                onChange={(e) => {
+                onChange={async (e) => {
                   const t = TEMPLATES.find((x) => x.id === e.target.value)
-                  if (t && (d.points.length === 0 || confirm('Replace the current diagram with this template?'))) {
-                    onChange(t.make())
-                    setSelected(null)
-                  }
+                  if (!t) return
+                  if (d.points.length > 0 && !(await confirmAsk('Replace the diagram?', `The current diagram will be replaced with the “${t.name}” template.`, 'Replace', true))) return
+                  onChange(t.make())
+                  setSelected(null)
                 }}
               >
                 <option value="">Choose…</option>

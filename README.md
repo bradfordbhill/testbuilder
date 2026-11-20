@@ -51,6 +51,20 @@ A browser-only app for building geometry tests and quizzes for UHS Honors Geomet
   - up to six versions (Forms A–F); generated questions get new numbers in each form, and question order can be shuffled
 - **Print**: student copies and answer keys (with optional worked solutions) for each form. Print or save as PDF from the browser.
 
+## Working fast
+
+- **Command palette**: press **Ctrl K** (⌘K on Mac) to jump to any test, question, generator or lesson, to create things, or to paste a debug code.
+- **Keyboard shortcuts** (press **?** to see them all):
+  - **B**, **G**, **T**, **C** go to the bank, Generate, Tests and Topics.
+  - **N** starts a new question; **/** focuses the page's search box.
+  - In the bank, **↑ ↓** move through questions, **Enter** edits, **Space** previews, **X** selects and **Shift-click** selects a range.
+  - In the editor, **Ctrl S** saves and **Alt 1–4** switch tabs.
+- **Drag and drop**:
+  - The test builder is a split view: drag questions from the **Bank** or **Generate** panel into the test, exactly where you want them, and drag to reorder within or between sections.
+  - In the editor, drag to reorder proof rows, choices, matching pairs, T/F statements and answer blanks.
+  - Drag handles also work from the keyboard: focus a handle, press Space, use the arrow keys, then press Space again.
+- **Undo**: deleting questions or tests, removing items or sections, and removing a diagram all show an **Undo** button instead of asking "are you sure?".
+
 ## Debug codes
 
 Every question shows a small gray debug code in the builder: in the bank, the editor, generator previews, the test builder and the on-screen print preview. Codes are never printed. Click a code to copy it.

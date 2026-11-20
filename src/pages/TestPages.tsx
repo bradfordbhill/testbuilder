@@ -1,76 +1,145 @@
-import { useState } from 'react'
+import {
+  closestCenter,
+  type CollisionDetection,
+  DndContext,
+  type DragEndEvent,
+  type DragOverEvent,
+  DragOverlay,
+  type DragStartEvent,
+  KeyboardSensor,
+  PointerSensor,
+  pointerWithin,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
+  ChevronDown,
+  ChevronRight,
+  Copy,
+  Download,
+  FilePlus2,
+  FileStack,
+  GripVertical,
+  Library,
+  Pencil,
+  Plus,
+  Printer,
+  RefreshCw,
+  Scissors,
+  Settings2,
+  Trash2,
+  Wand2,
+  X,
+} from 'lucide-react'
+import { type ReactNode, useEffect, useMemo, useState } from 'react'
 import { DebugTag } from '../components/DebugTag'
-import { promptSummary } from '../components/QuestionView'
-import { LessonCodes } from '../components/TopicPicker'
+import { LessonChips, QuestionRow, TypeBadge } from '../components/QuestionRow'
+import { promptSummary, QuestionView } from '../components/QuestionView'
+import { firstLesson, generators, newQuestionFromGenerator } from '../gen'
+import type { Generator } from '../gen/types'
+import { compareCodes, courseMap } from '../lib/courseMap'
 import { versionLetter } from '../lib/mathfmt'
-import { type Question, QUESTION_TYPE_LABELS, type Test, type TestItem, type TestSection } from '../model/types'
+import { randomSeed } from '../lib/rng'
+import type { Question, Test, TestItem, TestSection } from '../model/types'
 import { href, navigate } from '../router'
-import { deleteTest, downloadJSON, exportData, newTest, saveTest, uid, useStore } from '../store/store'
-import { BankFiltersBar, emptyFilters, useFilteredQuestions } from './BankPage'
+import {
+  deleteTestUndoable,
+  downloadJSON,
+  exportData,
+  getState,
+  itemKey,
+  newTest,
+  saveQuestions,
+  saveTest,
+  uid,
+  undoable,
+  useStore,
+  withKeys,
+} from '../store/store'
+import { toast } from '../ui/toast'
+import { emptyFilters, QuestionFilters, useFilteredQuestions } from './BankPage'
+
+// ================================================================ tests list
 
 export function TestsPage() {
   const tests = useStore((s) => s.tests)
+  const questions = useStore((s) => s.questions)
   const list = Object.values(tests).sort((a, b) => b.updatedAt - a.updatedAt)
+  const create = () => {
+    const t = newTest()
+    saveTest(t)
+    navigate(`/test/${t.id}`)
+  }
   return (
     <div className="page">
       <div className="page-head">
-        <h2>Tests & quizzes</h2>
+        <h2>
+          Tests & quizzes <span className="count">{list.length}</span>
+        </h2>
         <div className="actions">
-          <button
-            type="button"
-            className="primary"
-            onClick={() => {
-              const t = newTest()
-              saveTest(t)
-              navigate(`/test/${t.id}`)
-            }}
-          >
-            + New test
+          <button type="button" className="primary" onClick={create}>
+            <FilePlus2 size={14} /> New test
           </button>
         </div>
       </div>
       {list.length === 0 ? (
-        <div className="empty">No tests yet. Create one, then add questions from the bank or generate them.</div>
+        <div className="empty">
+          <h3>No tests yet</h3>
+          <p className="muted">Create a test, then drag questions in from the bank or straight from a generator.</p>
+          <button type="button" className="primary" onClick={create}>
+            <FilePlus2 size={14} /> New test
+          </button>
+        </div>
       ) : (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Questions</th>
-              <th>Versions</th>
-              <th>Updated</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {list.map((t) => (
-              <tr key={t.id}>
-                <td>
-                  <a href={href(`/test/${t.id}`)}>{t.title}</a>
-                </td>
-                <td>{t.sections.reduce((n, s) => n + s.items.length, 0)}</td>
-                <td>{t.versions}</td>
-                <td>{new Date(t.updatedAt).toLocaleDateString()}</td>
-                <td className="nowrap">
-                  <a href={href(`/print/${t.id}`)}>Print</a>{' '}
+        <div className="tlist">
+          {list.map((t) => {
+            const items = t.sections.flatMap((s) => s.items)
+            const pts = items.reduce((a, it) => a + itemPoints(it, questions[it.questionId]), 0)
+            const units = [...new Set(items.flatMap((it) => questions[it.questionId]?.lessons ?? []).map((c) => courseMap.byCode.get(c)?.unit).filter(Boolean))].sort()
+            return (
+              <div key={t.id} className="trow" onClick={() => navigate(`/test/${t.id}`)}>
+                <FileStack size={15} className="muted" />
+                <span className="trow-title">{t.title}</span>
+                {t.subtitle && <span className="muted">{t.subtitle}</span>}
+                <span className="trow-meta">
+                  {units.map((u) => (
+                    <span key={u} className={`code-chip u${u}`}>
+                      U{u}
+                    </span>
+                  ))}
+                  <span>{items.length} q</span>
+                  <span>{pts} pts</span>
+                  <span>{t.versions > 1 ? `Forms A–${versionLetter(t.versions - 1)}` : 'Form A'}</span>
+                  <span className="muted">{new Date(t.updatedAt).toLocaleDateString()}</span>
+                </span>
+                <span className="qrow-actions" onClick={(e) => e.stopPropagation()}>
+                  <a className="icon-btn" href={href(`/print/${t.id}`)} title="Preview & print">
+                    <Printer size={14} />
+                  </a>
                   <button
                     type="button"
-                    className="linkish"
+                    className="icon-btn"
+                    title="Duplicate"
                     onClick={() => {
                       const copy: Test = { ...structuredClone(t), id: uid(), title: `${t.title} (copy)`, createdAt: Date.now() }
                       saveTest(copy)
+                      toast('Test duplicated', { kind: 'success', action: { label: 'Open', run: () => navigate(`/test/${copy.id}`) } })
                     }}
                   >
-                    Duplicate
-                  </button>{' '}
-                  <button type="button" className="linkish danger" onClick={() => confirm(`Delete “${t.title}”? Questions stay in the bank.`) && deleteTest(t.id)}>
-                    Delete
+                    <Copy size={14} />
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  <button type="button" className="icon-btn danger" title="Delete (questions stay in the bank)" onClick={() => deleteTestUndoable(t.id)}>
+                    <Trash2 size={14} />
+                  </button>
+                </span>
+              </div>
+            )
+          })}
+        </div>
       )}
     </div>
   )
@@ -80,188 +149,240 @@ export function itemPoints(item: TestItem, q: Question | undefined): number {
   return item.points ?? q?.points ?? 0
 }
 
+// ================================================================ builder
+
+type DragData =
+  | { type: 'item'; key: string }
+  | { type: 'bank'; qid: string }
+  | { type: 'gen'; q: Question }
+
+const NEW_KEY = '__new__'
+const secId = (id: string) => `sec:${id}`
+
+/** Prefer item targets under the pointer, then section containers, then nearest. */
+const collision: CollisionDetection = (args) => {
+  const within = pointerWithin(args)
+  const items = within.filter((c) => !String(c.id).startsWith('sec:'))
+  if (items.length) return items
+  if (within.length) return within
+  return closestCenter(args)
+}
+
 export function TestBuilder({ id }: { id: string }) {
   const test = useStore((s) => s.tests[id])
   const questions = useStore((s) => s.questions)
-  const [adding, setAdding] = useState<string | null>(null)
+  const [panel, setPanel] = useState<'bank' | 'generate'>('bank')
+  const [showSettings, setShowSettings] = useState(false)
+  const [open, setOpen] = useState<string | null>(null)
+  const [layout, setLayout] = useState<Record<string, string[]> | null>(null)
+  const [dragging, setDragging] = useState<DragData | null>(null)
+
+  // Make sure every item has a stable key for drag-and-drop.
+  useEffect(() => {
+    if (test && test.sections.some((s) => s.items.some((i) => !i.key))) {
+      saveTest({ ...test, sections: test.sections.map((s) => ({ ...s, items: withKeys(s.items) })) })
+    }
+  }, [test])
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+
+  const itemsByKey = useMemo(() => {
+    const m = new Map<string, TestItem>()
+    test?.sections.forEach((s) => s.items.forEach((i) => i.key && m.set(i.key, i)))
+    return m
+  }, [test])
+
   if (!test) return <div className="page">Test not found. <a href={href('/tests')}>Back to tests</a></div>
+
+  const inTest = new Set(test.sections.flatMap((s) => s.items.map((i) => i.questionId)))
+  const baseLayout = (): Record<string, string[]> => Object.fromEntries(test.sections.map((s) => [s.id, s.items.map((i) => i.key ?? '')]))
+  const current = layout ?? baseLayout()
+  const findSection = (key: string, l = current) => Object.keys(l).find((sid) => l[sid].includes(key))
 
   const set = (patch: Partial<Test>) => saveTest({ ...test, ...patch })
   const setSection = (sid: string, patch: Partial<TestSection>) => set({ sections: test.sections.map((s) => (s.id === sid ? { ...s, ...patch } : s)) })
-  const setItem = (sid: string, i: number, patch: Partial<TestItem>) =>
-    set({ sections: test.sections.map((s) => (s.id === sid ? { ...s, items: s.items.map((it, j) => (j === i ? { ...it, ...patch } : it)) } : s)) })
-  const moveItem = (sid: string, i: number, d: number) => {
-    const sec = test.sections.find((s) => s.id === sid)!
-    const items = sec.items.slice()
-    const [x] = items.splice(i, 1)
-    items.splice(i + d, 0, x)
-    setSection(sid, { items })
-  }
-  const moveToSection = (from: string, i: number, to: string) => {
-    const item = test.sections.find((s) => s.id === from)!.items[i]
-    set({
-      sections: test.sections.map((s) =>
-        s.id === from ? { ...s, items: s.items.filter((_, j) => j !== i) } : s.id === to ? { ...s, items: [...s.items, item] } : s,
-      ),
-    })
+  const setItem = (key: string, patch: Partial<TestItem>) =>
+    set({ sections: test.sections.map((s) => ({ ...s, items: s.items.map((it) => (it.key === key ? { ...it, ...patch } : it)) })) })
+
+  const removeItem = (key: string) =>
+    undoable('Removed from test', { tests: [test.id] }, () =>
+      set({ sections: test.sections.map((s) => ({ ...s, items: s.items.filter((it) => it.key !== key) })) }),
+    )
+
+  const append = (qids: string[], sectionId?: string) => {
+    const sid = sectionId ?? test.sections[test.sections.length - 1].id
+    set({ sections: test.sections.map((s) => (s.id === sid ? { ...s, items: [...s.items, ...qids.map((questionId) => ({ key: itemKey(), questionId }))] } : s)) })
   }
 
+  // ------------------------------------------------ drag handlers
+  const onDragStart = (e: DragStartEvent) => {
+    setDragging(e.active.data.current as DragData)
+    setLayout(baseLayout())
+  }
+
+  const activeKey = (d: DragData | null) => (d?.type === 'item' ? d.key : NEW_KEY)
+
+  const onDragOver = (e: DragOverEvent) => {
+    const { over } = e
+    const data = e.active.data.current as DragData
+    if (!over || !layout) return
+    if (data.type === 'bank' && inTest.has(data.qid)) return
+    const key = activeKey(data)
+    const overId = String(over.id)
+    const toSec = overId.startsWith('sec:') ? overId.slice(4) : findSection(overId, layout)
+    if (!toSec) return
+    const fromSec = findSection(key, layout)
+    if (fromSec === toSec) return
+    const next = { ...layout }
+    if (fromSec) next[fromSec] = next[fromSec].filter((k) => k !== key)
+    const target = [...next[toSec]]
+    const idx = overId.startsWith('sec:') ? target.length : Math.max(0, target.indexOf(overId))
+    target.splice(idx, 0, key)
+    next[toSec] = target
+    setLayout(next)
+  }
+
+  const onDragEnd = (e: DragEndEvent) => {
+    const data = e.active.data.current as DragData
+    const l = layout
+    setDragging(null)
+    setLayout(null)
+    if (!l || !e.over) return
+    if (data.type === 'bank' && inTest.has(data.qid)) {
+      toast('That question is already in this test.', { kind: 'info' })
+      return
+    }
+    const key = activeKey(data)
+    const sec = findSection(key, l)
+    if (!sec) return
+    // Same-section reorder.
+    const overId = String(e.over.id)
+    let keys = l[sec]
+    if (!overId.startsWith('sec:') && keys.includes(overId) && overId !== key) {
+      keys = arrayMove(keys, keys.indexOf(key), keys.indexOf(overId))
+    }
+    const final = { ...l, [sec]: keys }
+    let newItem: TestItem | null = null
+    if (data.type === 'bank') newItem = { key: itemKey(), questionId: data.qid }
+    if (data.type === 'gen') {
+      const q = { ...data.q, id: uid(), createdAt: Date.now(), updatedAt: Date.now() }
+      saveQuestions([q])
+      newItem = { key: itemKey(), questionId: q.id }
+    }
+    const before = JSON.stringify(baseLayout())
+    if (!newItem && JSON.stringify(final) === before) return
+    set({
+      sections: test.sections.map((s) => ({
+        ...s,
+        items: (final[s.id] ?? []).map((k) => (k === NEW_KEY ? newItem! : itemsByKey.get(k)!)).filter(Boolean),
+      })),
+    })
+    if (newItem) toast(data.type === 'gen' ? 'Generated question added (and saved to the bank)' : 'Added to test', { kind: 'success' })
+  }
+
+  // ------------------------------------------------ render
   let n = 0
   const totalPoints = test.sections.reduce((sum, s) => sum + s.items.reduce((a, it) => a + itemPoints(it, questions[it.questionId]), 0), 0)
   const totalQ = test.sections.reduce((a, s) => a + s.items.length, 0)
   const generatedCount = test.sections.reduce((a, s) => a + s.items.filter((it) => questions[it.questionId]?.gen).length, 0)
+  const dragQ = dragging?.type === 'bank' ? questions[dragging.qid] : dragging?.type === 'gen' ? dragging.q : dragging?.type === 'item' ? questions[itemsByKey.get(dragging.key)?.questionId ?? ''] : undefined
 
   return (
-    <div className="page">
-      <div className="page-head">
-        <input className="title-input" value={test.title} onChange={(e) => set({ title: e.target.value })} />
-        <div className="actions">
-          <a className="button primary" href={href(`/print/${test.id}`)}>
-            Preview & print
-          </a>
-          <button type="button" onClick={() => downloadJSON(exportData({ testIds: [test.id] }), `${test.title.replace(/[^\w-]+/g, '_')}.json`)}>
-            Export JSON
-          </button>
-        </div>
-      </div>
-
-      <div className="test-settings">
-        <label>
-          Subtitle <input value={test.subtitle ?? ''} placeholder="e.g. Unit 3 Test · Similarity" onChange={(e) => set({ subtitle: e.target.value || undefined })} />
-        </label>
-        <label className="block">
-          Instructions
-          <textarea rows={2} value={test.instructions ?? ''} placeholder="Show all work. Give exact answers unless told to round." onChange={(e) => set({ instructions: e.target.value || undefined })} />
-        </label>
-        <div className="row wrap">
-          <span>Header:</span>
-          {(['name', 'date', 'period'] as const).map((k) => (
-            <label key={k}>
-              <input type="checkbox" checked={test.header[k]} onChange={(e) => set({ header: { ...test.header, [k]: e.target.checked } })} /> {k[0].toUpperCase() + k.slice(1)}
-            </label>
-          ))}
-          <label>
-            <input type="checkbox" checked={test.showPoints} onChange={(e) => set({ showPoints: e.target.checked })} /> Show points
-          </label>
-        </div>
-        <div className="row wrap">
-          <label>
-            Versions{' '}
-            <select value={test.versions} onChange={(e) => set({ versions: Number(e.target.value) })}>
-              {[1, 2, 3, 4, 5, 6].map((v) => (
-                <option key={v} value={v}>
-                  {v === 1 ? '1 (Form A only)' : `${v} (Forms A–${versionLetter(v - 1)})`}
-                </option>
-              ))}
-            </select>
-          </label>
-          {test.versions > 1 && (
-            <>
-              <label>
-                <input type="checkbox" checked={!!test.shuffleQuestions} onChange={(e) => set({ shuffleQuestions: e.target.checked || undefined })} /> Shuffle question order in Forms B+
-              </label>
-              <button type="button" onClick={() => set({ versionSalt: test.versionSalt + 1 })} title="Generate new numbers for every generated question in Forms B and later">
-                ↻ New numbers for Forms B+
-              </button>
-              <span className="muted">
-                {generatedCount} of {totalQ} questions are generated and get new numbers in each form; the rest stay the same.
-              </span>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="muted">
-        {totalQ} questions · {totalPoints} points
-      </div>
-
-      {test.sections.map((sec) => (
-        <div key={sec.id} className="test-section">
-          <div className="row section-head">
-            <input className="section-title" value={sec.title} placeholder={test.sections.length > 1 ? 'Section title (e.g. Part I: Short answer)' : 'Section title (optional)'} onChange={(e) => setSection(sec.id, { title: e.target.value })} />
-            {test.sections.length > 1 && (
-              <button type="button" className="danger" onClick={() => confirm('Remove this section and its items from the test?') && set({ sections: test.sections.filter((s) => s.id !== sec.id) })}>
-                Remove section
-              </button>
-            )}
-          </div>
-          <textarea rows={1} className="section-instr" value={sec.instructions ?? ''} placeholder="Section instructions (optional)" onChange={(e) => setSection(sec.id, { instructions: e.target.value || undefined })} />
-          <ol className="test-items">
-            {sec.items.map((it, i) => {
-              const q = questions[it.questionId]
-              n++
-              return (
-                <li key={`${it.questionId}-${i}`}>
-                  <span className="item-num">{n}.</span>
-                  {q ? (
-                    <>
-                      <LessonCodes codes={q.lessons} />
-                      <span className="type-tag">{QUESTION_TYPE_LABELS[q.type].split(' ')[0]}</span>
-                      {q.gen && <span className="tag" title="New numbers in each version">varies by form</span>}
-                      <a className="summary-text" href={href(`/q/${q.id}?return=${encodeURIComponent(`/test/${test.id}`)}`)}>
-                        {promptSummary(q, 110) || '(no prompt)'}
-                      </a>
-                    </>
-                  ) : (
-                    <span className="muted">(missing question)</span>
-                  )}
-                  {q && <DebugTag q={q} />}
-                  <span className="item-controls">
-                    <label title="Points">
-                      <input type="number" min={0} step={0.5} value={itemPoints(it, q)} style={{ width: 52 }} onChange={(e) => setItem(sec.id, i, { points: Number(e.target.value) })} /> pts
-                    </label>
-                    <label title="Start this question on a new page">
-                      <input type="checkbox" checked={!!it.pageBreakBefore} onChange={(e) => setItem(sec.id, i, { pageBreakBefore: e.target.checked || undefined })} /> new page
-                    </label>
-                    <button type="button" disabled={i === 0} onClick={() => moveItem(sec.id, i, -1)}>
-                      ↑
-                    </button>
-                    <button type="button" disabled={i === sec.items.length - 1} onClick={() => moveItem(sec.id, i, 1)}>
-                      ↓
-                    </button>
-                    {test.sections.length > 1 && (
-                      <select value="" onChange={(e) => e.target.value && moveToSection(sec.id, i, e.target.value)}>
-                        <option value="">Move to…</option>
-                        {test.sections
-                          .filter((s) => s.id !== sec.id)
-                          .map((s, k) => (
-                            <option key={s.id} value={s.id}>
-                              {s.title || `Section ${k + 1}`}
-                            </option>
-                          ))}
-                      </select>
-                    )}
-                    <button type="button" onClick={() => setSection(sec.id, { items: sec.items.filter((_, j) => j !== i) })} title="Remove from test (stays in bank)">
-                      ✕
-                    </button>
-                  </span>
-                </li>
-              )
-            })}
-          </ol>
-          <div className="row wrap add-row">
-            <button type="button" onClick={() => setAdding(adding === sec.id ? null : sec.id)}>
-              {adding === sec.id ? 'Close bank' : '+ From bank'}
+    <DndContext sensors={sensors} collisionDetection={collision} onDragStart={onDragStart} onDragOver={onDragOver} onDragEnd={onDragEnd} onDragCancel={() => (setDragging(null), setLayout(null))}>
+      <div className="builder">
+        <aside className="builder-panel">
+          <div className="seg-tabs">
+            <button type="button" className={panel === 'bank' ? 'on' : ''} onClick={() => setPanel('bank')}>
+              <Library size={14} /> Bank
             </button>
-            <a className="button" href={href(`/generate?test=${test.id}`)}>
-              + Generate
-            </a>
-            <a className="button" href={href(`/q/new?addToTest=${test.id}&return=${encodeURIComponent(`/test/${test.id}`)}`)}>
-              + Write new
+            <button type="button" className={panel === 'generate' ? 'on' : ''} onClick={() => setPanel('generate')}>
+              <Wand2 size={14} /> Generate
+            </button>
+          </div>
+          <div className="panel-hint">Drag into the test, or click + to add at the end.</div>
+          {panel === 'bank' ? <BankPanel inTest={inTest} onAdd={(qid) => append([qid])} /> : <GeneratePanel onAdd={(q) => {
+            const saved = { ...q, id: uid(), createdAt: Date.now(), updatedAt: Date.now() }
+            saveQuestions([saved])
+            append([saved.id])
+            toast('Generated question added', { kind: 'success' })
+          }} />}
+        </aside>
+
+        <section className="builder-main">
+          <div className="builder-head">
+            <input className="title-input" value={test.title} onChange={(e) => set({ title: e.target.value })} aria-label="Test title" />
+            <div className="builder-stats">
+              <span>{totalQ} questions</span>
+              <span>{totalPoints} pts</span>
+              <span>{test.versions > 1 ? `Forms A–${versionLetter(test.versions - 1)}` : 'Form A'}</span>
+            </div>
+            <div className="actions">
+              <button type="button" className={`ghost ${showSettings ? 'on' : ''}`} onClick={() => setShowSettings(!showSettings)}>
+                <Settings2 size={14} /> Settings
+              </button>
+              <button type="button" className="ghost" title="Export this test as JSON" onClick={() => downloadJSON(exportData({ testIds: [test.id] }), `${test.title.replace(/[^\w-]+/g, '_')}.json`)}>
+                <Download size={14} />
+              </button>
+              <a className="button primary" href={href(`/print/${test.id}`)}>
+                <Printer size={14} /> Preview & print
+              </a>
+            </div>
+          </div>
+
+          {showSettings && <TestSettings test={test} set={set} generatedCount={generatedCount} totalQ={totalQ} />}
+
+          {test.sections.map((sec, si) => (
+            <SectionBlock
+              key={sec.id}
+              sec={sec}
+              keys={current[sec.id] ?? []}
+              multiple={test.sections.length > 1}
+              onChange={(patch) => setSection(sec.id, patch)}
+              onRemove={() =>
+                undoable('Section removed', { tests: [test.id] }, () => set({ sections: test.sections.filter((s) => s.id !== sec.id) }))
+              }
+              empty={(current[sec.id] ?? []).length === 0}
+              index={si}
+            >
+              {(current[sec.id] ?? []).map((key) => {
+                if (key === NEW_KEY) return <DropPlaceholder key={key} id={key} q={dragQ} />
+                const it = itemsByKey.get(key)
+                if (!it) return null
+                const q = questions[it.questionId]
+                n++
+                return (
+                  <SortableItem
+                    key={key}
+                    id={key}
+                    num={n}
+                    item={it}
+                    q={q}
+                    open={open === key}
+                    onToggle={() => setOpen(open === key ? null : key)}
+                    onPoints={(v) => setItem(key, { points: v })}
+                    onBreak={() => setItem(key, { pageBreakBefore: !it.pageBreakBefore || undefined })}
+                    onRemove={() => removeItem(key)}
+                    testId={test.id}
+                  />
+                )
+              })}
+            </SectionBlock>
+          ))}
+          <button type="button" className="ghost add-section" onClick={() => set({ sections: [...test.sections, { id: uid(), title: `Part ${toRoman(test.sections.length + 1)}`, items: [] }] })}>
+            <Plus size={14} /> Add section
+          </button>
+          <div className="builder-foot muted">
+            <a href={href(`/q/new?addToTest=${test.id}&return=${encodeURIComponent(`/test/${test.id}`)}`)}>
+              <FilePlus2 size={13} /> Write a new question for this test
             </a>
           </div>
-          {adding === sec.id && (
-            <BankChooser
-              exclude={new Set(test.sections.flatMap((s) => s.items.map((x) => x.questionId)))}
-              onAdd={(ids) => setSection(sec.id, { items: [...sec.items, ...ids.map((questionId) => ({ questionId }))] })}
-            />
-          )}
-        </div>
-      ))}
-      <button type="button" onClick={() => set({ sections: [...test.sections, { id: uid(), title: `Part ${toRoman(test.sections.length + 1)}`, items: [] }] })}>
-        + Add section
-      </button>
-    </div>
+        </section>
+      </div>
+      <DragOverlay dropAnimation={{ duration: 160, easing: 'ease-out' }}>{dragQ ? <DragCard q={dragQ} /> : null}</DragOverlay>
+    </DndContext>
   )
 }
 
@@ -269,37 +390,409 @@ function toRoman(n: number): string {
   return ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'][n] ?? String(n)
 }
 
-function BankChooser({ exclude, onAdd }: { exclude: Set<string>; onAdd: (ids: string[]) => void }) {
-  const [f, setF] = useState(emptyFilters)
-  const list = useFilteredQuestions(f).filter((q) => !exclude.has(q.id))
-  const [sel, setSel] = useState<string[]>([])
+function TestSettings({ test, set, generatedCount, totalQ }: { test: Test; set: (p: Partial<Test>) => void; generatedCount: number; totalQ: number }) {
   return (
-    <div className="bank-chooser">
-      <BankFiltersBar f={f} setF={setF} />
-      <ul className="q-list compact">
-        {list.map((q) => (
-          <li key={q.id}>
-            <label className="q-row">
-              <input type="checkbox" checked={sel.includes(q.id)} onChange={() => setSel(sel.includes(q.id) ? sel.filter((x) => x !== q.id) : [...sel, q.id])} />
-              <LessonCodes codes={q.lessons} />
-              <span className="type-tag">{QUESTION_TYPE_LABELS[q.type].split(' ')[0]}</span>
-              <span className="summary-text">{promptSummary(q, 120)}</span>
-            </label>
-          </li>
+    <div className="settings-card">
+      <div className="settings-grid">
+        <label>
+          <span>Subtitle</span>
+          <input value={test.subtitle ?? ''} placeholder="e.g. Unit 3 Test · Similarity" onChange={(e) => set({ subtitle: e.target.value || undefined })} />
+        </label>
+        <label>
+          <span>Forms</span>
+          <select value={test.versions} onChange={(e) => set({ versions: Number(e.target.value) })}>
+            {[1, 2, 3, 4, 5, 6].map((v) => (
+              <option key={v} value={v}>
+                {v === 1 ? 'Form A only' : `Forms A–${versionLetter(v - 1)}`}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="span2">
+          <span>Instructions</span>
+          <textarea rows={2} value={test.instructions ?? ''} placeholder="Show all work. Give exact answers unless told to round." onChange={(e) => set({ instructions: e.target.value || undefined })} />
+        </label>
+      </div>
+      <div className="row wrap toggles">
+        {(['name', 'date', 'period'] as const).map((k) => (
+          <label key={k} className="toggle">
+            <input type="checkbox" checked={test.header[k]} onChange={(e) => set({ header: { ...test.header, [k]: e.target.checked } })} /> {k[0].toUpperCase() + k.slice(1)} line
+          </label>
         ))}
-        {list.length === 0 && <li className="muted">No matching questions in the bank.</li>}
-      </ul>
-      <button
-        type="button"
-        className="primary"
-        disabled={!sel.length}
-        onClick={() => {
-          onAdd(sel)
-          setSel([])
-        }}
-      >
-        Add {sel.length || ''} selected
-      </button>
+        <label className="toggle">
+          <input type="checkbox" checked={test.showPoints} onChange={(e) => set({ showPoints: e.target.checked })} /> Show points
+        </label>
+        {test.versions > 1 && (
+          <>
+            <label className="toggle">
+              <input type="checkbox" checked={!!test.shuffleQuestions} onChange={(e) => set({ shuffleQuestions: e.target.checked || undefined })} /> Shuffle order in Forms B+
+            </label>
+            <button
+              type="button"
+              className="ghost"
+              title="New numbers for every generated question in Forms B and later"
+              onClick={() => {
+                set({ versionSalt: test.versionSalt + 1 })
+                toast('New numbers for Forms B+', { kind: 'success' })
+              }}
+            >
+              <RefreshCw size={13} /> Re-roll Forms B+
+            </button>
+          </>
+        )}
+      </div>
+      {test.versions > 1 && (
+        <div className="muted small">
+          {generatedCount} of {totalQ} questions are generated and get new numbers in each form; the rest are identical across forms.
+        </div>
+      )}
     </div>
   )
 }
+
+function SectionBlock({
+  sec,
+  keys,
+  multiple,
+  onChange,
+  onRemove,
+  empty,
+  index,
+  children,
+}: {
+  sec: TestSection
+  keys: string[]
+  multiple: boolean
+  onChange: (p: Partial<TestSection>) => void
+  onRemove: () => void
+  empty: boolean
+  index: number
+  children: ReactNode
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: secId(sec.id) })
+  const [instr, setInstr] = useState(!!sec.instructions)
+  return (
+    <div className={`section-block ${isOver ? 'over' : ''}`}>
+      <div className="section-head">
+        <input
+          className="section-title"
+          value={sec.title}
+          placeholder={multiple ? `Section ${index + 1} title (e.g. Part I: Short answer)` : 'Section title (optional)'}
+          onChange={(e) => onChange({ title: e.target.value })}
+        />
+        {!instr && (
+          <button type="button" className="ghost small" onClick={() => setInstr(true)}>
+            + Instructions
+          </button>
+        )}
+        {multiple && (
+          <button type="button" className="icon-btn danger" title="Remove section" onClick={onRemove}>
+            <Trash2 size={14} />
+          </button>
+        )}
+      </div>
+      {instr && (
+        <textarea rows={1} className="section-instr" value={sec.instructions ?? ''} placeholder="Section instructions" autoFocus={!sec.instructions} onChange={(e) => onChange({ instructions: e.target.value || undefined })} />
+      )}
+      <SortableContext items={keys} strategy={verticalListSortingStrategy}>
+        <div ref={setNodeRef} className={`section-items ${empty ? 'is-empty' : ''}`}>
+          {children}
+          {empty && <div className="drop-hint">Drop questions here</div>}
+        </div>
+      </SortableContext>
+    </div>
+  )
+}
+
+function SortableItem({
+  id,
+  num,
+  item,
+  q,
+  open,
+  onToggle,
+  onPoints,
+  onBreak,
+  onRemove,
+  testId,
+}: {
+  id: string
+  num: number
+  item: TestItem
+  q: Question | undefined
+  open: boolean
+  onToggle: () => void
+  onPoints: (v: number) => void
+  onBreak: () => void
+  onRemove: () => void
+  testId: string
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, data: { type: 'item', key: id } satisfies DragData })
+  return (
+    <div ref={setNodeRef} className={`titem ${isDragging ? 'dragging' : ''} ${open ? 'open' : ''} ${item.pageBreakBefore ? 'has-break' : ''}`} style={{ transform: CSS.Translate.toString(transform), transition }}>
+      {item.pageBreakBefore && (
+        <div className="break-line">
+          <Scissors size={11} /> page break
+        </div>
+      )}
+      {q ? (
+        <QuestionRow
+          q={q}
+          onClick={onToggle}
+          lead={
+            <>
+              <button type="button" className="drag-handle" aria-label="Drag to reorder" {...attributes} {...listeners} onClick={(e) => e.stopPropagation()}>
+                <GripVertical size={14} />
+              </button>
+              <span className="titem-num">{num}.</span>
+              {open ? <ChevronDown size={13} className="muted" /> : <ChevronRight size={13} className="muted" />}
+            </>
+          }
+          trail={
+            <span className="pts" onClick={(e) => e.stopPropagation()}>
+              <input type="number" min={0} step={0.5} value={itemPoints(item, q)} onChange={(e) => onPoints(Number(e.target.value))} aria-label="Points" />
+              pt
+            </span>
+          }
+          actions={
+            <>
+              <button type="button" className={`icon-btn ${item.pageBreakBefore ? 'on' : ''}`} title="Start on a new page" onClick={onBreak}>
+                <Scissors size={14} />
+              </button>
+              <a className="icon-btn" href={href(`/q/${q.id}?return=${encodeURIComponent(`/test/${testId}`)}`)} title="Edit question">
+                <Pencil size={14} />
+              </a>
+              <button type="button" className="icon-btn danger" title="Remove from test (stays in bank)" onClick={onRemove}>
+                <X size={14} />
+              </button>
+            </>
+          }
+        />
+      ) : (
+        <div className="qrow muted">
+          (missing question)
+          <span className="qrow-actions">
+            <button type="button" className="icon-btn" onClick={onRemove}>
+              <X size={14} />
+            </button>
+          </span>
+        </div>
+      )}
+      {open && q && (
+        <div className="titem-preview">
+          <div className="paper compact">
+            <QuestionView q={q} number={num} points={itemPoints(item, q)} showPoints mode="student" />
+          </div>
+          <div className="paper compact">
+            <QuestionView q={q} number={num} mode="key" showSolution />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function DropPlaceholder({ id, q }: { id: string; q?: Question }) {
+  const { setNodeRef, transform, transition } = useSortable({ id })
+  return (
+    <div ref={setNodeRef} className="drop-placeholder" style={{ transform: CSS.Translate.toString(transform), transition }}>
+      {q ? promptSummary(q, 80) : 'Drop here'}
+    </div>
+  )
+}
+
+function DragCard({ q }: { q: Question }) {
+  return (
+    <div className="drag-card">
+      <GripVertical size={14} />
+      <LessonChips codes={q.lessons} />
+      <TypeBadge type={q.type} />
+      <span className="qrow-summary">{promptSummary(q, 70)}</span>
+    </div>
+  )
+}
+
+// ================================================================ side panels
+
+function DraggableBankRow({ q, used, onAdd }: { q: Question; used: boolean; onAdd: () => void }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `bank:${q.id}`, data: { type: 'bank', qid: q.id } satisfies DragData, disabled: used })
+  const [peek, setPeek] = useState(false)
+  return (
+    <div ref={setNodeRef} className={`panel-card ${isDragging ? 'dragging' : ''} ${used ? 'used' : ''}`}>
+      <QuestionRow
+        q={q}
+        summaryLength={90}
+        showDebug={false}
+        onClick={() => setPeek(!peek)}
+        lead={
+          <button type="button" className="drag-handle" aria-label="Drag into test" disabled={used} {...attributes} {...listeners} onClick={(e) => e.stopPropagation()}>
+            <GripVertical size={14} />
+          </button>
+        }
+        actions={
+          used ? (
+            <span className="in-test">in test</span>
+          ) : (
+            <button type="button" className="icon-btn" title="Add to end of test" onClick={onAdd}>
+              <Plus size={14} />
+            </button>
+          )
+        }
+      />
+      {peek && (
+        <div className="paper mini">
+          <QuestionView q={q} mode="student" />
+          <DebugTag q={q} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+function BankPanel({ inTest, onAdd }: { inTest: Set<string>; onAdd: (qid: string) => void }) {
+  const [f, setF] = useState(emptyFilters)
+  const list = useFilteredQuestions(f)
+  const [hideUsed, setHideUsed] = useState(false)
+  const shown = hideUsed ? list.filter((q) => !inTest.has(q.id)) : list
+  return (
+    <div className="panel-body">
+      <QuestionFilters f={f} setF={setF} compact />
+      <label className="toggle small">
+        <input type="checkbox" checked={hideUsed} onChange={(e) => setHideUsed(e.target.checked)} /> Hide questions already in this test
+      </label>
+      <div className="panel-list">
+        {shown.length === 0 && (
+          <div className="empty small">
+            {Object.keys(getState().questions).length === 0 ? 'The bank is empty. Try the Generate tab.' : 'No matches.'}
+          </div>
+        )}
+        {shown.slice(0, 200).map((q) => (
+          <DraggableBankRow key={q.id} q={q} used={inTest.has(q.id)} onAdd={() => onAdd(q.id)} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function DraggableSample({ q, onAdd, onReroll }: { q: Question; onAdd: () => void; onReroll: () => void }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `gen:${q.id}`, data: { type: 'gen', q } satisfies DragData })
+  return (
+    <div ref={setNodeRef} className={`sample-card ${isDragging ? 'dragging' : ''}`}>
+      <div className="sample-bar">
+        <button type="button" className="drag-handle" aria-label="Drag into test" {...attributes} {...listeners}>
+          <GripVertical size={14} />
+        </button>
+        <DebugTag q={q} />
+        <span className="spacer" />
+        <button type="button" className="icon-btn" title="New numbers" onClick={onReroll}>
+          <RefreshCw size={13} />
+        </button>
+        <button type="button" className="icon-btn" title="Add to end of test" onClick={onAdd}>
+          <Plus size={14} />
+        </button>
+      </div>
+      <div className="paper mini" {...attributes} {...listeners}>
+        <QuestionView q={q} mode="student" />
+      </div>
+    </div>
+  )
+}
+
+function GeneratePanel({ onAdd }: { onAdd: (q: Question) => void }) {
+  const [search, setSearch] = useState('')
+  const [unit, setUnit] = useState('')
+  const [g, setG] = useState<Generator | null>(null)
+  const [opts, setOpts] = useState<Record<string, string>>({})
+  const [seeds, setSeeds] = useState<number[]>(() => [randomSeed(), randomSeed(), randomSeed()])
+  const list = useMemo(() => {
+    const s = search.trim().toLowerCase()
+    return generators
+      .filter((x) => !unit || x.lessons.some((c) => courseMap.byCode.get(c)?.unit === Number(unit)))
+      .filter((x) => !s || `${x.title} ${x.description} ${x.lessons.join(' ')}`.toLowerCase().includes(s))
+      .sort((a, b) => compareCodes(firstLesson(a), firstLesson(b)))
+  }, [search, unit])
+  const samples = useMemo(() => (g ? seeds.map((seed) => newQuestionFromGenerator(g, seed, opts, `gen-${seed}`)) : []), [g, seeds, opts])
+
+  if (!g) {
+    return (
+      <div className="panel-body">
+        <div className="qfilters compact">
+          <input type="search" className="search" placeholder="Search generators…" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <div className="chips">
+            <button type="button" className={`chip-btn ${!unit ? 'on' : ''}`} onClick={() => setUnit('')}>
+              All
+            </button>
+            {[1, 2, 3, 4].map((u) => (
+              <button key={u} type="button" className={`chip-btn u${u} ${unit === String(u) ? 'on' : ''}`} onClick={() => setUnit(unit === String(u) ? '' : String(u))}>
+                U{u}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="panel-list">
+          {list.map((x) => (
+            <button
+              key={x.id}
+              type="button"
+              className="gen-pick"
+              onClick={() => {
+                setG(x)
+                setOpts(Object.fromEntries((x.options ?? []).map((o) => [o.key, o.default])))
+                setSeeds([randomSeed(), randomSeed(), randomSeed()])
+              }}
+            >
+              <span className="gen-title">{x.title}</span>
+              <span className="gen-meta">
+                <LessonChips codes={x.lessons} max={3} />
+                {x.honors && <span className="mini-tag honors">H</span>}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+  return (
+    <div className="panel-body">
+      <div className="gen-head">
+        <button type="button" className="ghost small" onClick={() => setG(null)}>
+          ← All generators
+        </button>
+        <strong>{g.title}</strong>
+      </div>
+      {(g.options ?? []).length > 0 && (
+        <div className="gen-opts">
+          {(g.options ?? []).map((o) => (
+            <label key={o.key}>
+              <span>{o.label}</span>
+              <select value={opts[o.key]} onChange={(e) => setOpts({ ...opts, [o.key]: e.target.value })}>
+                {o.choices.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+        </div>
+      )}
+      <button type="button" className="ghost small" onClick={() => setSeeds(seeds.map(() => randomSeed()))}>
+        <RefreshCw size={13} /> New numbers for all
+      </button>
+      <div className="panel-list">
+        {samples.map((q, i) => (
+          <DraggableSample
+            key={q.id}
+            q={q}
+            onAdd={() => {
+              onAdd(q)
+              setSeeds(seeds.map((s, j) => (j === i ? randomSeed() : s)))
+            }}
+            onReroll={() => setSeeds(seeds.map((s, j) => (j === i ? randomSeed() : s)))}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
