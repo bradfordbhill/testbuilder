@@ -51,6 +51,15 @@ A browser-only app for building geometry tests and quizzes for UHS Honors Geomet
   - up to six versions (Forms A–F); generated questions get new numbers in each form, and question order can be shuffled
 - **Print**: student copies and answer keys (with optional worked solutions) for each form. Print or save as PDF from the browser.
 
+## Debug codes
+
+Every question shows a small gray debug code in the builder: in the bank, the editor, generator previews, the test builder and the on-screen print preview. Codes are never printed. Click a code to copy it.
+
+- `G:<generator>:<seed>[:options][:edited]` is a generated question. The code reproduces it exactly, including the numbers used on Forms B, C…. `edited` means the question was changed by hand after it was generated.
+- `Q:<id>` is a hand-written question.
+
+To find a bad output, copy its code and paste it into **Generate → Look up a debug code**. That regenerates the identical problem, or opens the hand-written question. When reporting a problem, include the code.
+
 ## Running it
 
 ```bash

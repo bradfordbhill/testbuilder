@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { DebugTag } from '../components/DebugTag'
+import { parseDebugCode } from '../gen/debugCode'
 import { QuestionView } from '../components/QuestionView'
 import { LessonCodes } from '../components/TopicPicker'
 import { firstLesson, generatorById, generators, newQuestionFromGenerator, runGenerator, supportsMC, unitOf } from '../gen'
@@ -16,7 +18,10 @@ export function GeneratePage({ query }: { query: URLSearchParams }) {
   })
   const [lesson, setLesson] = useState(query.get('lesson') ?? '')
   const [search, setSearch] = useState('')
-  const [genId, setGenId] = useState<string | null>(query.get('gen'))
+  const codeParam = query.get('code')
+  const parsed = codeParam ? parseDebugCode(codeParam) : null
+  const fromCode = parsed?.kind === 'generated' ? parsed : null
+  const [genId, setGenId] = useState<string | null>(fromCode?.generatorId ?? query.get('gen'))
   const targetTest = query.get('test')
 
   const list = useMemo(() => {
@@ -35,6 +40,7 @@ export function GeneratePage({ query }: { query: URLSearchParams }) {
     <div className="page">
       <div className="page-head">
         <h2>Generate problems</h2>
+        <CodeLookup initial={codeParam ?? ''} error={codeParam && !parsed ? 'Not a valid debug code.' : parsed?.kind === 'question' ? 'That code is for a hand-written question.' : ''} />
         {targetTest && <span className="tag">Adding to a test</span>}
       </div>
       <div className="gen-layout">
@@ -86,17 +92,31 @@ export function GeneratePage({ query }: { query: URLSearchParams }) {
             {list.length === 0 && <li className="muted">No generators match.</li>}
           </ul>
         </aside>
-        <section className="gen-detail">{gen ? <GeneratorPanel key={gen.id} g={gen} targetTest={targetTest} /> : <p className="muted">Choose a problem type on the left.</p>}</section>
+        <section className="gen-detail">{gen ? <GeneratorPanel key={`${gen.id}-${codeParam ?? ''}`} g={gen} targetTest={targetTest} fromCode={fromCode && fromCode.generatorId === gen.id ? fromCode : null} /> : <p className="muted">Choose a problem type on the left.</p>}</section>
       </div>
     </div>
   )
 }
 
-function GeneratorPanel({ g, targetTest }: { g: Generator; targetTest: string | null }) {
-  const [opts, setOpts] = useState<Record<string, string>>(() => Object.fromEntries((g.options ?? []).map((o) => [o.key, o.default])))
-  const [format, setFormat] = useState<'native' | 'mc'>('native')
-  const [count, setCount] = useState(3)
-  const [seeds, setSeeds] = useState<number[]>(() => Array.from({ length: 3 }, randomSeed))
+function GeneratorPanel({
+  g,
+  targetTest,
+  fromCode,
+}: {
+  g: Generator
+  targetTest: string | null
+  fromCode: { seed: number; options: Record<string, string> } | null
+}) {
+  const [opts, setOpts] = useState<Record<string, string>>(() => {
+    const defaults = Object.fromEntries((g.options ?? []).map((o) => [o.key, o.default]))
+    if (!fromCode) return defaults
+    const { format: _f, ...rest } = fromCode.options
+    void _f
+    return { ...defaults, ...rest }
+  })
+  const [format, setFormat] = useState<'native' | 'mc'>(fromCode?.options.format === 'mc' ? 'mc' : 'native')
+  const [count, setCount] = useState(fromCode ? 1 : 3)
+  const [seeds, setSeeds] = useState<number[]>(() => (fromCode ? [fromCode.seed] : Array.from({ length: 3 }, randomSeed)))
   const [showKey, setShowKey] = useState(false)
   const tests = useStore((s) => s.tests)
   const fullOpts = { ...opts, ...(format === 'mc' ? { format: 'mc' } : {}) }
@@ -222,6 +242,7 @@ function GeneratorPanel({ g, targetTest }: { g: Generator; targetTest: string | 
               <QuestionView q={q} number={i + 1} mode={showKey ? 'key' : 'student'} showSolution={showKey} />
             </div>
             <div className="sample-actions">
+              <DebugTag q={q} />
               <button type="button" onClick={() => reroll(i)}>
                 ↻ Re-roll
               </button>
@@ -245,5 +266,34 @@ function GeneratorPanel({ g, targetTest }: { g: Generator; targetTest: string | 
         ))}
       </div>
     </div>
+  )
+}
+
+/** Paste a debug code to reproduce the exact question it came from. */
+function CodeLookup({ initial, error }: { initial: string; error: string }) {
+  const [code, setCode] = useState(initial)
+  const questions = useStore((st) => st.questions)
+  const go = () => {
+    const c = code.trim()
+    const p = parseDebugCode(c)
+    if (p?.kind === 'question') {
+      if (questions[p.id]) navigate(`/q/${p.id}?return=${encodeURIComponent('/generate')}`)
+      else alert('No question with that id is in this browser’s bank.')
+      return
+    }
+    navigate(`/generate?code=${encodeURIComponent(c)}`)
+  }
+  return (
+    <form
+      className="code-lookup"
+      onSubmit={(e) => {
+        e.preventDefault()
+        go()
+      }}
+    >
+      <input value={code} placeholder="Look up a debug code (G:… or Q:…)" onChange={(e) => setCode(e.target.value)} />
+      <button type="submit">Look up</button>
+      {error && <span className="tag warn">{error}</span>}
+    </form>
   )
 }

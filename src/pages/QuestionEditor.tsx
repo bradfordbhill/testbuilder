@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { DebugTag } from '../components/DebugTag'
 import { MathText } from '../components/MathText'
 import { QuestionView, wrapMath } from '../components/QuestionView'
 import { TopicPicker } from '../components/TopicPicker'
@@ -152,7 +153,9 @@ export function QuestionEditor({ id, query }: { id: string; query: URLSearchPara
   return (
     <div className="page editor-page">
       <div className="page-head">
-        <h2>{id === 'new' ? 'Add question' : 'Edit question'}</h2>
+        <h2>
+          {id === 'new' ? 'Add question' : 'Edit question'} <DebugTag q={draft} />
+        </h2>
         <div className="actions">
           {returnTo && (
             <button type="button" onClick={() => (!dirty || confirm('Discard unsaved changes?')) && navigate(returnTo)}>

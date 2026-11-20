@@ -136,7 +136,7 @@ export function questionForVersion(q: Question, v: number, salt = 0): Question {
   const seed = mixSeed(q.gen.seed, v, salt)
   try {
     const fields = problemToQuestionFields(runGenerator(g, seed, q.gen.options ?? {}))
-    return { ...q, ...fields, points: q.points, lessons: q.lessons } as Question
+    return { ...q, ...fields, points: q.points, lessons: q.lessons, gen: { ...q.gen, seed, edited: undefined } } as Question
   } catch {
     return q
   }

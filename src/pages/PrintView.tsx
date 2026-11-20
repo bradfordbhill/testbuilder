@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { DebugTag } from '../components/DebugTag'
 import { MathText } from '../components/MathText'
 import { hashString, QuestionView } from '../components/QuestionView'
 import { questionForVersion } from '../gen'
@@ -180,6 +181,7 @@ function TestDocument({
           )}
           {items.map((it) => (
             <div key={it.number} className={`print-item ${it.pageBreakBefore ? 'page-break' : ''}`}>
+              <DebugTag q={it.q} prefix={`#${it.number} `} />
               <QuestionView q={it.q} number={it.number} points={it.points} showPoints={test.showPoints} mode={mode} version={v} showSolution={solutions} />
             </div>
           ))}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { DebugTag } from '../components/DebugTag'
 import { promptSummary } from '../components/QuestionView'
 import { LessonCodes } from '../components/TopicPicker'
 import { versionLetter } from '../lib/mathfmt'
@@ -204,6 +205,7 @@ export function TestBuilder({ id }: { id: string }) {
                   ) : (
                     <span className="muted">(missing question)</span>
                   )}
+                  {q && <DebugTag q={q} />}
                   <span className="item-controls">
                     <label title="Points">
                       <input type="number" min={0} step={0.5} value={itemPoints(it, q)} style={{ width: 52 }} onChange={(e) => setItem(sec.id, i, { points: Number(e.target.value) })} /> pts

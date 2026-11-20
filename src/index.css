@@ -164,6 +164,35 @@ label.small {
   text-transform: lowercase;
 }
 
+.debug-tag {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 10.5px;
+  color: #6b7280;
+  background: #f3f4f6;
+  border: 1px dashed #c9ced6;
+  border-radius: 4px;
+  padding: 0 5px;
+  white-space: nowrap;
+  max-width: 340px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  font-weight: normal;
+}
+.code-lookup {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.code-lookup input {
+  width: 320px;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 12px;
+}
+.print-item > .debug-tag {
+  margin-bottom: 2px;
+}
+
 /* ------------------------------------------------ layout */
 .topnav {
   display: flex;

@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
+import { DebugTag } from '../components/DebugTag'
 import { promptSummary, QuestionView } from '../components/QuestionView'
 import { LessonCodes } from '../components/TopicPicker'
 import { generatorById } from '../gen'
@@ -227,6 +228,7 @@ export function BankPage() {
                     {q.honors && <span className="tag honors">honors</span>}
                     <span className="summary-text">{promptSummary(q) || <em>(no prompt)</em>}</span>
                   </button>
+                  <DebugTag q={q} />
                   <span className="row-actions">
                     <a href={href(`/q/${q.id}?return=${encodeURIComponent('/bank')}`)}>Edit</a>
                     <button
