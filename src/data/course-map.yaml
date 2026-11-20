@@ -1,0 +1,410 @@
+# UHS Honors Geometry 2026-27: course topic map (machine-readable)
+# Purpose: one file another Claude session (or tool) can load to know every topic, term, theorem and skill
+#   in the course, which lesson introduces it, and what has been taught or built so far.
+# Sources: Imagine IM Geometry Teacher Guides (Units 1-8, lesson titles and sections), project canonical files
+#   (claude/unit3/U3_vocab.md, claude/unit4/U4_canonical.*, claude/unit4/U4D_canonical.*), theorem banks,
+#   decks, assessments, claude/course-reference.md, claude/style-guide.md, claude/handoff.md.
+# Generated 2026-11-20.
+#
+# Conventions:
+#   code: Unit + Section + "." + lesson number, lesson numbers continuous within a unit (4A.1, 4D.13).
+#         Shown unpadded everywhere; zero-padded only in filenames (4A.01_...).
+#   optional: true = optional in the TG. The 2026-27 pacing skips the optional lessons 3B.10, 3B.12, 4A.2, 4A.3.
+#   source: TG = Teacher Guide lesson; teacher-addition = added by the teacher (not in the TG).
+#   status: taught | planned (dated pacing exists) | not-yet (no date) ; built = materials that exist.
+#   new_terms / theorems / skills: what the lesson introduces. "(review)" items are prerequisites, listed in prereq.
+#   honors: extensions beyond the TG that the teacher approved (keep, label as honors).
+#   detail_level: full = from a project canonical/vocab file; titles = from the TG table of contents only
+#                 (topics inferred from the lesson title; verify against the TG before building).
+
+course:
+  name: UHS Honors Geometry
+  year: 2026-27
+  curriculum: Imagine IM (Illustrative Mathematics) Geometry, 8 units
+  schedule: "Mon/Tue 100-min blocks (Mon P1/P3/P5, Tue P2/P4/P6), usually 2 lessons; Wed-Fri 50 min, 1 lesson; Wednesdays early release"
+  north_star: "Vertical integration: Algebra I (before) -> College Algebra or AP Precalculus (after). Algebra and trig are folded into geometry problems, never separate slides."
+  proof_emphasis: "Formal definitions and proof are central; Five Rules of Proof handout."
+  progress_as_of_2026-11-20: "Taught through 3B.9/3B.11 (pacing: 3C.13 on 11/20). Unit 3 Exam 12/3; Semester 1 Final 12/14-15 covers Units 1-3 + 4A."
+
+notation_and_language:
+  - "Lines named with script letters (l, m, u); vectors with arrows; images with primes P', P'', P'''."
+  - "Segment AB with overline, line with double arrow, ray with single arrow; triangle and angle symbols; congruent, parallel, perpendicular symbols."
+  - "Teacher definitions used verbatim (see course-reference.md): circle, midpoint (no 'middle'), bisect, reflection (no 'flip/mirror image'), rotation, translation, symmetry, congruence."
+  - "Criteria phrased: 'If there is a correspondence between two triangles so that ___ are congruent, then the triangles are congruent.'"
+  - "Reason wording: 'Corresponding parts of congruent triangles are congruent' (CPCTC acceptable), 'Angle-Angle Triangle Similarity Theorem' (AA)."
+  - "Trapezoid is EXCLUSIVE (exactly one pair of parallel sides). Isosceles trapezoid = trapezoid with congruent legs. Kite is inclusive (a rhombus is a kite)."
+  - "Unit 4 TG order of ratios: cos, sin, tan; no SOHCAHTOA in the TG."
+
+units:
+
+# ===================================================================== UNIT 1
+- unit: 1
+  title: "Constructions and Rigid Transformations"
+  detail_level: "titles"
+  status: "taught (assessed: 1A Constructions exam, 1B Transformations exam, 1C-1D exam)"
+  built: none (Unit 1 decks are on the wishlist)
+  sections:
+    A: {title: "Constructions", lessons: "1-9"}
+    B: {title: "Defining Rigid Transformations", lessons: "10-14"}
+    C: {title: "Working with Rigid Transformations", lessons: "15-18"}
+    D: {title: "Evidence and Proof", lessons: "19-21"}
+    E: {title: "Let's Put It to Work", lessons: "22"}
+  lessons:
+  - {code: 1A.1, title: "Build It", topics: ["compass and straightedge", "circle as set of points a fixed distance from a center", "segment", "radius"]}
+  - {code: 1A.2, title: "Constructing Patterns", topics: ["constructing regular hexagon and patterns from circles", "conjectures from constructions"]}
+  - {code: 1A.3, title: "Construction Techniques 1: Perpendicular Bisectors", topics: ["perpendicular bisector construction", "midpoint", "equidistant points"]}
+  - {code: 1A.4, title: "Construction Techniques 2: Equilateral Triangles", topics: ["equilateral triangle construction (Euclid I.1)"]}
+  - {code: 1A.5, title: "Construction Techniques 3: Perpendicular Lines and Angle Bisectors", topics: ["perpendicular through a point", "angle bisector construction"]}
+  - {code: 1A.6, title: "Construction Techniques 4: Parallel and Perpendicular Lines", topics: ["parallel line through a point", "parallel postulate"]}
+  - {code: 1A.7, title: "Construction Techniques 5: Squares", topics: ["square construction", "inscribed regular polygons"]}
+  - {code: 1A.8, title: "Using Technology for Constructions", optional: true, topics: ["dynamic geometry constructions"]}
+  - {code: 1A.9, title: "Speedy Delivery", topics: ["perpendicular bisectors to partition regions (closest-point / Voronoi map problems)"]}
+  - {code: 1B.10, title: "Rigid Transformations", topics: ["rigid transformation", "image", "assertion"]}
+  - {code: 1B.11, title: "Defining Reflections", topics: ["reflection definition", "line of reflection is perpendicular bisector of point-image segments"]}
+  - {code: 1B.12, title: "Defining Translations", topics: ["translation along a directed segment", "point-image segments parallel and congruent"]}
+  - {code: 1B.13, title: "Incorporating Rotations", topics: ["rotation", "center", "angle", "direction"]}
+  - {code: 1B.14, title: "Defining Rotations", topics: ["precise rotation definition", "distance from center preserved"]}
+  - {code: 1C.15, title: "Symmetry", topics: ["line of symmetry", "reflection symmetry"]}
+  - {code: 1C.16, title: "More Symmetry", topics: ["rotational symmetry", "point symmetry", "symmetry of regular polygons"]}
+  - {code: 1C.17, title: "Working with Rigid Transformations", topics: ["sequences of rigid transformations", "precisely describing a sequence"]}
+  - {code: 1C.18, title: "Practicing Point-by-Point Transformations", optional: true, topics: ["point-by-point images", "image tables"]}
+  - {code: 1D.19, title: "Evidence, Angles, and Proof", topics: ["conjecture", "theorem", "Vertical Angles Theorem (rotation proof)"]}
+  - {code: 1D.20, title: "Transformations, Transversals, and Proof", topics: ["transversal", "Alternate Interior Angles Theorem (180 deg rotation about midpoint)", "Corresponding Angles Theorem (translation)", "converses"]}
+  - {code: 1D.21, title: "One Hundred Eighty", topics: ["Triangle Angle Sum Theorem", "exterior angle"]}
+  - {code: 1E.22, title: "Now What Can You Build?", optional: true, topics: ["construction project"]}
+
+# ===================================================================== UNIT 2
+- unit: 2
+  title: "Congruence"
+  detail_level: "titles (+ theorem bank)"
+  status: "taught and assessed (Unit 2 Exams A, B; retake Exam C; Mini Quiz 2A.1-2A.4)"
+  built: ["decks 2B.6-2D.15", "Unit 2 Theorem Bank (+ print)", "Congruence Proof Packet", "Unit 2 practice-problem solutions", "Exam C + key", "Test Corrections form"]
+  sections:
+    A: {title: "Congruent Figures", lessons: "1-5"}
+    B: {title: "Triangle Congruence Theorems", lessons: "6-11"}
+    C: {title: "Proofs about Quadrilaterals", lessons: "12-14"}
+    D: {title: "Let's Put It to Work", lessons: "15"}
+  lessons:
+  - {code: 2A.1, title: "Congruent Parts, Part 1", topics: ["congruent (sequence of rigid motions)", "corresponding parts", "congruence statements", "CPCTC"]}
+  - {code: 2A.2, title: "Congruent Parts, Part 2", topics: ["corresponding parts from rigid motions"]}
+  - {code: 2A.3, title: "Congruent Triangles, Part 1", topics: ["correspondence of vertices", "writing congruence statements"]}
+  - {code: 2A.4, title: "Congruent Triangles, Part 2", topics: ["isosceles triangle base angles", "line of symmetry of isosceles triangle"]}
+  - {code: 2A.5, title: "Points, Segments, and Zigzags", topics: ["auxiliary lines", "proving segments/angles congruent with rigid motions"]}
+  - {code: 2B.6, title: "Side-Angle-Side Triangle Congruence", topics: ["SAS criterion", "included angle"]}
+  - {code: 2B.7, title: "Angle-Side-Angle Triangle Congruence", topics: ["ASA criterion", "included side"]}
+  - {code: 2B.8, title: "The Perpendicular Bisector Theorem", topics: ["Perpendicular Bisector Theorem and converse", "converse", "equidistant"]}
+  - {code: 2B.9, title: "Side-Side-Side Triangle Congruence", topics: ["SSS criterion", "a segment is congruent to itself"]}
+  - {code: 2B.10, title: "Practicing Proofs", topics: ["two-column and paragraph proofs", "choosing criteria"]}
+  - {code: 2B.11, title: "Side-Side-Angle (Sometimes) Congruence", optional: true, topics: ["SSA not a criterion", "AAA not a criterion", "the swinging-side picture"]}
+  - {code: 2C.12, title: "Proofs about Quadrilaterals", topics: ["kite", "isosceles trapezoid", "proving properties with congruent triangles"]}
+  - {code: 2C.13, title: "Proofs about Parallelograms", topics: ["parallelogram definition", "opposite sides congruent", "opposite angles congruent", "consecutive angles supplementary", "diagonals bisect each other"]}
+  - {code: 2C.14, title: "Bisect It", topics: ["proving a quadrilateral is a parallelogram (diagonals bisect each other, one pair of sides parallel and congruent, both pairs of opposite sides congruent)", "rectangle and rhombus diagonal properties"]}
+  - {code: 2D.15, title: "Congruence for Quadrilaterals", topics: ["quadrilateral congruence criteria", "SSSS fails"]}
+  quadrilateral_properties:
+    parallelogram: "opposite sides congruent; opposite angles congruent; consecutive angles supplementary; diagonals bisect each other; 180-deg rotational symmetry"
+    rectangle: "all parallelogram properties; diagonals congruent; four right angles"
+    rhombus: "all parallelogram properties; diagonals perpendicular; each diagonal bisects two angles and is a line of symmetry"
+    square: "every property of a rectangle and of a rhombus"
+    kite: "two pairs of congruent adjacent sides; the diagonal through the vertex angles is the perpendicular bisector of the other diagonal and bisects two angles; diagonals perpendicular"
+    isosceles_trapezoid: "exactly one pair of parallel sides; legs congruent; base angles congruent; diagonals congruent"
+    proving_special: "rectangle: parallelogram with a right angle or congruent diagonals; rhombus: four congruent sides or diagonals that bisect each other and are perpendicular; square: rectangle that is a rhombus"
+  algebra_folded_in: ["base-angle equations in isosceles triangles", "opposite/consecutive angle equations in parallelograms", "side-expression equations (must it be a rhombus?)", "diagonal-segment equations"]
+  wishlist: "2C quadrilateral hierarchy rewrite: info slide per shape (sides, angles, diagonals, symmetry), exclusive trapezoid, 'diagonals only' reasoning examples."
+
+# ===================================================================== UNIT 3
+- unit: 3
+  title: "Similarity"
+  detail_level: "full (claude/unit3/U3_vocab.md)"
+  status: "in progress (3A taught; 3B.6-3B.9 taught by 11/18; pacing to 3D.17 by 12/1; Unit 3 Exam 12/3)"
+  built: ["decks 3A.1-3D.17", "Unit 3 Theorem Bank", "Unit 3 practice-problem solutions", "Unit 3 Study Guide + Exams A/B + keys", "Unit 3 Summary (skills, glossary, recap)", "Similar Figures worksheet"]
+  sections:
+    A: {title: "Properties of Dilations", lessons: "1-5"}
+    B: {title: "Similarity Transformations and Proportional Reasoning", lessons: "6-12"}
+    C: {title: "Similarity in Right Triangles", lessons: "13-16"}
+    D: {title: "Let's Put It to Work", lessons: "17"}
+  lessons:
+  - code: 3A.1
+    title: "Scale Drawings"
+    new_terms: ["scale drawing", "scale factor", "dilation", "center of dilation"]
+    skills: ["dilate a point: A' on ray PA with PA' = k*PA", "scale drawings: every length times k"]
+  - code: 3A.2
+    title: "Scale of the Solar System"
+    optional: true
+    new_terms: ["scaled copy"]
+    skills: ["choose a scale factor", "corresponding parts"]
+  - code: 3A.3
+    title: "Measuring Dilations"
+    new_terms: ["ratio (as a quotient)", "same proportion"]
+    skills: ["find center and scale factor from figure and image", "k = PA'/PA = A'B'/AB"]
+  - code: 3A.4
+    title: "Dilating Lines and Angles"
+    new_terms: ["corresponding angles under a dilation are congruent"]
+    theorems: ["a dilation takes a line not through the center to a parallel line; a line through the center to itself"]
+  - code: 3A.5
+    title: "Splitting Triangle Sides with Dilation, Part 1"
+    new_terms: ["divides sides proportionally"]
+    theorems: ["a line dividing two sides of a triangle proportionally is parallel to the third side", "midpoint segment is parallel to the third side and half as long"]
+  - code: 3B.6
+    title: "Connecting Similarity and Transformations"
+    new_terms: ["similar (rigid motions + dilations)", "similarity statement"]
+    skills: ["describe a similarity sequence", "write similarity statements with matching vertex order"]
+  - code: 3B.7
+    title: "Reasoning about Similarity with Transformations"
+    new_terms: ["corresponding side lengths in the same proportion"]
+    theorems: ["Similar triangles theorem: all corresponding angles congruent and all corresponding sides proportional => similar"]
+  - code: 3B.8
+    title: "Are They All Similar?"
+    new_terms: ["all circles are similar", "counterexample"]
+    skills: ["prove all circles / squares / equilateral triangles similar; counterexample for rectangles, rhombuses, isosceles triangles"]
+  - code: 3B.9
+    title: "Conditions for Triangle Similarity"
+    theorems: ["Angle-Angle Triangle Similarity Theorem (proof: dilate, then ASA)"]
+    skills: ["find two pairs of congruent angles (vertical, parallel lines, shared, right angles)", "set up proportions"]
+  - code: 3B.10
+    title: "Other Conditions for Triangle Similarity"
+    optional: true
+    theorems: ["Side-Angle-Side Triangle Similarity Theorem", "Side-Side-Side Triangle Similarity Theorem"]
+  - code: 3B.11
+    title: "Splitting Triangle Sides with Dilation, Part 2"
+    theorems: ["a line parallel to one side of a triangle divides the other two sides proportionally (and makes a similar triangle)"]
+  - code: 3B.12
+    title: "Practice with Proportional Relationships"
+    optional: true
+    new_terms: ["equivalent ratios", "ratios between triangles", "ratios within a triangle"]
+    honors: ["geometric mean sqrt(ab) (honors extension, kept by teacher)"]
+  - code: 3C.13
+    title: "Using the Pythagorean Theorem and Similarity"
+    new_terms: ["altitude", "altitude to the hypotenuse"]
+    theorems: ["altitude to the hypotenuse makes three similar right triangles"]
+    honors: ["h^2 = xy, leg^2 = segment * hypotenuse (geometric mean)"]
+  - code: 3C.14
+    title: "Proving the Pythagorean Theorem"
+    theorems: ["Pythagorean Theorem a^2 + b^2 = c^2 (similarity proof)"]
+    skills: ["missing side", "exact simplest radical form"]
+  - code: 3C.15
+    title: "Converse of the Pythagorean Theorem"
+    new_terms: ["Triangle Inequality"]
+    theorems: ["Converse of the Pythagorean Theorem", "acute/right/obtuse test by comparing c^2 with a^2 + b^2"]
+  - code: 3C.16
+    title: "Finding All the Unknown Values in Triangles"
+    skills: ["use a ratio table for similar right triangles (ratios within); solve all sides and angles"]
+  - code: 3D.17
+    title: "Reflecting Similarity"
+    new_terms: ["incidence angle", "reflection angle", "normal"]
+    skills: ["mirror method h/eye height = (mirror to object)/(you to mirror)", "shadow problems", "bank shots"]
+  algebra_folded_in: ["proportions", "midsegment equations", "exact radicals; planned later: quadratics in Unit 3 problems (wishlist)"]
+
+# ===================================================================== UNIT 4
+- unit: 4
+  title: "Right Triangle Trigonometry (extended)"
+  detail_level: "full (claude/unit4/U4_canonical.*, claude/unit4/U4D_canonical.*)"
+  status: "planned: 4A.1 on 12/4 through 4B.9 on 12/17; 4B.10-4D.21 after winter break"
+  built: ["decks 4A.1-4D.21 (PDF + equation PPTX)", "lesson board entries with animations for all 21 lessons"]
+  sections:
+    A: {title: "Angles and Steepness", lessons: "1-5"}
+    B: {title: "Defining Trigonometric Ratios", lessons: "6-10"}
+    C: {title: "Let's Put It to Work", lessons: "11-12"}
+    D: {title: "Trigonometry Beyond Right Triangles", lessons: "13-21", source: teacher-addition}
+  lessons:
+  - code: 4A.1
+    title: "Angles and Steepness"
+    skills: ["one acute angle fixes all side ratios of a right triangle (AA)", "slope/ramp ratios (ADA 1:12, 4.8 deg)"]
+  - code: 4A.2
+    title: "Half a Square"
+    optional: true
+    theorems: ["45-45-90: legs s, s; hypotenuse s*sqrt(2)"]
+  - code: 4A.3
+    title: "Half an Equilateral Triangle"
+    optional: true
+    theorems: ["30-60-90: short leg x, long leg x*sqrt(3), hypotenuse 2x"]
+  - code: 4A.4
+    title: "Ratios in Right Triangles"
+    new_terms: ["adjacent leg, opposite leg (to 'your angle')", "Right Triangle Table"]
+    skills: ["estimate an angle from a ratio with the table"]
+  - code: 4A.5
+    title: "Working with Ratios in Right Triangles"
+    new_terms: ["Pythagorean triple"]
+    skills: ["find sides and angles with the table", "complement of the other acute angle"]
+  - code: 4B.6
+    title: "Working with Trigonometric Ratios"
+    new_terms: ["trigonometric ratio", "cosine = adjacent/hypotenuse", "sine = opposite/hypotenuse", "tangent = opposite/adjacent"]
+    skills: ["calculator in degree mode", "solve for sides including variable in the denominator"]
+  - code: 4B.7
+    title: "Applying Ratios in Right Triangles"
+    skills: ["heights of objects: height = distance * tan(angle)", "what information is needed to solve a right triangle"]
+  - code: 4B.8
+    title: "Sine and Cosine in the Same Right Triangle"
+    new_terms: ["theta"]
+    theorems: ["sin(theta) = cos(90 deg - theta)"]
+  - code: 4B.9
+    title: "Trigonometry Squared"
+    theorems: ["Pythagorean Identity cos^2(theta) + sin^2(theta) = 1"]
+  - code: 4B.10
+    title: "Using Trigonometric Ratios to Find Angles"
+    new_terms: ["arccosine", "arcsine", "arctangent", "4 to 1 Rule for Ladder Safety"]
+  - code: 4C.11
+    title: "Solving Problems with Trigonometry"
+    new_terms: ["angle of elevation (named)", "pentagon", "decagon"]
+    skills: ["perimeter and area of regular polygons inscribed in a circle"]
+  - code: 4C.12
+    title: "Approximating Pi"
+    new_terms: ["lower bound", "upper bound"]
+    theorems: ["inscribed n-gon perimeter P = 2n*sin(360/(2n)); pi ~ n*sin(360/(2n))"]
+  - code: 4D.13
+    title: "Radian Measure"
+    source: teacher-addition
+    new_terms: ["radian", "arc length"]
+    theorems: ["theta = s/r; pi rad = 180 deg; s = r*theta"]
+    honors: ["sector area (1/2) r^2 theta"]
+  - code: 4D.14
+    title: "The Unit Circle, Part 1"
+    source: teacher-addition
+    new_terms: ["unit circle", "standard position", "terminal side", "cosine and sine of any angle"]
+    theorems: ["P = (cos theta, sin theta)", "sin(180-theta) = sin theta; cos(180-theta) = -cos theta"]
+    skills: ["exact sin/cos/tan of multiples of 30 and 45 deg in degrees and radians", "signs by quadrant"]
+  - code: 4D.15
+    title: "The Unit Circle, Part 2"
+    source: teacher-addition
+    new_terms: ["secant", "cosecant", "cotangent", "coterminal angles", "reference angle", "negative angle"]
+    honors: ["1 + tan^2 = sec^2, 1 + cot^2 = csc^2"]
+  - code: 4D.16
+    title: "Area of a Triangle with Sine"
+    source: teacher-addition
+    theorems: ["Area = (1/2) ab sin C"]
+    honors: ["regular n-gon area (1/2) n r^2 sin(360/n)"]
+  - code: 4D.17
+    title: "The Law of Sines: ASA and AAS"
+    source: teacher-addition
+    new_terms: ["Law of Sines", "solve a triangle"]
+  - code: 4D.18
+    title: "The Law of Sines: SSA, the Ambiguous Case"
+    source: teacher-addition
+    new_terms: ["ambiguous case", "height test h = b sin A"]
+  - code: 4D.19
+    title: "The Law of Cosines: SAS"
+    source: teacher-addition
+    theorems: ["c^2 = a^2 + b^2 - 2ab cos C (coordinate proof); generalizes Pythagoras and the 3C.15 acute/obtuse test"]
+    honors: ["parallelogram law"]
+  - code: 4D.20
+    title: "The Law of Cosines: SSS"
+    source: teacher-addition
+    skills: ["cos C = (a^2 + b^2 - c^2)/(2ab); choosing Law of Sines vs Cosines"]
+    honors: ["Triangle Inequality from -1 < cos C < 1"]
+  - code: 4D.21
+    title: "Heron's Formula"
+    source: teacher-addition
+    new_terms: ["semiperimeter", "Heron's Formula"]
+    honors: ["inradius: Area = r*s"]
+  planned_materials: ["Unit 4 Theorem Bank", "Unit 4 practice-problem solutions", "Trig Mixed Review Study Packet", "Unit 4 study guide + Exams A/B", "Mini Quiz 4A"]
+
+# ===================================================================== UNITS 5-8 (not yet taught or built)
+- unit: 5
+  title: "Solid Geometry"
+  detail_level: "titles"
+  status: "not-yet"
+  keep_full_strength: "solids and volume (teacher: not fluff)"
+  sections: {A: "Cross-Sections, Scaling, and Area (1-5)", B: "Scaling Solids (6-8)", C: "Prism and Cylinder Volumes (9-11)", D: "Understanding Pyramid Volumes (12-15)", E: "Let's Put It to Work (16-18)"}
+  lessons:
+  - {code: 5A.1, title: "Solids of Rotation"}
+  - {code: 5A.2, title: "Slicing Solids"}
+  - {code: 5A.3, title: "Creating Cross-Sections by Dilating"}
+  - {code: 5A.4, title: "Scaling and Area"}
+  - {code: 5A.5, title: "Scaling and Unscaling"}
+  - {code: 5B.6, title: "Scaling Solids"}
+  - {code: 5B.7, title: "The Root of the Problem"}
+  - {code: 5B.8, title: "Speaking of Scaling"}
+  - {code: 5C.9, title: "Cylinder Volumes"}
+  - {code: 5C.10, title: "Cross-Sections and Volume"}
+  - {code: 5C.11, title: "Prisms Practice"}
+  - {code: 5D.12, title: "Prisms and Pyramids"}
+  - {code: 5D.13, title: "Building a Volume Formula for a Pyramid"}
+  - {code: 5D.14, title: "Working With Pyramids"}
+  - {code: 5D.15, title: "Putting All the Solids Together"}
+  - {code: 5E.16, title: "Surface Area and Volume"}
+  - {code: 5E.17, title: "Volume and Density"}
+  - {code: 5E.18, title: "Volume and Graphing"}
+  topics: ["solids of revolution", "cross-sections", "scaling areas by k^2 and volumes by k^3", "Cavalieri's principle", "prism/cylinder/pyramid/cone/sphere volume", "surface area", "density", "composite solids"]
+  note: "Section boundaries inferred from TG page numbers; verify. Unit 5 starts with a vertical-integration review (fluff flags, fold-in ideas) as proposals only."
+
+- unit: 6
+  title: "Coordinate Geometry"
+  detail_level: "titles"
+  status: "not-yet"
+  sections: {A: "Transformations in the Plane (1-3)", B: "Distances, Circles, and Parabolas (4-8)", C: "Proving Geometric Theorems Algebraically (9-17)", D: "Let's Put It to Work (18)"}
+  lessons:
+  - {code: 6A.1, title: "Rigid Transformations in a Plane"}
+  - {code: 6A.2, title: "Transformations as Functions"}
+  - {code: 6A.3, title: "Types of Transformations"}
+  - {code: 6B.4, title: "Distances and Circles"}
+  - {code: 6B.5, title: "Squares and Circles"}
+  - {code: 6B.6, title: "Completing the Square"}
+  - {code: 6B.7, title: "Distances and Parabolas"}
+  - {code: 6B.8, title: "Equations and Graphs"}
+  - {code: 6C.9, title: "Equations of Lines"}
+  - {code: 6C.10, title: "Parallel Lines in the Plane"}
+  - {code: 6C.11, title: "Perpendicular Lines in the Plane"}
+  - {code: 6C.12, title: "It's All on the Line"}
+  - {code: 6C.13, title: "Intersection Points"}
+  - {code: 6C.14, title: "Coordinate Proof"}
+  - {code: 6C.15, title: "Weighted Averages"}
+  - {code: 6C.16, title: "Weighted Averages in a Triangle"}
+  - {code: 6C.17, title: "Lines in Triangles"}
+  - {code: 6D.18, title: "Applying Area and Perimeter on the Plane"}
+  topics: ["transformations as functions on coordinates", "distance formula", "circle equations", "completing the square", "parabola as focus-directrix locus", "slope criteria for parallel/perpendicular lines", "coordinate proof", "weighted averages / partitioning a segment", "centroid", "area and perimeter on the plane"]
+
+- unit: 7
+  title: "Circles"
+  detail_level: "titles"
+  status: "not-yet"
+  sections: {A: "Lines, Angles, and Circles (1-3)", B: "Polygons and Circles (4-7)", C: "Measuring Circles (8-13)", D: "Let's Put It to Work (14)"}
+  lessons:
+  - {code: 7A.1, title: "Lines, Angles, and Curves"}
+  - {code: 7A.2, title: "Inscribed Angles"}
+  - {code: 7A.3, title: "Tangent Lines"}
+  - {code: 7B.4, title: "Quadrilaterals in Circles"}
+  - {code: 7B.5, title: "Triangles in Circles"}
+  - {code: 7B.6, title: "A Special Point"}
+  - {code: 7B.7, title: "Circles in Triangles"}
+  - {code: 7C.8, title: "Arcs and Sectors"}
+  - {code: 7C.9, title: "Part to Whole"}
+  - {code: 7C.10, title: "Angles, Arcs, and Radii"}
+  - {code: 7C.11, title: "A New Way to Measure Angles"}
+  - {code: 7C.12, title: "Radian Sense"}
+  - {code: 7C.13, title: "Using Radians"}
+  - {code: 7D.14, title: "Putting It All Together"}
+  topics: ["chords", "central and inscribed angles", "tangent perpendicular to radius", "cyclic quadrilaterals", "circumcenter and circumscribed circle", "incenter and inscribed circle", "arc length", "sector area", "radians"]
+  overlap_note: "Radians and arc length were already taught in 4D.13 (teacher addition); Unit 7C becomes review/extension. Flag in the Unit 7 vertical-integration review."
+
+- unit: 8
+  title: "Conditional Probability"
+  detail_level: "titles"
+  status: "not-yet"
+  keep_full_strength: "conditional probability (teacher: not fluff)"
+  sections: {A: "Up to Chance (1-6)", B: "Related Events (7-10)", C: "Let's Put It to Work (11)"}
+  lessons:
+  - {code: 8A.1, title: "Up to Chance", optional: true}
+  - {code: 8A.2, title: "Playing with Probability"}
+  - {code: 8A.3, title: "Sample Spaces"}
+  - {code: 8A.4, title: "Tables of Relative Frequencies"}
+  - {code: 8A.5, title: "Combining Events"}
+  - {code: 8A.6, title: "The Addition Rule"}
+  - {code: 8B.7, title: "Related Events"}
+  - {code: 8B.8, title: "Conditional Probability"}
+  - {code: 8B.9, title: "Using Tables for Conditional Probability"}
+  - {code: 8B.10, title: "Using Probability to Determine Whether Events Are Independent"}
+  - {code: 8C.11, title: "Probabilities in Games", optional: true}
+  topics: ["sample spaces", "two-way tables", "relative frequency", "union/intersection/complement", "addition rule", "conditional probability P(A|B)", "independence"]
+
+honors_extensions_seen_on_past_finals:
+  - unit circle exact values incl. csc, sec, cot; radians
+  - Law of Sines / Cosines; ambiguous case
+  - circle angle and arc relationships (tangent-tangent, secant, inscribed, chords)
+  - similar-figure area ratios; geometric mean / altitude on hypotenuse; special right triangles
+  - area of kite, trapezoid, parallelogram, regular hexagon (apothem), shaded regions
+  - composite solids surface area and volume; scaling effects on volume
+  - ratio word problems; angle of elevation/depression
+
+fluff_policy:
+  fluff: "slow discovery activities (card sorts/applets/measuring that take a period to reach a fact that can be stated and proved in ~15 min) and hands-on/outdoor projects"
+  freed_time_goes_to: "Unit 4 trigonometry extension (Section 4D, approved)"
+  outside_measure: SAT/ACT
